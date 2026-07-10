@@ -69,7 +69,7 @@ const travelDestinations = [
     reviews: 730,
     duration: "6 Days",
     price: 1650,
-    image: "https://images.unsplash.com/photo-1504829857797-ddff28127792?q=80&w=1200&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?q=80&w=1200&auto=format&fit=crop",
     flights: [
       { id: "fl-rey-1", airline: "Icelandair", flightNo: "FI-614", departure: "2:10 PM", duration: "5h 50m", type: "Non-stop", price: 420 },
       { id: "fl-rey-2", airline: "PLAY Airlines", flightNo: "OG-121", departure: "7:00 PM", duration: "6h 10m", type: "Non-stop", price: 310 },
