@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDestinationsGrid();
   setupEventListeners();
   initWebMCP();
+
+  // Pre-load voices for Speech Synthesis
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }
 });
 
 // -------------------------------------------------------------
@@ -728,7 +738,7 @@ function speakText(text) {
   // Stop any currently playing speech immediately
   window.speechSynthesis.cancel();
 
-  // Clean the text from emojis and HTML tags to read naturally
+  // 1. Text Cleaning for humanized pronunciation
   let cleanedText = text
     .replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "") // remove emojis
     .replace(/<li>/g, "")
@@ -739,12 +749,68 @@ function speakText(text) {
     .replace(/<\/strong>/g, "")
     .replace(/<em>/g, "")
     .replace(/<\/em>/g, "")
+    // Convert price tags from e.g. "$1,850" to "1850 dollars"
+    .replace(/\$(\d+[\d,]*)/g, (match, p1) => {
+      return p1.replace(/,/g, "") + " dollars";
+    })
+    // Convert flight abbreviations to spaced letters
+    .replace(/\bJL-(\d+)\b/gi, "J L flight $1")
+    .replace(/\bNH-(\d+)\b/gi, "N H flight $1")
+    .replace(/\bSQ-(\d+)\b/gi, "S Q flight $1")
+    .replace(/\bAZ-(\d+)\b/gi, "A Z flight $1")
+    .replace(/\bLH-(\d+)\b/gi, "L H flight $1")
+    .replace(/\bDL-(\d+)\b/gi, "D L flight $1")
+    .replace(/\bUA-(\d+)\b/gi, "U A flight $1")
+    .replace(/\bFI-(\d+)\b/gi, "F I flight $1")
+    .replace(/\bOG-(\d+)\b/gi, "O G flight $1")
+    .replace(/\bLA-(\d+)\b/gi, "L A flight $1")
+    .replace(/\bAR-(\d+)\b/gi, "A R flight $1")
+    .replace(/\bRJ-(\d+)\b/gi, "R J flight $1")
+    .replace(/\bTK-(\d+)\b/gi, "T K flight $1")
+    // Convert "Ryokan" and complex words to phonetic spelling for better EN pronunciation
+    .replace(/\bryokan\b/gi, "ryo-kan")
+    .replace(/\bryokans\b/gi, "ryo-kans")
+    .replace(/\best\./gi, "estimated")
+    .replace(/\bpkg\b/gi, "package")
+    .replace(/\be\.g\./gi, "for example")
     .trim();
 
   const utterance = new SpeechSynthesisUtterance(cleanedText);
   utterance.lang = 'en-US';
-  utterance.rate = 1.05; // Slightly faster reading rate for a conversational co-pilot
+  
+  // Slower, warmer, more thoughtful pace for a premium travel agent
+  utterance.rate = 0.88; 
   utterance.pitch = 1.0;
+
+  // 2. High-Quality Natural Voice Selection
+  const voices = window.speechSynthesis.getVoices();
+  const preferredVoiceNames = [
+    "Google US English",
+    "Samantha",
+    "Daniel",
+    "Karen",
+    "Serena",
+    "Microsoft Zira",
+    "Microsoft David",
+    "Microsoft Natural",
+    "Alex",
+    "Moira",
+    "Fiona"
+  ];
+  
+  let selectedVoice = null;
+  for (const name of preferredVoiceNames) {
+    selectedVoice = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+    if (selectedVoice) break;
+  }
+
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang.startsWith('en'));
+  }
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+  }
 
   window.speechSynthesis.speak(utterance);
 }
