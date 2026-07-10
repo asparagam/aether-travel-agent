@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aether Travel - Premium AI Travel Co-Pilot</title>
+  <meta name="description" content="Discover, plan, and book your next luxury vacation with Aether Travel - your personalized AI Travel Agent.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="app-container">
+
+    <!-- 1. NAVIGATION SIDEBAR -->
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+          </div>
+          <span class="brand-name">AETHER</span>
+        </div>
+
+        <nav>
+          <ul class="nav-links">
+            <li class="nav-item active" id="nav-dashboard">
+              <button onclick="navigateToView('dashboard')">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="7" height="9" />
+                  <rect x="14" y="3" width="7" height="5" />
+                  <rect x="14" y="12" width="7" height="9" />
+                  <rect x="3" y="16" width="7" height="5" />
+                </svg>
+                Explore Destinations
+              </button>
+            </li>
+            <li class="nav-item" id="nav-planner">
+              <button onclick="navigateToView('planner')">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Itinerary Planner
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar">JD</div>
+        <div class="user-info">
+          <p class="user-name">John Doe</p>
+          <p class="user-tag">Premium Traveler</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. MAIN CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- View: Dashboard / Exploration -->
+      <div id="dashboard-view" class="view-section active-view">
+        <header class="content-header">
+          <div>
+            <h1 id="list-heading">Unveil the Extraordinary</h1>
+            <p>Select a destination to curate your personalized journey with Aether.</p>
+          </div>
+        </header>
+
+        <!-- WebMCP Form for Filtering Destinations -->
+        <div class="filter-toolbar">
+          <form class="search-filter-form" id="search-filter-form"
+                toolname="search-destinations"
+                tooldescription="Search and filter the travel catalog. Filters by country name, maximum package price, or trip duration in days."
+                toolautosubmit>
+            <div class="form-group">
+              <label for="filter-country">Country / Region</label>
+              <input type="text" id="filter-country" name="country" placeholder="e.g., Japan, Italy...">
+            </div>
+            <div class="form-group">
+              <label for="filter-budget">Max Budget ($)</label>
+              <input type="number" id="filter-budget" name="maxPrice" placeholder="e.g., 2000">
+            </div>
+            <div class="form-group">
+              <label for="filter-duration">Duration (Days)</label>
+              <select id="filter-duration" name="duration">
+                <option value="">Any duration</option>
+                <option value="5">5 Days</option>
+                <option value="6">6 Days</option>
+                <option value="7">7 Days</option>
+                <option value="8">8 Days</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-filter">Search</button>
+          </form>
+        </div>
+
+        <section class="destination-grid" id="destination-grid">
+          <!-- Dynamic destination cards will be loaded here -->
+        </section>
+      </div>
+
+      <!-- View: Destination Detail Page -->
+      <div id="detail-view" class="view-section">
+        <div class="detail-back-bar">
+          <button class="btn-detail-back" onclick="navigateToView('dashboard')">
+            <svg viewBox="0 0 24 24">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Explore
+          </button>
+        </div>
+
+        <h2 id="detail-heading" tabindex="-1" style="outline:none; font-size:1px; opacity:0; position:absolute;">Destination details view</h2>
+
+        <div class="detail-view-container" id="detail-view-content">
+          <!-- Dynamic details content populated by JS -->
+        </div>
+      </div>
+
+      <!-- View: Itinerary Planner & Timeline -->
+      <div id="planner-view" class="view-section">
+        <header class="content-header">
+          <div>
+            <h1>Itinerary Co-Pilot</h1>
+            <p>Organize your daily agenda, manage selected flights/hotels, and complete your reservation.</p>
+          </div>
+        </header>
+
+        <div class="itinerary-container">
+          <!-- Timeline Track -->
+          <div>
+            <div class="timeline-track" id="timeline-track">
+              <!-- Dynamically populated daily activity nodes -->
+            </div>
+            <div class="planner-empty-state" id="planner-empty-state">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="16" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+              <h3>Your Timeline is Empty</h3>
+              <p>Go to the destination explorer, select flights and hotels, or tell the AI Co-Pilot what you'd like to do!</p>
+            </div>
+          </div>
+
+          <!-- Trip Summary Panel -->
+          <div class="trip-summary-card">
+            <h3>Trip Summary</h3>
+            <ul class="summary-details-list" id="summary-details-list">
+              <!-- Dynamically updated flight, hotel, and pricing details -->
+            </ul>
+            <div class="summary-total-row">
+              <span>Total Price</span>
+              <span class="val" id="summary-total-price">$0</span>
+            </div>
+            <!-- Declarative Popover/Dialog control -->
+            <button class="btn-book-trip" id="btn-book-trip" commandfor="booking-dialog" command="show-modal" disabled>
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2.5" fill="none">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              Complete Reservation
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 3. AI CHAT ASSISTANT PANEL -->
+    <aside class="ai-chat-panel" id="ai-chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <div class="chat-bot-indicator"></div>
+          <div>
+            <h3>Aether Assistant</h3>
+            <p>AI Travel Agent Co-Pilot</p>
+          </div>
+        </div>
+        <!-- Speaker Toggle -->
+        <button type="button" class="btn-chat-voice-toggle" id="btn-chat-voice-toggle" aria-label="Toggle voice output">
+          <svg id="voice-icon-on" viewBox="0 0 24 24" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+          <svg id="voice-icon-off" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-logs" id="chat-logs">
+        <div class="chat-bubble bot">
+          Welcome back, <strong>John</strong>! I'm your travel agent co-pilot. I can help you find stunning getaways, plan daily agendas, select flights, and arrange Ryokans or luxury hotels.
+          <br><br>
+          Where would you like to escape to? Try clicking a suggestion or typing below!
+        </div>
+      </div>
+
+      <!-- Suggestion prompts -->
+      <div style="padding: 0 1.25rem;">
+        <div class="chat-suggestions">
+          <span class="suggestion-chip" onclick="handleSuggestionClick('Show me Kyoto, Japan')">Explore Kyoto 🌸</span>
+          <span class="suggestion-chip" onclick="handleSuggestionClick('Plan a romantic trip to Amalfi Coast')">Amalfi Itinerary 🍋</span>
+          <span class="suggestion-chip" onclick="handleSuggestionClick('Recommend high-end hotels in Iceland')">Iceland Hotels ❄️</span>
+          <span class="suggestion-chip" onclick="handleSuggestionClick('Add flight to my Kyoto itinerary')">Add Kyoto Flight ✈️</span>
+        </div>
+      </div>
+
+      <!-- Chat input form -->
+      <div class="chat-input-bar">
+        <form class="chat-input-form" id="chat-input-form"
+              toolname="send-chat-query"
+              tooldescription="Sends a free-text question or command to the AI Travel assistant (e.g. 'Add Hoshinoya hotel to my itinerary' or 'Find trips under $2000')."
+              toolautosubmit>
+          <input type="text" id="chat-input-field" name="query" placeholder="Ask Aether to plan your getaway..." required>
+          <button type="button" class="btn-chat-mic" id="btn-chat-mic" aria-label="Start voice input">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+          <button type="submit" class="btn-chat-send">
+            <svg viewBox="0 0 24 24">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- 4. FLOATING CHAT TRIGGER FOR MOBILE/RESPONSIVE -->
+  <button class="floating-chat-trigger" id="floating-chat-trigger" onclick="toggleMobileChat()">
+    <svg viewBox="0 0 24 24">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  </button>
+
+  <!-- 5. BOOKING DIALOG MODAL WIZARD -->
+  <dialog class="booking-modal" id="booking-dialog">
+    <div class="modal-header">
+      <h2>Reserve Your Trip</h2>
+      <button class="btn-close-modal" commandfor="booking-dialog" command="close">
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="wizard-steps">
+      <div class="step-indicator active" id="step-ind-1">1</div>
+      <div class="step-indicator" id="step-ind-2">2</div>
+      <div class="step-indicator" id="step-ind-3">3</div>
+    </div>
+
+    <!-- Step 1: Summary -->
+    <div class="wizard-form-step active" id="wizard-step-1">
+      <div class="booking-summary-box">
+        <h4>Aether Trip Details</h4>
+        <div id="modal-summary-content">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <div></div>
+        <button class="btn-wizard-nav next" onclick="nextWizardStep()">Continue to Traveler Details</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Traveler Details -->
+    <div class="wizard-form-step" id="wizard-step-2">
+      <div class="booking-fields">
+        <h4>Traveler Information</h4>
+        <div>
+          <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="traveler-name">Full Name (as in Passport)</label>
+          <input type="text" id="traveler-name" placeholder="John Doe" required value="John Doe">
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="traveler-email">Email Address</label>
+          <input type="email" id="traveler-email" placeholder="john.doe@example.com" required value="john.doe@example.com">
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="traveler-passport">Passport Number</label>
+          <input type="text" id="traveler-passport" placeholder="A12345678" required>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn-wizard-nav back" onclick="prevWizardStep()">Back</button>
+        <button class="btn-wizard-nav next" onclick="nextWizardStep()">Continue to Payment</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Payment details & Success -->
+    <div class="wizard-form-step" id="wizard-step-3">
+      <div class="booking-fields" id="booking-payment-fields">
+        <h4>Secure Checkout</h4>
+        <div>
+          <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="card-num">Credit Card Number</label>
+          <input type="text" id="card-num" placeholder="•••• •••• •••• ••••" required>
+        </div>
+        <div class="row">
+          <div>
+            <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="card-expiry">Expiry Date</label>
+            <input type="text" id="card-expiry" placeholder="MM/YY" required>
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--color-text-secondary);" for="card-cvv">CVV</label>
+            <input type="text" id="card-cvv" placeholder="•••" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-animation" id="booking-success-animation" style="display: none;">
+        <div class="success-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h3>Booking Confirmed!</h3>
+        <p id="success-booking-id">Your reservation ID is <strong>ATH-5942-89</strong>.</p>
+        <p style="margin-top:0.5rem; font-size:0.8rem; color:var(--color-text-muted);">A confirmation email and boarding passes have been dispatched.</p>
+      </div>
+
+      <div class="wizard-footer" id="booking-payment-footer">
+        <button class="btn-wizard-nav back" onclick="prevWizardStep()">Back</button>
+        <button class="btn-wizard-nav next" onclick="confirmFinalBooking()">Pay & Confirm Reservation</button>
+      </div>
+      <div class="wizard-footer" id="booking-success-footer" style="display: none;">
+        <div></div>
+        <button class="btn-wizard-nav next" onclick="closeBookingDialog()">Return to Dashboard</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Load Scripts -->
+  <script src="mock-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
