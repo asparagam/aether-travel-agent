@@ -226,7 +226,7 @@ main.content-area {
 }
 
 .content-header {
-  padding: 2.5rem 3rem 1rem;
+  padding: 2.5rem 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -246,17 +246,24 @@ main.content-area {
 
 /* Filter Toolbar */
 .filter-toolbar {
-  padding: 1rem 3rem 1.5rem;
+  padding: 1rem 0 1.5rem;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .search-filter-form {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 0.75rem;
+  padding: 1.5rem 2rem;
   border-radius: var(--radius-md);
   backdrop-filter: blur(10px);
+  max-width: 878px;
+  width: 100%;
+  height: 126px;
+  box-sizing: border-box;
+  align-items: center;
 }
 
 .form-group {
@@ -282,10 +289,12 @@ main.content-area {
   color: var(--color-text-primary);
   font-family: var(--font-primary);
   font-size: 0.9rem;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
+  height: 42px;
   border-radius: var(--radius-sm);
   outline: none;
   transition: var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -307,13 +316,16 @@ form:tool-form-active {
   color: white;
   font-family: var(--font-primary);
   font-weight: 600;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
+  height: 42px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: flex-end;
+  box-sizing: border-box;
 }
 
 .btn-filter:hover {
@@ -1675,16 +1687,23 @@ dialog.booking-modal::backdrop {
   }
 
   .content-header {
-    padding: 1.5rem 1.5rem 0.5rem;
+    padding: 1.5rem 0 0.5rem;
   }
 
   .filter-toolbar {
-    padding: 0.5rem 1.5rem 1rem;
+    padding: 0.5rem 0 1rem;
   }
 
   .search-filter-form {
     flex-direction: column;
     gap: 0.75rem;
+    height: auto;
+    padding: 1.25rem;
+  }
+  
+  .btn-filter {
+    width: 100%;
+    align-self: stretch;
   }
 
   .view-section {
