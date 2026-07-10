@@ -102,7 +102,7 @@ function setupEventListeners() {
     });
   }
 
-  // Voice Toggle Button
+  // Voice Toggle Button (Aether Assistant popover)
   const voiceToggleBtn = document.getElementById('btn-chat-voice-toggle');
   if (voiceToggleBtn) {
     voiceToggleBtn.addEventListener('click', () => {
@@ -110,15 +110,7 @@ function setupEventListeners() {
     });
   }
 
-  // Voice Drawer Sound Toggle Button
-  const voiceDrawerSoundBtn = document.getElementById('btn-voice-sound-toggle');
-  if (voiceDrawerSoundBtn) {
-    voiceDrawerSoundBtn.addEventListener('click', () => {
-      toggleVoiceOutputState();
-    });
-  }
-
-  // Microphone Button (Sidebar)
+  // Microphone Button (Aether Assistant popover)
   const micBtn = document.getElementById('btn-chat-mic');
   if (micBtn) {
     micBtn.addEventListener('click', () => {
@@ -126,29 +118,21 @@ function setupEventListeners() {
     });
   }
 
-  // Microphone Button (Drawer)
-  const drawerMicBtn = document.getElementById('btn-voice-mic-control');
-  if (drawerMicBtn) {
-    drawerMicBtn.addEventListener('click', () => {
-      toggleSpeechRecognition();
-    });
-  }
-
-  // Voice Drawer popover lifecycle hooks
-  const voiceDrawer = document.getElementById('voice-drawer');
-  if (voiceDrawer) {
-    voiceDrawer.addEventListener('beforetoggle', (event) => {
+  // Aether Assistant Popover drawer lifecycle hooks
+  const assistantPopover = document.getElementById('ai-chat-panel');
+  if (assistantPopover) {
+    assistantPopover.addEventListener('beforetoggle', (event) => {
       if (event.newState === 'closed') {
-        // If drawer closes, stop listening to microphone
+        // If assistant closes, stop listening to microphone
         if (state.isListening && recognition) {
           recognition.stop();
         }
         // Also cancel speaking to feel natural
         window.speechSynthesis.cancel();
       } else {
-        // If drawer opens, play a welcoming sound if enabled
+        // If assistant opens, play a welcoming text if voice is enabled
         if (state.voiceOutput) {
-          speakText("Voice assistant ready. How can I help you?");
+          speakText("Aether Assistant ready. How can I help you?");
         }
       }
     });
@@ -161,20 +145,14 @@ function toggleVoiceOutputState(forcedState = null) {
   
   const iconOn = document.getElementById('voice-icon-on');
   const iconOff = document.getElementById('voice-icon-off');
-  const drawerIconOn = document.getElementById('voice-drawer-sound-on');
-  const drawerIconOff = document.getElementById('voice-drawer-sound-off');
   
   if (state.voiceOutput) {
     if (iconOn) iconOn.style.display = 'block';
     if (iconOff) iconOff.style.display = 'none';
-    if (drawerIconOn) drawerIconOn.style.display = 'block';
-    if (drawerIconOff) drawerIconOff.style.display = 'none';
     speakText("Voice assistant enabled.");
   } else {
     if (iconOn) iconOn.style.display = 'none';
     if (iconOff) iconOff.style.display = 'block';
-    if (drawerIconOn) drawerIconOn.style.display = 'none';
-    if (drawerIconOff) drawerIconOff.style.display = 'block';
     window.speechSynthesis.cancel();
   }
 }
@@ -583,7 +561,7 @@ function handleSuggestionClick(text) {
 }
 
 function handleUserMessage(text) {
-  // 1. Add User Bubble to Sidebar Chat
+  // Add User Bubble to Chat Logs
   const logs = document.getElementById('chat-logs');
   if (logs) {
     const bubble = document.createElement('div');
@@ -593,17 +571,7 @@ function handleUserMessage(text) {
     logs.scrollTop = logs.scrollHeight;
   }
 
-  // 2. Add User Bubble to Voice Drawer
-  const voiceLogs = document.getElementById('voice-drawer-logs');
-  if (voiceLogs) {
-    const bubble = document.createElement('div');
-    bubble.className = 'voice-bubble user';
-    bubble.textContent = text;
-    voiceLogs.appendChild(bubble);
-    voiceLogs.scrollTop = voiceLogs.scrollHeight;
-  }
-
-  // Show typing indicator in sidebar
+  // Show typing indicator in chat logs
   if (logs) {
     const typing = document.createElement('div');
     typing.className = 'typing-indicator';
@@ -613,7 +581,7 @@ function handleUserMessage(text) {
     logs.scrollTop = logs.scrollHeight;
   }
 
-  // Update Status Text in voice drawer
+  // Update Status Text in voice assistant
   const statusText = document.getElementById('voice-status-text');
   if (statusText) statusText.textContent = "Thinking...";
 
@@ -719,7 +687,7 @@ function addAgentActionLog(tool, details) {
 }
 
 function addBotMessage(htmlContent) {
-  // 1. Add Bot Bubble to Sidebar Chat
+  // Add Bot Bubble to Chat Logs
   const logs = document.getElementById('chat-logs');
   if (logs) {
     const bubble = document.createElement('div');
@@ -729,20 +697,10 @@ function addBotMessage(htmlContent) {
     logs.scrollTop = logs.scrollHeight;
   }
 
-  // 2. Add Bot Bubble to Voice Drawer
-  const voiceLogs = document.getElementById('voice-drawer-logs');
-  if (voiceLogs) {
-    const bubble = document.createElement('div');
-    bubble.className = 'voice-bubble bot';
-    bubble.innerHTML = htmlContent;
-    voiceLogs.appendChild(bubble);
-    voiceLogs.scrollTop = voiceLogs.scrollHeight;
-  }
-
   // Update voice status text to ready
   const statusText = document.getElementById('voice-status-text');
   if (statusText) {
-    statusText.textContent = "Voice Assistant";
+    statusText.textContent = "Aether Assistant";
   }
 
   // Speak response if voice output is enabled
@@ -753,7 +711,7 @@ function addBotMessage(htmlContent) {
     // Reset status back to idle after a simulated timeout based on length
     setTimeout(() => {
       if (statusText && statusText.textContent === "Speaking...") {
-        statusText.textContent = "Voice Assistant";
+        statusText.textContent = "Aether Assistant";
       }
     }, Math.max(3000, htmlContent.length * 60));
   }
@@ -771,7 +729,6 @@ function toggleSpeechRecognition() {
   }
 
   const micBtn = document.getElementById('btn-chat-mic');
-  const drawerMicBtn = document.getElementById('btn-voice-mic-control');
   const statusLight = document.getElementById('voice-status-light');
   const statusText = document.getElementById('voice-status-text');
 
@@ -781,10 +738,6 @@ function toggleSpeechRecognition() {
         micBtn.classList.add('listening');
         micBtn.setAttribute('aria-label', 'Stop voice input');
       }
-      if (drawerMicBtn) {
-        drawerMicBtn.classList.add('listening');
-        drawerMicBtn.setAttribute('aria-label', 'Stop voice input');
-      }
       if (statusLight) statusLight.classList.add('active');
       if (statusText) statusText.textContent = "Listening...";
     } else {
@@ -792,12 +745,8 @@ function toggleSpeechRecognition() {
         micBtn.classList.remove('listening');
         micBtn.setAttribute('aria-label', 'Start voice input');
       }
-      if (drawerMicBtn) {
-        drawerMicBtn.classList.remove('listening');
-        drawerMicBtn.setAttribute('aria-label', 'Start voice input');
-      }
       if (statusLight) statusLight.classList.remove('active');
-      if (statusText) statusText.textContent = "Voice Assistant";
+      if (statusText) statusText.textContent = "Aether Assistant";
     }
   };
 

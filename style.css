@@ -78,7 +78,7 @@ body {
 
 #app-container {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr var(--chat-width);
+  grid-template-columns: var(--sidebar-width) 1fr;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -1034,16 +1034,46 @@ form:tool-form-active {
    ------------------------------------------------------------- */
 
 aside.ai-chat-panel {
-  background-color: var(--bg-sidebar);
-  border-left: 1px solid var(--border-color);
+  position: fixed;
+  bottom: 6.5rem;
+  right: 2rem;
+  width: var(--chat-width);
+  height: 600px;
+  max-height: 80vh;
+  max-width: 95vw;
+  background: rgba(13, 15, 23, 0.85);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(25px);
+  z-index: 99;
+  outline: none;
+  
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  z-index: 10;
+  overflow: hidden;
+  
+  /* Popover discrete display transitions */
+  transition: display 0.3s allow-discrete, overlay 0.3s allow-discrete, opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+aside.ai-chat-panel:popover-open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@starting-style {
+  aside.ai-chat-panel:popover-open {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
 }
 
 .chat-header {
-  padding: 2.5rem 1.5rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -1615,24 +1645,6 @@ dialog.booking-modal::backdrop {
   #app-container {
     grid-template-columns: var(--sidebar-width) 1fr;
   }
-
-  /* Make chat collapsible or overlay */
-  aside.ai-chat-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: var(--chat-width);
-    transform: translateX(100%);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  aside.ai-chat-panel.open-panel {
-    transform: translateX(0);
-  }
-
-  /* Floating Voice Assistant Button is always active */
 }
 
 @media (max-width: 768px) {
@@ -1712,7 +1724,11 @@ dialog.booking-modal::backdrop {
   }
 
   aside.ai-chat-panel {
-    width: 100vw;
+    width: calc(100vw - 2rem);
+    right: 1rem;
+    left: 1rem;
+    bottom: 6rem;
+    height: 70vh;
   }
 }
 

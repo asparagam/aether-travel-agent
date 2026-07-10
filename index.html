@@ -176,28 +176,37 @@
 
     </main>
 
-    <!-- 3. AI CHAT ASSISTANT PANEL -->
-    <aside class="ai-chat-panel" id="ai-chat-panel">
+    <!-- 3. AI CHAT ASSISTANT PANEL (Managed as a popover drawer) -->
+    <aside class="ai-chat-panel" id="ai-chat-panel" popover>
       <div class="chat-header">
         <div class="chat-header-title">
-          <div class="chat-bot-indicator"></div>
+          <div class="chat-bot-indicator" id="voice-status-light"></div>
           <div>
-            <h3>Aether Assistant</h3>
+            <h3 id="voice-status-text">Aether Assistant</h3>
             <p>AI Travel Agent Co-Pilot</p>
           </div>
         </div>
-        <!-- Speaker Toggle -->
-        <button type="button" class="btn-chat-voice-toggle" id="btn-chat-voice-toggle" aria-label="Toggle voice output">
-          <svg id="voice-icon-on" viewBox="0 0 24 24" style="display: none;">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-          <svg id="voice-icon-off" viewBox="0 0 24 24">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </svg>
-        </button>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <!-- Speaker Toggle -->
+          <button type="button" class="btn-chat-voice-toggle" id="btn-chat-voice-toggle" aria-label="Toggle voice output">
+            <svg id="voice-icon-on" viewBox="0 0 24 24" style="display: none;">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+            <svg id="voice-icon-off" viewBox="0 0 24 24">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          </button>
+          <!-- Close Button -->
+          <button type="button" class="btn-close-drawer" commandfor="ai-chat-panel" command="hide-popover" aria-label="Close assistant">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="chat-logs" id="chat-logs">
@@ -245,8 +254,8 @@
 
   </div>
 
-  <!-- 4. FLOATING VOICE ASSISTANT BUTTON & DRAWER -->
-  <button class="floating-voice-btn" id="floating-voice-btn" commandfor="voice-drawer" command="toggle-popover" aria-label="Open voice assistant">
+  <!-- 4. FLOATING MIC FAB (Toggles the popover drawer) -->
+  <button class="floating-voice-btn" id="floating-voice-btn" commandfor="ai-chat-panel" command="toggle-popover" aria-label="Open voice assistant">
     <svg viewBox="0 0 24 24">
       <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
       <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
@@ -254,47 +263,6 @@
       <line x1="8" y1="23" x2="16" y2="23"/>
     </svg>
   </button>
-
-  <div id="voice-drawer" popover class="voice-assistant-drawer">
-    <div class="voice-drawer-header">
-      <div class="voice-drawer-title">
-        <div class="voice-status-light" id="voice-status-light"></div>
-        <span id="voice-status-text">Voice Assistant</span>
-      </div>
-      <button class="btn-close-drawer" commandfor="voice-drawer" command="hide-popover" aria-label="Close voice assistant">
-        <svg viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-    </div>
-    
-    <div class="voice-drawer-logs" id="voice-drawer-logs">
-      <div class="voice-bubble bot">
-        Hello! I am your voice assistant. Click the microphone below and speak to control the travel planner. You can say things like "Show me Kyoto" or "Add flight to my itinerary".
-      </div>
-    </div>
-    
-    <div class="voice-drawer-footer">
-      <button class="btn-voice-mic-control" id="btn-voice-mic-control" aria-label="Start listening">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
-        </svg>
-      </button>
-      <button class="btn-voice-sound-toggle" id="btn-voice-sound-toggle" aria-label="Toggle voice feedback">
-        <svg id="voice-drawer-sound-on" viewBox="0 0 24 24" style="display: none;">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-        </svg>
-        <svg id="voice-drawer-sound-off" viewBox="0 0 24 24">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-          <line x1="23" y1="9" x2="17" y2="15" />
-          <line x1="17" y1="9" x2="23" y2="15" />
-        </svg>
-      </button>
-    </div>
-  </div>
 
   <!-- 5. BOOKING DIALOG MODAL WIZARD -->
   <dialog class="booking-modal" id="booking-dialog">
