@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDestinationsGrid();
   setupEventListeners();
   initWebMCP();
+  initThemeToggle();
 
   // Pre-load voices for Speech Synthesis
   if (window.speechSynthesis) {
@@ -38,6 +39,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+function initThemeToggle() {
+  const toggleBtn = document.getElementById('btn-theme-toggle');
+  if (!toggleBtn) return;
+  
+  const sunIcon = document.getElementById('theme-icon-sun');
+  const moonIcon = document.getElementById('theme-icon-moon');
+  
+  // Apply saved theme or default to dark
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    if (sunIcon) sunIcon.style.display = 'block';
+    if (moonIcon) moonIcon.style.display = 'none';
+  } else {
+    document.body.classList.remove('light-theme');
+    if (sunIcon) sunIcon.style.display = 'none';
+    if (moonIcon) moonIcon.style.display = 'block';
+  }
+  
+  toggleBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light-theme');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    
+    if (isLight) {
+      if (sunIcon) sunIcon.style.display = 'block';
+      if (moonIcon) moonIcon.style.display = 'none';
+    } else {
+      if (sunIcon) sunIcon.style.display = 'none';
+      if (moonIcon) moonIcon.style.display = 'block';
+    }
+  });
+}
 
 // -------------------------------------------------------------
 // Event Listeners
