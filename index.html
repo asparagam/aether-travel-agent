@@ -176,83 +176,83 @@
 
     </main>
 
-    <!-- 3. AI CHAT ASSISTANT PANEL (Managed as a popover drawer) -->
-    <aside class="ai-chat-panel" id="ai-chat-panel" popover>
-      <div class="chat-header">
-        <div class="chat-header-title">
-          <div class="chat-bot-indicator" id="voice-status-light"></div>
-          <div>
-            <h3 id="voice-status-text">Aether Assistant</h3>
-            <p>AI Travel Agent Co-Pilot</p>
-          </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <!-- Speaker Toggle -->
-          <button type="button" class="btn-chat-voice-toggle" id="btn-chat-voice-toggle" aria-label="Toggle voice output">
-            <svg id="voice-icon-on" viewBox="0 0 24 24" style="display: none;">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-            <svg id="voice-icon-off" viewBox="0 0 24 24">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          </button>
-          <!-- Close Button -->
-          <button type="button" class="btn-close-drawer" commandfor="ai-chat-panel" command="hide-popover" aria-label="Close assistant">
-            <svg viewBox="0 0 24 24">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="chat-logs" id="chat-logs">
-        <div class="chat-bubble bot">
-          Welcome back, <strong>John</strong>! I'm your travel agent co-pilot. I can help you find stunning getaways, plan daily agendas, select flights, and arrange Ryokans or luxury hotels.
-          <br><br>
-          Where would you like to escape to? Try clicking a suggestion or typing below!
-        </div>
-      </div>
-
-      <!-- Suggestion prompts -->
-      <div style="padding: 0 1.25rem;">
-        <div class="chat-suggestions">
-          <span class="suggestion-chip" onclick="handleSuggestionClick('Show me Kyoto, Japan')">Explore Kyoto 🌸</span>
-          <span class="suggestion-chip" onclick="handleSuggestionClick('Plan a romantic trip to Amalfi Coast')">Amalfi Itinerary 🍋</span>
-          <span class="suggestion-chip" onclick="handleSuggestionClick('Recommend high-end hotels in Iceland')">Iceland Hotels ❄️</span>
-          <span class="suggestion-chip" onclick="handleSuggestionClick('Add flight to my Kyoto itinerary')">Add Kyoto Flight ✈️</span>
-        </div>
-      </div>
-
-      <!-- Chat input form -->
-      <div class="chat-input-bar">
-        <form class="chat-input-form" id="chat-input-form"
-              toolname="send-chat-query"
-              tooldescription="Sends a free-text question or command to the AI Travel assistant (e.g. 'Add Hoshinoya hotel to my itinerary' or 'Find trips under $2000')."
-              toolautosubmit>
-          <input type="text" id="chat-input-field" name="query" placeholder="Ask Aether to plan your getaway..." required>
-          <button type="button" class="btn-chat-mic" id="btn-chat-mic" aria-label="Start voice input">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
-              <line x1="12" y1="19" x2="12" y2="23"/>
-              <line x1="8" y1="23" x2="16" y2="23"/>
-            </svg>
-          </button>
-          <button type="submit" class="btn-chat-send">
-            <svg viewBox="0 0 24 24">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          </button>
-        </form>
-      </div>
-    </aside>
-
   </div>
+
+  <!-- 3. AI CHAT ASSISTANT PANEL (Managed as a popover drawer) -->
+  <aside class="ai-chat-panel" id="ai-chat-panel" popover>
+    <div class="chat-header">
+      <div class="chat-header-title">
+        <div class="chat-bot-indicator" id="voice-status-light"></div>
+        <div>
+          <h3 id="voice-status-text">Aether Assistant</h3>
+          <p>AI Travel Agent Co-Pilot</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <!-- Speaker Toggle -->
+        <button type="button" class="btn-chat-voice-toggle" id="btn-chat-voice-toggle" aria-label="Toggle voice output">
+          <svg id="voice-icon-on" viewBox="0 0 24 24" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+          <svg id="voice-icon-off" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        </button>
+        <!-- Close Button -->
+        <button type="button" class="btn-close-drawer" commandfor="ai-chat-panel" command="hide-popover" aria-label="Close assistant">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-logs" id="chat-logs">
+      <div class="chat-bubble bot">
+        Welcome back, <strong>John</strong>! I'm your travel agent co-pilot. I can help you find stunning getaways, plan daily agendas, select flights, and arrange Ryokans or luxury hotels.
+        <br><br>
+        Where would you like to escape to? Try clicking a suggestion or typing below!
+      </div>
+    </div>
+
+    <!-- Suggestion prompts -->
+    <div style="padding: 0 1.25rem;">
+      <div class="chat-suggestions">
+        <span class="suggestion-chip" onclick="handleSuggestionClick('Show me Kyoto, Japan')">Explore Kyoto 🌸</span>
+        <span class="suggestion-chip" onclick="handleSuggestionClick('Plan a romantic trip to Amalfi Coast')">Amalfi Itinerary 🍋</span>
+        <span class="suggestion-chip" onclick="handleSuggestionClick('Recommend high-end hotels in Iceland')">Iceland Hotels ❄️</span>
+        <span class="suggestion-chip" onclick="handleSuggestionClick('Add flight to my Kyoto itinerary')">Add Kyoto Flight ✈️</span>
+      </div>
+    </div>
+
+    <!-- Chat input form -->
+    <div class="chat-input-bar">
+      <form class="chat-input-form" id="chat-input-form"
+            toolname="send-chat-query"
+            tooldescription="Sends a free-text question or command to the AI Travel assistant (e.g. 'Add Hoshinoya hotel to my itinerary' or 'Find trips under $2000')."
+            toolautosubmit>
+        <input type="text" id="chat-input-field" name="query" placeholder="Ask Aether to plan your getaway..." required>
+        <button type="button" class="btn-chat-mic" id="btn-chat-mic" aria-label="Start voice input">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        <button type="submit" class="btn-chat-send">
+          <svg viewBox="0 0 24 24">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </aside>
 
   <!-- 4. FLOATING MIC FAB (Toggles the popover drawer) -->
   <button class="floating-voice-btn" id="floating-voice-btn" commandfor="ai-chat-panel" command="toggle-popover" aria-label="Open voice assistant">
