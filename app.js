@@ -104,28 +104,79 @@ function setupEventListeners() {
 
   // Voice Toggle Button
   const voiceToggleBtn = document.getElementById('btn-chat-voice-toggle');
-  voiceToggleBtn.addEventListener('click', () => {
-    state.voiceOutput = !state.voiceOutput;
-    
-    const iconOn = document.getElementById('voice-icon-on');
-    const iconOff = document.getElementById('voice-icon-off');
-    
-    if (state.voiceOutput) {
-      iconOn.style.display = 'block';
-      iconOff.style.display = 'none';
-      speakText("Voice output enabled.");
-    } else {
-      iconOn.style.display = 'none';
-      iconOff.style.display = 'block';
-      window.speechSynthesis.cancel();
-    }
-  });
+  if (voiceToggleBtn) {
+    voiceToggleBtn.addEventListener('click', () => {
+      toggleVoiceOutputState();
+    });
+  }
 
-  // Microphone Button
+  // Voice Drawer Sound Toggle Button
+  const voiceDrawerSoundBtn = document.getElementById('btn-voice-sound-toggle');
+  if (voiceDrawerSoundBtn) {
+    voiceDrawerSoundBtn.addEventListener('click', () => {
+      toggleVoiceOutputState();
+    });
+  }
+
+  // Microphone Button (Sidebar)
   const micBtn = document.getElementById('btn-chat-mic');
-  micBtn.addEventListener('click', () => {
-    toggleSpeechRecognition();
-  });
+  if (micBtn) {
+    micBtn.addEventListener('click', () => {
+      toggleSpeechRecognition();
+    });
+  }
+
+  // Microphone Button (Drawer)
+  const drawerMicBtn = document.getElementById('btn-voice-mic-control');
+  if (drawerMicBtn) {
+    drawerMicBtn.addEventListener('click', () => {
+      toggleSpeechRecognition();
+    });
+  }
+
+  // Voice Drawer popover lifecycle hooks
+  const voiceDrawer = document.getElementById('voice-drawer');
+  if (voiceDrawer) {
+    voiceDrawer.addEventListener('beforetoggle', (event) => {
+      if (event.newState === 'closed') {
+        // If drawer closes, stop listening to microphone
+        if (state.isListening && recognition) {
+          recognition.stop();
+        }
+        // Also cancel speaking to feel natural
+        window.speechSynthesis.cancel();
+      } else {
+        // If drawer opens, play a welcoming sound if enabled
+        if (state.voiceOutput) {
+          speakText("Voice assistant ready. How can I help you?");
+        }
+      }
+    });
+  }
+}
+
+// Unified Voice Output State Controller
+function toggleVoiceOutputState(forcedState = null) {
+  state.voiceOutput = forcedState !== null ? forcedState : !state.voiceOutput;
+  
+  const iconOn = document.getElementById('voice-icon-on');
+  const iconOff = document.getElementById('voice-icon-off');
+  const drawerIconOn = document.getElementById('voice-drawer-sound-on');
+  const drawerIconOff = document.getElementById('voice-drawer-sound-off');
+  
+  if (state.voiceOutput) {
+    if (iconOn) iconOn.style.display = 'block';
+    if (iconOff) iconOff.style.display = 'none';
+    if (drawerIconOn) drawerIconOn.style.display = 'block';
+    if (drawerIconOff) drawerIconOff.style.display = 'none';
+    speakText("Voice assistant enabled.");
+  } else {
+    if (iconOn) iconOn.style.display = 'none';
+    if (iconOff) iconOff.style.display = 'block';
+    if (drawerIconOn) drawerIconOn.style.display = 'none';
+    if (drawerIconOff) drawerIconOff.style.display = 'block';
+    window.speechSynthesis.cancel();
+  }
 }
 
 // -------------------------------------------------------------
@@ -532,21 +583,39 @@ function handleSuggestionClick(text) {
 }
 
 function handleUserMessage(text) {
-  // Add User Bubble
+  // 1. Add User Bubble to Sidebar Chat
   const logs = document.getElementById('chat-logs');
-  const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble user';
-  bubble.textContent = text;
-  logs.appendChild(bubble);
-  logs.scrollTop = logs.scrollHeight;
+  if (logs) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble user';
+    bubble.textContent = text;
+    logs.appendChild(bubble);
+    logs.scrollTop = logs.scrollHeight;
+  }
 
-  // Show typing indicator
-  const typing = document.createElement('div');
-  typing.className = 'typing-indicator';
-  typing.id = 'chat-typing-indicator';
-  typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-  logs.appendChild(typing);
-  logs.scrollTop = logs.scrollHeight;
+  // 2. Add User Bubble to Voice Drawer
+  const voiceLogs = document.getElementById('voice-drawer-logs');
+  if (voiceLogs) {
+    const bubble = document.createElement('div');
+    bubble.className = 'voice-bubble user';
+    bubble.textContent = text;
+    voiceLogs.appendChild(bubble);
+    voiceLogs.scrollTop = voiceLogs.scrollHeight;
+  }
+
+  // Show typing indicator in sidebar
+  if (logs) {
+    const typing = document.createElement('div');
+    typing.className = 'typing-indicator';
+    typing.id = 'chat-typing-indicator';
+    typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    logs.appendChild(typing);
+    logs.scrollTop = logs.scrollHeight;
+  }
+
+  // Update Status Text in voice drawer
+  const statusText = document.getElementById('voice-status-text');
+  if (statusText) statusText.textContent = "Thinking...";
 
   // Process response
   setTimeout(() => {
@@ -650,16 +719,43 @@ function addAgentActionLog(tool, details) {
 }
 
 function addBotMessage(htmlContent) {
+  // 1. Add Bot Bubble to Sidebar Chat
   const logs = document.getElementById('chat-logs');
-  const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble bot';
-  bubble.innerHTML = htmlContent;
-  logs.appendChild(bubble);
-  logs.scrollTop = logs.scrollHeight;
+  if (logs) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble bot';
+    bubble.innerHTML = htmlContent;
+    logs.appendChild(bubble);
+    logs.scrollTop = logs.scrollHeight;
+  }
+
+  // 2. Add Bot Bubble to Voice Drawer
+  const voiceLogs = document.getElementById('voice-drawer-logs');
+  if (voiceLogs) {
+    const bubble = document.createElement('div');
+    bubble.className = 'voice-bubble bot';
+    bubble.innerHTML = htmlContent;
+    voiceLogs.appendChild(bubble);
+    voiceLogs.scrollTop = voiceLogs.scrollHeight;
+  }
+
+  // Update voice status text to ready
+  const statusText = document.getElementById('voice-status-text');
+  if (statusText) {
+    statusText.textContent = "Voice Assistant";
+  }
 
   // Speak response if voice output is enabled
   if (state.voiceOutput) {
+    if (statusText) statusText.textContent = "Speaking...";
     speakText(stripHtml(htmlContent));
+    
+    // Reset status back to idle after a simulated timeout based on length
+    setTimeout(() => {
+      if (statusText && statusText.textContent === "Speaking...") {
+        statusText.textContent = "Voice Assistant";
+      }
+    }, Math.max(3000, htmlContent.length * 60));
   }
 }
 
@@ -675,6 +771,35 @@ function toggleSpeechRecognition() {
   }
 
   const micBtn = document.getElementById('btn-chat-mic');
+  const drawerMicBtn = document.getElementById('btn-voice-mic-control');
+  const statusLight = document.getElementById('voice-status-light');
+  const statusText = document.getElementById('voice-status-text');
+
+  const setListeningUI = (listening) => {
+    if (listening) {
+      if (micBtn) {
+        micBtn.classList.add('listening');
+        micBtn.setAttribute('aria-label', 'Stop voice input');
+      }
+      if (drawerMicBtn) {
+        drawerMicBtn.classList.add('listening');
+        drawerMicBtn.setAttribute('aria-label', 'Stop voice input');
+      }
+      if (statusLight) statusLight.classList.add('active');
+      if (statusText) statusText.textContent = "Listening...";
+    } else {
+      if (micBtn) {
+        micBtn.classList.remove('listening');
+        micBtn.setAttribute('aria-label', 'Start voice input');
+      }
+      if (drawerMicBtn) {
+        drawerMicBtn.classList.remove('listening');
+        drawerMicBtn.setAttribute('aria-label', 'Start voice input');
+      }
+      if (statusLight) statusLight.classList.remove('active');
+      if (statusText) statusText.textContent = "Voice Assistant";
+    }
+  };
 
   if (state.isListening) {
     if (recognition) recognition.stop();
@@ -689,8 +814,7 @@ function toggleSpeechRecognition() {
 
     recognition.onstart = () => {
       state.isListening = true;
-      micBtn.classList.add('listening');
-      micBtn.setAttribute('aria-label', 'Stop voice input');
+      setListeningUI(true);
       
       // Mute active speech synthesis when user talks
       window.speechSynthesis.cancel();
@@ -701,15 +825,14 @@ function toggleSpeechRecognition() {
       const input = document.getElementById('chat-input-field');
       if (input) {
         input.value = transcript;
-        handleUserMessage(transcript);
       }
+      handleUserMessage(transcript);
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       state.isListening = false;
-      micBtn.classList.remove('listening');
-      micBtn.setAttribute('aria-label', 'Start voice input');
+      setListeningUI(false);
       
       if (event.error === 'not-allowed') {
         addBotMessage("🎙️ <strong>Microphone Access Blocked.</strong> Please enable microphone permission in your browser settings to use the voice assistant.");
@@ -720,8 +843,7 @@ function toggleSpeechRecognition() {
 
     recognition.onend = () => {
       state.isListening = false;
-      micBtn.classList.remove('listening');
-      micBtn.setAttribute('aria-label', 'Start voice input');
+      setListeningUI(false);
     };
   }
 

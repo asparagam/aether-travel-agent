@@ -1632,10 +1632,7 @@ dialog.booking-modal::backdrop {
     transform: translateX(0);
   }
 
-  /* Floating chat button on mobile/tablet */
-  .floating-chat-trigger {
-    display: flex !important;
-  }
+  /* Floating Voice Assistant Button is always active */
 }
 
 @media (max-width: 768px) {
@@ -1719,35 +1716,241 @@ dialog.booking-modal::backdrop {
   }
 }
 
-/* Floating Chat Toggle (hidden by default on desktop) */
-.floating-chat-trigger {
-  display: none;
+/* Floating Voice Assistant Button (always visible, fixed at bottom right) */
+.floating-voice-btn {
+  display: flex;
   position: fixed;
   bottom: 2rem;
   right: 2rem;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   border: none;
   color: white;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 20px var(--color-primary-glow);
   z-index: 100;
   transition: var(--transition-smooth);
 }
 
-.floating-chat-trigger:hover {
+.floating-voice-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
 }
 
-.floating-chat-trigger svg {
+.floating-voice-btn svg {
   width: 24px;
   height: 24px;
   stroke: currentColor;
   stroke-width: 2;
+  fill: none;
+}
+
+/* Voice Assistant Drawer Popover */
+.voice-assistant-drawer {
+  position: fixed;
+  bottom: 6.5rem;
+  right: 2rem;
+  width: 360px;
+  height: 480px;
+  max-height: 80vh;
+  max-width: 90vw;
+  background: rgba(13, 15, 23, 0.85);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(25px);
+  z-index: 99;
+  outline: none;
+  
+  /* Flex layout to structure content */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  /* Popover transitions using discrete displays */
+  transition: display 0.3s allow-discrete, overlay 0.3s allow-discrete, opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.voice-assistant-drawer:popover-open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@starting-style {
+  .voice-assistant-drawer:popover-open {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+/* Header */
+.voice-drawer-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.voice-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.voice-drawer-title span {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.voice-status-light {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-secondary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-secondary-glow);
+  transition: var(--transition-smooth);
+}
+
+.voice-status-light.active {
+  background-color: var(--color-accent);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+  animation: pulse 1.5s infinite;
+}
+
+.btn-close-drawer {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--color-text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-close-drawer:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-close-drawer svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+/* Conversation Body */
+.voice-drawer-logs {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.voice-bubble {
+  max-width: 85%;
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  animation: messageSlideIn 0.3s ease-out forwards;
+}
+
+.voice-bubble.bot {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-bottom-left-radius: var(--radius-sm);
+  align-self: flex-start;
+}
+
+.voice-bubble.user {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.05));
+  border: 1px solid var(--border-highlight);
+  border-bottom-right-radius: var(--radius-sm);
+  align-self: flex-end;
+}
+
+/* Footer & Controls */
+.voice-drawer-footer {
+  padding: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.btn-voice-mic-control {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-voice-mic-control:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-highlight);
+}
+
+.btn-voice-mic-control svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.btn-voice-mic-control.listening {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+  animation: pulse-mic 1.5s infinite;
+}
+
+.btn-voice-sound-toggle {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  position: absolute;
+  right: 1.5rem;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-voice-sound-toggle:hover {
+  color: white;
+}
+
+.btn-voice-sound-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.5;
   fill: none;
 }
