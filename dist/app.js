@@ -1094,14 +1094,22 @@ async function selectDestination(destId) {
     state.itinerary.flight = null;
     state.itinerary.hotel = null;
   }
+  
+  // Set default duration days if not set
+  state.itinerary.durationDays = state.itinerary.durationDays || parseInt(dest.duration) || 7;
 
   const container = document.getElementById('detail-view-content');
   container.innerHTML = `
-    <!-- Left Column: Details Hero and Description -->
+    <!-- Column 1: Details Hero and Map -->
     <div>
       <div class="detail-hero-card">
         <div class="detail-hero-img-wrapper">
           <img src="${dest.image}" alt="${dest.name}">
+          <button class="btn-favorite-circle ${(state.favorites && state.favorites.includes(dest.id)) ? 'active' : ''}" onclick="window.toggleFavoriteDestination('${dest.id}')" aria-label="Toggle Favorite" title="Add to Favorites">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </button>
         </div>
         <div class="detail-main-content">
           <div class="detail-header">
@@ -1113,10 +1121,17 @@ async function selectDestination(destId) {
                 <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                 ${dest.rating} (${dest.reviews} reviews)
               </div>
-              <div class="detail-meta-item">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                ${dest.duration}
+              
+              <!-- Editable Trip Duration Component -->
+              <div class="duration-editor-badge">
+                <span class="label-text">Trip Duration:</span>
+                <div class="duration-controls-row">
+                  <button type="button" class="btn-duration-adjust minus" onclick="window.adjustDetailDuration(-1)" aria-label="Decrease duration">-</button>
+                  <span class="duration-display" id="duration-display-badge">${state.itinerary.durationDays} Days</span>
+                  <button type="button" class="btn-duration-adjust plus" onclick="window.adjustDetailDuration(1)" aria-label="Increase duration">+</button>
+                </div>
               </div>
+
               <div class="detail-meta-item weather-badge" id="weather-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6z" /></svg>
                 <span id="weather-text">Loading Weather...</span>
@@ -1126,17 +1141,16 @@ async function selectDestination(destId) {
           <p class="detail-desc-text">${dest.description}</p>
         </div>
       </div>
-      <div id="map-container" style="height: 300px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
+      <div id="map-container" style="height: 250px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
         <!-- Leaflet map -->
       </div>
     </div>
 
-    <!-- Right Column: Flight and Hotel Selection -->
-    <div class="detail-options-panel">
-      <!-- Flights Section -->
+    <!-- Column 2: Flights Selection -->
+    <div class="detail-options-column">
       <section class="options-section">
         <h3>
-          <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
           Available Flights
         </h3>
         <div class="options-list" id="flights-list">
@@ -1145,11 +1159,13 @@ async function selectDestination(destId) {
           <div class="skeleton-item"></div>
         </div>
       </section>
+    </div>
 
-      <!-- Hotels Section -->
+    <!-- Column 3: Stays Selection -->
+    <div class="detail-options-column">
       <section class="options-section">
         <h3>
-          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           Recommended Stays
         </h3>
         <div class="options-list" id="hotels-list">
@@ -1158,6 +1174,17 @@ async function selectDestination(destId) {
           <div class="skeleton-item"></div>
         </div>
       </section>
+      
+      <!-- Premium "Continue" CTA Button to proceed to the Travel Planner -->
+      <div style="margin-top: 1.5rem;">
+        <button class="btn-planner-primary continue-booking-cta" onclick="navigateToView('planner')" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.9rem; font-size: 1.05rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px var(--color-primary-glow);">
+          Continue to Travel Planner
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+      </div>
     </div>
   `;
 
@@ -1322,24 +1349,52 @@ function renderHotelsList(hotels) {
     return;
   }
   
-  listEl.innerHTML = hotels.map(ht => {
+  const days = state.itinerary.durationDays || 7;
+  const nights = days - 1 || 1;
+  
+  listEl.innerHTML = hotels.map((ht, idx) => {
     const isSelected = state.itinerary.hotel && state.itinerary.hotel.id === ht.id;
+    const hotelPrice = ht.pricePerNight || ht.price || 320;
+    const estTotal = hotelPrice * nights;
+    
+    const ratingStars = '★'.repeat(ht.stars || 5) + '☆'.repeat(5 - (ht.stars || 5));
+    const location = ht.location || 'Central District';
+    const reviewsCount = ht.reviews || (140 + idx * 23);
+    const distance = ht.distance || `${1.2 + idx * 0.4} km from center`;
+    const amenities = ht.amenities || ['Free Wi-Fi', 'Pool', 'Spa', 'Breakfast'];
+    const availability = ht.availability || 'Available';
+    
     return `
-      <div class="option-item ${isSelected ? 'selected' : ''}">
-        <div class="option-img-wrapper" style="width: 50px; height: 50px; border-radius: var(--radius-sm); overflow: hidden; margin-right: 0.75rem; flex-shrink: 0;">
-          <img src="${ht.image}" alt="${ht.name}" style="width: 100%; height: 100%; object-fit: cover;">
+      <div class="option-item stay-card-rich ${isSelected ? 'selected' : ''}" onclick="window.openHotelModal('${ht.id}')" tabindex="0" role="button" aria-label="${ht.name}, $${hotelPrice} per night. Click to view gallery and details.">
+        <div class="option-img-wrapper stay-img-rich" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();" title="View details and gallery">
+          <img src="${ht.image}" alt="${ht.name}" loading="lazy">
+          <span class="badge-free-cancel">Free Cancellation</span>
         </div>
-        <div class="option-details">
-          <span class="option-name">${ht.name}</span>
-          <div class="option-sub">
-            <span>Rating: ${ht.rating} ★</span>
-            <span class="divider"></span>
-            <span>${ht.amenities ? ht.amenities.slice(0,2).join(', ') : 'Free Wi-Fi'}</span>
+        <div class="option-details stay-details-rich">
+          <div class="stay-header-row">
+            <span class="option-name">${ht.name}</span>
+            <span class="stay-rating-stars">${ratingStars} <span style="font-size:0.75rem; font-weight:400; color:var(--color-text-secondary);">(${reviewsCount})</span></span>
+          </div>
+          <p class="stay-subtitle-row">${location} • ${distance}</p>
+          <div class="stay-badges-row">
+            <span class="stay-badge breakfast">Free Breakfast</span>
+            <span class="stay-badge availability">${availability}</span>
+          </div>
+          <div class="stay-amenities-pills">
+            ${amenities.map(am => `<span class="amenity-pill">${am}</span>`).join('')}
+          </div>
+          
+          <div class="stay-pricing-footer">
+            <div class="stay-rate">
+              <span class="price-val">$${hotelPrice}</span> <span class="price-unit">/ night</span>
+            </div>
+            <div class="stay-total-est">
+              $${hotelPrice} × ${nights} nights = <strong>$${estTotal.toLocaleString()}</strong> Est. Total
+            </div>
           </div>
         </div>
-        <div class="option-actions">
-          <span class="option-price">$${ht.price} <span>/night</span></span>
-          <button class="btn-add-option" onclick="window.selectHotel('${ht.id}')">
+        <div class="option-actions stay-actions-rich">
+          <button class="btn-add-option" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="Select ${ht.name}">
             ${isSelected ? 'Selected' : 'Choose Stay'}
           </button>
         </div>
@@ -3014,3 +3069,251 @@ window.addTripToCalendar = function() {
   
   window.showToast("Trip calendar file downloaded! Open it to add to Apple or Google Calendar.", "success");
 };
+
+// Toggle Favorite State on Destination Detail Hero
+window.toggleFavoriteDestination = function(destId) {
+  state.favorites = state.favorites || [];
+  const idx = state.favorites.indexOf(destId);
+  
+  // Find button element
+  const favBtn = document.querySelector('.btn-favorite-circle');
+  
+  if (idx > -1) {
+    state.favorites.splice(idx, 1);
+    window.showToast("Removed from favorites", "info");
+    if (favBtn) favBtn.classList.remove('active');
+  } else {
+    state.favorites.push(destId);
+    window.showToast("Added to favorites ❤️", "success");
+    if (favBtn) favBtn.classList.add('active');
+  }
+};
+
+// Adjust duration Days count dynamically
+window.adjustDetailDuration = function(val) {
+  state.itinerary.durationDays = state.itinerary.durationDays || 7;
+  let newDays = state.itinerary.durationDays + val;
+  if (newDays < 1) newDays = 1;
+  if (newDays > 30) newDays = 30;
+  
+  state.itinerary.durationDays = newDays;
+  
+  // Update displayed number badge
+  const displayBadge = document.getElementById('duration-display-badge');
+  if (displayBadge) {
+    displayBadge.textContent = `${newDays} Day${newDays > 1 ? 's' : ''}`;
+  }
+  
+  // Recalculate and update suggested itinerary schedule nodes dynamically
+  window.updateItineraryDays(newDays);
+  
+  // Recalculate price summaries and lists
+  if (state.selectedDestination) {
+    renderHotelsList(state.selectedDestination.hotels || []);
+    renderFlightsList(state.selectedDestination.flights || []);
+  }
+};
+
+// Sync Itinerary array size to dynamic duration count
+window.updateItineraryDays = function(newDays) {
+  if (!state.itinerary.destination) return;
+  
+  const currentActivities = state.itinerary.activities || [];
+  if (currentActivities.length < newDays) {
+    for (let d = currentActivities.length + 1; d <= newDays; d++) {
+      state.itinerary.activities.push({
+        day: d,
+        time: '10:00 AM',
+        title: `Explore attractions on Day ${d}`,
+        description: `AI Co-Pilot recommends sightseeing and cultural discoveries in ${state.itinerary.destination.name}.`,
+        price: 50
+      });
+    }
+  } else if (currentActivities.length > newDays) {
+    state.itinerary.activities = currentActivities.slice(0, newDays);
+  }
+  
+  window.recalculateBudget();
+  renderPlannerView();
+};
+
+// Dialog details modal open & close helpers
+window.openHotelModal = function(hotelId) {
+  if (!state.selectedDestination || !state.selectedDestination.hotels) return;
+  const hotel = state.selectedDestination.hotels.find(h => h.id === hotelId);
+  if (!hotel) return;
+  
+  window.hotelModalTrigger = document.activeElement;
+  
+  const dialog = document.getElementById('hotel-details-modal');
+  if (!dialog) return;
+  
+  const dest = state.selectedDestination;
+  const days = state.itinerary.durationDays || 7;
+  const nights = days - 1 || 1;
+  const estTotal = (hotel.pricePerNight || hotel.price) * nights;
+  
+  const images = [
+    hotel.image,
+    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=600&auto=format&fit=crop'
+  ];
+  
+  dialog.innerHTML = `
+    <div class="hotel-modal-content">
+      <button class="btn-modal-close" onclick="window.closeHotelModal()" aria-label="Close modal">×</button>
+      
+      <div class="hotel-modal-grid">
+        <!-- Gallery / Carousel Column -->
+        <div class="modal-gallery-column">
+          <div class="gallery-hero-wrapper">
+            <img id="gallery-hero-img" src="${images[0]}" alt="${hotel.name} View">
+          </div>
+          <div class="gallery-thumbs-row">
+            ${images.map((img, idx) => `
+              <button class="thumb-btn ${idx === 0 ? 'active' : ''}" onclick="window.switchModalGalleryImg(${idx}, ${JSON.stringify(images)})" aria-label="View photo ${idx + 1}">
+                <img src="${img}" alt="Thumbnail ${idx + 1}" loading="lazy">
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        
+        <!-- Info Column -->
+        <div class="modal-info-column">
+          <div class="modal-header-section">
+            <span class="stay-stars">${'★'.repeat(hotel.stars || 5)}</span>
+            <h2 id="hotel-modal-title">${hotel.name}</h2>
+            <p class="hotel-modal-subtitle">${hotel.location || 'Central District'} • ${hotel.distance || '1.2 km from center'}</p>
+          </div>
+          
+          <div class="modal-section">
+            <h4>Description</h4>
+            <p>${hotel.description || 'Experience hospitality at its finest in this elegant property located in the heart of the city.'}</p>
+          </div>
+          
+          <div class="modal-section">
+            <h4>Amenities</h4>
+            <div class="modal-amenities-grid">
+              <span>🏊 Pool & Wellness Spa</span>
+              <span>📶 Ultra Fast Free Wi-Fi</span>
+              <span>🍳 Complimentary Breakfast</span>
+              <span>🏋️ Fitness Center</span>
+              <span>🍹 Clifftop Lounge Bar</span>
+              <span>🚗 Valet Parking</span>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h4>Location & Attractions</h4>
+            <p><strong>Address:</strong> ${hotel.address || '101 Premium Avenue, Kyoto, Japan'}</p>
+            <div id="modal-hotel-map" style="height: 200px; border-radius: 8px; margin-top: 0.75rem; border: 1px solid var(--border-color);"></div>
+            <div class="attractions-checklist" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--color-text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+              <span>🚇 Metro Station: <strong>0.3 km</strong></span>
+              <span>✈️ Airport (KIX): <strong>42 km</strong></span>
+              <span>⛩️ Fushimi Inari Shrine: <strong>1.5 km</strong></span>
+              <span>🎋 Arashiyama Bamboo Grove: <strong>3.2 km</strong></span>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h4>Room Options</h4>
+            <div class="modal-room-row">
+              <div>
+                <strong>Deluxe Double Room</strong>
+                <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">King Bed • Garden View</p>
+              </div>
+              <span class="room-status green">Available</span>
+            </div>
+            <div class="modal-room-row" style="margin-top: 0.5rem;">
+              <div>
+                <strong>Executive Suite</strong>
+                <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">Separate Living Area • Spa Access</p>
+              </div>
+              <span class="room-status red">Sold Out</span>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h4>Policies</h4>
+            <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.5;">
+              <div>🕒 Check-in: <strong>15:00</strong> | Check-out: <strong>11:00</strong></div>
+              <div>🛡️ Cancellation: <span style="color:var(--color-secondary); font-weight:600;">Free cancellation up to 24h before check-in</span></div>
+            </div>
+          </div>
+          
+          <div class="modal-footer-cta">
+            <div class="price-box">
+              <span class="rate">$${hotel.pricePerNight || hotel.price} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span></span>
+              <span class="total">$${hotel.pricePerNight || hotel.price} × ${nights} nights = <strong>$${estTotal.toLocaleString()}</strong> Est. Total</span>
+            </div>
+            <div style="display:flex; gap:0.75rem;">
+              <button class="btn-planner-secondary" onclick="window.openHotelWebsite('${hotel.name}')" style="flex:1;">Visit Website</button>
+              <button class="btn-planner-primary" onclick="window.selectHotelFromModal('${hotel.id}')" style="flex:1;">Book Now</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  `;
+  
+  dialog.showModal();
+  
+  // Render map inside the details dialog view
+  setTimeout(() => {
+    const lat = hotel.latitude || dest.latitude || 35.6895;
+    const lon = hotel.longitude || dest.longitude || 139.6917;
+    
+    const hotelMap = L.map('modal-hotel-map', {
+      zoomControl: false,
+      attributionControl: false
+    }).setView([lat, lon], 14);
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 20
+    }).addTo(hotelMap);
+    
+    const hotelMarker = L.marker([lat, lon]).addTo(hotelMap);
+    hotelMarker.bindPopup(`<b>${hotel.name}</b>`).openPopup();
+    
+    L.circleMarker([lat + 0.005, lon - 0.003], { color: 'var(--color-primary)', radius: 5 }).addTo(hotelMap).bindPopup("Metro Station");
+    L.circleMarker([lat - 0.004, lon + 0.006], { color: 'var(--color-secondary)', radius: 5 }).addTo(hotelMap).bindPopup("Fushimi Inari Shrine");
+  }, 100);
+  
+  dialog.addEventListener('cancel', () => {
+    window.closeHotelModal();
+  });
+};
+
+window.closeHotelModal = function() {
+  const dialog = document.getElementById('hotel-details-modal');
+  if (dialog) {
+    dialog.close();
+  }
+  if (window.hotelModalTrigger) {
+    window.hotelModalTrigger.focus();
+  }
+};
+
+window.switchModalGalleryImg = function(index, images) {
+  const heroImg = document.getElementById('gallery-hero-img');
+  if (heroImg) {
+    heroImg.src = images[index];
+  }
+  document.querySelectorAll('.thumb-btn').forEach((btn, idx) => {
+    if (idx === index) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+};
+
+window.openHotelWebsite = function(hotelName) {
+  window.open(`https://google.com/search?q=${encodeURIComponent(hotelName + " website")}`, '_blank');
+};
+
+window.selectHotelFromModal = function(hotelId) {
+  window.selectHotel(hotelId);
+  window.closeHotelModal();
+  window.showToast("Hotel stay added to your planner itinerary!", "success");
+};
+
