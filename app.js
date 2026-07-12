@@ -1164,27 +1164,37 @@ async function selectDestination(destId) {
       <div class="detail-right-col">
         <!-- Flights Section -->
         <section class="options-section detail-flights-card">
-          <h3>
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
-            Available Flights
-          </h3>
-          <div class="options-list" id="flights-list">
-            <div class="skeleton-item"></div>
-            <div class="skeleton-item"></div>
-            <div class="skeleton-item"></div>
+          <button class="options-section-header" onclick="window.toggleSectionCollapse('flights-content', 'flights-chevron')" aria-expanded="true" aria-controls="flights-content" aria-label="Toggle Available Flights Section">
+            <h3>
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
+              Available Flights
+            </h3>
+            <svg class="chevron-icon" id="flights-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+          </button>
+          <div class="options-section-content" id="flights-content">
+            <div class="options-list" id="flights-list">
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+            </div>
           </div>
         </section>
 
         <!-- Stays Section -->
         <section class="options-section detail-hotels-card" style="margin-top: 1.5rem;">
-          <h3>
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-            Recommended Stays
-          </h3>
-          <div class="options-list" id="hotels-list">
-            <div class="skeleton-item"></div>
-            <div class="skeleton-item"></div>
-            <div class="skeleton-item"></div>
+          <button class="options-section-header" onclick="window.toggleSectionCollapse('hotels-content', 'hotels-chevron')" aria-expanded="true" aria-controls="hotels-content" aria-label="Toggle Recommended Stays Section">
+            <h3>
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+              Recommended Stays
+            </h3>
+            <svg class="chevron-icon" id="hotels-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+          </button>
+          <div class="options-section-content" id="hotels-content">
+            <div class="options-list" id="hotels-list">
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+            </div>
           </div>
         </section>
       </div>
@@ -1192,12 +1202,8 @@ async function selectDestination(destId) {
 
     <!-- Sticky Bottom CTA (Peer Row) -->
     <div class="detail-cta-wrapper">
-      <button class="btn-planner-primary continue-booking-cta" onclick="navigateToView('planner')" aria-label="Continue to Travel Planner">
-        Continue to Travel Planner
-        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12" />
-          <polyline points="12 5 19 12 12 19" />
-        </svg>
+      <button class="btn-planner-primary continue-booking-cta" id="btn-bottom-continue" onclick="navigateToView('planner')" aria-label="Continue to Travel Planner" disabled>
+        Continue to Travel Planner →
       </button>
     </div>
   `;
@@ -1208,6 +1214,8 @@ async function selectDestination(destId) {
   initGoogleMapForDestination(dest);
   fetchWeatherData(dest.id);
   fetchFlightsAndHotelsData(dest.id);
+  updateContinueButtonState();
+  updateBookingStatusTags();
 }
 
 let activeMap = null;
@@ -1304,6 +1312,8 @@ async function fetchFlightsAndHotelsData(destId) {
     
     renderFlightsList(flights);
     renderHotelsList(hotels);
+    updateContinueButtonState();
+    updateBookingStatusTags();
     
     // Plot hotels on map as secondary markers
     if (activeMap && hotels.length > 0) {
@@ -1362,8 +1372,9 @@ function renderFlightsList(flights) {
         
         <!-- Row 3: Action Button CTA -->
         <div class="flight-actions-row">
-          <button class="btn-add-option flight-action-btn" onclick="window.selectFlight('${fl.id}'); event.stopPropagation();">
-            ${isSelected ? 'Flight Added' : 'Add Flight'}
+          ${isSelected ? '<span class="selected-card-tag">✓ Added to Trip</span>' : ''}
+          <button class="btn-add-option flight-action-btn ${isSelected ? 'btn-remove-option' : 'btn-primary-option'}" onclick="window.selectFlight('${fl.id}'); event.stopPropagation();">
+            ${isSelected ? '✕ Remove Flight' : 'Add Flight'}
           </button>
         </div>
       </div>
@@ -1438,8 +1449,9 @@ function renderHotelsList(hotels) {
         
         <!-- 3. Stays Action Button Selector -->
         <div class="option-actions stay-actions-rich">
-          <button class="btn-add-option" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="Select ${ht.name}">
-            ${isSelected ? 'Selected' : 'Choose Stay'}
+          ${isSelected ? '<span class="selected-card-tag">✓ Added to Trip</span>' : ''}
+          <button class="btn-add-option ${isSelected ? 'btn-remove-option' : 'btn-primary-option'}" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="${isSelected ? 'Remove' : 'Select'} ${ht.name}">
+            ${isSelected ? '✕ Remove Stay' : 'Choose Stay'}
           </button>
         </div>
       </div>
@@ -1452,10 +1464,18 @@ function selectFlight(flightId) {
   const flight = state.selectedDestination.flights.find(f => f.id === flightId);
   if (!flight) return;
 
-  state.itinerary.flight = flight;
+  if (state.itinerary.flight && state.itinerary.flight.id === flightId) {
+    state.itinerary.flight = null;
+    addBotMessage(`🗑️ Removed flight <strong>${flight.airline} (${flight.flightNumber})</strong> from your itinerary.`);
+  } else {
+    state.itinerary.flight = flight;
+    addBotMessage(`✈️ Added flight <strong>${flight.airline} (${flight.flightNumber})</strong> to your itinerary.`);
+  }
+  
   renderFlightsList(state.selectedDestination.flights);
-  addBotMessage(`✈️ Added flight <strong>${flight.airline} (${flight.flightNumber})</strong> to your itinerary.`);
   updateSummaryBtnState();
+  updateContinueButtonState();
+  updateBookingStatusTags();
 }
 
 function selectHotel(hotelId) {
@@ -1463,10 +1483,18 @@ function selectHotel(hotelId) {
   const hotel = state.selectedDestination.hotels.find(h => h.id === hotelId);
   if (!hotel) return;
 
-  state.itinerary.hotel = hotel;
+  if (state.itinerary.hotel && state.itinerary.hotel.id === hotelId) {
+    state.itinerary.hotel = null;
+    addBotMessage(`🗑️ Removed hotel <strong>${hotel.name}</strong> from your stay.`);
+  } else {
+    state.itinerary.hotel = hotel;
+    addBotMessage(`🏨 Selected <strong>${hotel.name}</strong> for your stay.`);
+  }
+  
   renderHotelsList(state.selectedDestination.hotels);
-  addBotMessage(`🏨 Selected <strong>${hotel.name}</strong> for your stay.`);
   updateSummaryBtnState();
+  updateContinueButtonState();
+  updateBookingStatusTags();
 }
 
 window.selectFlight = selectFlight;
@@ -1813,6 +1841,56 @@ function updateSummaryBtnState() {
     bookBtn.disabled = !isItineraryReady;
   }
 }
+
+function updateContinueButtonState() {
+  const isReady = !!state.itinerary.flight;
+  
+  const topBtn = document.getElementById('btn-top-continue');
+  const bottomBtn = document.getElementById('btn-bottom-continue');
+  
+  [topBtn, bottomBtn].forEach(btn => {
+    if (btn) {
+      btn.disabled = !isReady;
+    }
+  });
+}
+
+function updateBookingStatusTags() {
+  const statusBar = document.getElementById('detail-status-bar');
+  if (!statusBar) return;
+  statusBar.innerHTML = '';
+  
+  const flightDone = !!state.itinerary.flight;
+  const hotelDone = !!state.itinerary.hotel;
+  
+  // Progress tracker element
+  const progressDiv = document.createElement('div');
+  progressDiv.className = 'booking-progress-tracker';
+  progressDiv.innerHTML = `
+    <span class="progress-title">Trip Setup:</span>
+    <span class="progress-step ${flightDone ? 'done' : 'pending'}">${flightDone ? '✓' : '○'} Flight</span>
+    <span class="progress-step ${hotelDone ? 'done' : 'pending'}">${hotelDone ? '✓' : '○'} Hotel</span>
+    <span class="progress-step pending">○ Itinerary</span>
+  `;
+  statusBar.appendChild(progressDiv);
+  
+  if (flightDone) {
+    const flightBadge = document.createElement('span');
+    flightBadge.className = 'status-badge-pill success';
+    flightBadge.innerHTML = '✓ Flight Added';
+    statusBar.appendChild(flightBadge);
+  }
+  
+  if (hotelDone) {
+    const hotelBadge = document.createElement('span');
+    hotelBadge.className = 'status-badge-pill success';
+    hotelBadge.innerHTML = '✓ Hotel Selected';
+    statusBar.appendChild(hotelBadge);
+  }
+}
+
+window.updateContinueButtonState = updateContinueButtonState;
+window.updateBookingStatusTags = updateBookingStatusTags;
 
 // -------------------------------------------------------------
 // Interactive AI Chat Assistant Simulator
@@ -3450,6 +3528,26 @@ window.showPremiumMapDetails = function(destId) {
       window.showToast("Premium destination points plotted on map!", "success");
     }
   }, 600);
+};
+
+window.toggleSectionCollapse = function(contentId, chevronId) {
+  const content = document.getElementById(contentId);
+  const chevron = document.getElementById(chevronId);
+  const headerBtn = chevron ? chevron.closest('.options-section-header') : null;
+  
+  if (content) {
+    const isCollapsed = content.classList.toggle('collapsed');
+    if (headerBtn) {
+      headerBtn.setAttribute('aria-expanded', !isCollapsed);
+    }
+    if (chevron) {
+      if (isCollapsed) {
+        chevron.classList.add('collapsed');
+      } else {
+        chevron.classList.remove('collapsed');
+      }
+    }
+  }
 };
 
 

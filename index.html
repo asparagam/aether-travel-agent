@@ -181,14 +181,18 @@
       <!-- View: Destination Detail Page -->
       <div id="detail-view" class="view-section">
         <div class="detail-back-bar">
-          <button class="btn-detail-back" onclick="navigateToView('dashboard')">
+          <button class="btn-detail-back" onclick="navigateToView('dashboard')" aria-label="Back to Explore">
             <svg viewBox="0 0 24 24">
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
             Back to Explore
           </button>
+          <button class="btn-planner-primary continue-booking-cta top-continue-btn" id="btn-top-continue" onclick="navigateToView('planner')" aria-label="Continue to Travel Planner" disabled>
+            Continue to Travel Planner →
+          </button>
         </div>
+        <div class="detail-status-bar" id="detail-status-bar"></div>
 
         <h2 id="detail-heading" tabindex="-1" style="outline:none; font-size:1px; opacity:0; position:absolute;">Destination details view</h2>
 

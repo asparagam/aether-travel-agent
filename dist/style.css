@@ -4457,6 +4457,206 @@ dialog.booking-modal::backdrop {
   transition: all 0.25s ease;
 }
 
+/* Destination Details Refinement CSS */
+
+/* Top Action Bar & Sticky states */
+.detail-back-bar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: var(--bg-main) !important;
+  padding-top: 32px !important;
+  padding-bottom: 16px !important;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.light-theme .detail-back-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.top-continue-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  min-height: 44px !important;
+  font-size: 0.9rem !important;
+  border-radius: 99px !important;
+}
+
+/* Detail status bar and dynamic badges */
+.detail-status-bar {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  padding: 12px 0 16px 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  margin-bottom: 24px !important;
+}
+
+.booking-progress-tracker {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: var(--color-text-secondary) !important;
+  margin-right: 12px !important;
+}
+
+.progress-title {
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
+}
+
+.progress-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.progress-step.done {
+  color: #10B981 !important;
+  font-weight: 600 !important;
+}
+
+.progress-step.pending {
+  color: var(--color-text-muted) !important;
+}
+
+.status-badge-pill.success {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0 12px !important;
+  height: 32px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+  color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  gap: 6px !important;
+}
+
+/* Selected Flight / Stay indicator tag */
+.selected-card-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 10px !important;
+  height: 24px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+  color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  margin-right: auto !important;
+}
+
+/* Collapsible headers, chevrons, animations */
+.options-section {
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+}
+
+.options-section-header {
+  width: 100% !important;
+  background: none !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 1.25rem 1.5rem !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  min-height: 48px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.options-section-header:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.light-theme .options-section-header:hover {
+  background-color: rgba(0, 0, 0, 0.01) !important;
+}
+
+.options-section-header h3 {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+.chevron-icon {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: var(--color-text-secondary) !important;
+  stroke-width: 2.5 !important;
+  fill: none !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  transition: transform 0.25s ease !important;
+  transform: rotate(180deg) !important; /* Open (expanded) by default */
+}
+
+.chevron-icon.collapsed {
+  transform: rotate(0deg) !important; /* Closed (collapsed) */
+}
+
+.options-section-content {
+  max-height: 1500px !important;
+  overflow: hidden !important;
+  transition: max-height 0.25s ease-out, opacity 0.25s ease-out !important;
+  opacity: 1 !important;
+}
+
+.options-section-content.collapsed {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Remove button destructive styling overrides */
+.btn-remove-option {
+  background: transparent !important;
+  color: #EF4444 !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-remove-option:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: #EF4444 !important;
+  color: #EF4444 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Responsive behavior overrides */
+@media (max-width: 767px) {
+  .top-continue-btn {
+    display: none !important;
+  }
+  .detail-cta-wrapper {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .top-continue-btn {
+    display: inline-flex !important;
+  }
+  .detail-cta-wrapper {
+    display: none !important;
+  }
+}
+
 
 
 
