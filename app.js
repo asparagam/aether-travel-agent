@@ -63,6 +63,33 @@ async function initSupabase() {
       updateAuthUI(session);
       if (session) {
         loadUserTrips();
+        
+        // Restore itinerary and redirect target from localStorage if present
+        const savedItineraryStr = localStorage.getItem('aether_saved_itinerary');
+        if (savedItineraryStr) {
+          try {
+            const parsed = JSON.parse(savedItineraryStr);
+            if (parsed && parsed.destination) {
+              state.itinerary = parsed;
+              renderPlannerView();
+            }
+          } catch (e) {
+            console.error("Failed to restore saved itinerary:", e);
+          }
+          localStorage.removeItem('aether_saved_itinerary');
+        }
+
+        const savedRedirect = localStorage.getItem('aether_redirect_target');
+        if (savedRedirect) {
+          localStorage.removeItem('aether_redirect_target');
+          setTimeout(() => {
+            if (savedRedirect === 'checkout') {
+              window.startCheckoutFlow();
+            } else {
+              navigateToView(savedRedirect);
+            }
+          }, 1000);
+        }
       }
 
       // Check if password reset redirection
@@ -248,20 +275,62 @@ window.validatePasswordStrength = function(input) {
 window.showAuthScreen = function(redirectTarget = null) {
   if (redirectTarget) {
     state.redirectAfterLogin = redirectTarget;
+    localStorage.setItem('aether_redirect_target', redirectTarget);
+    if (state.itinerary && state.itinerary.destination) {
+      localStorage.setItem('aether_saved_itinerary', JSON.stringify(state.itinerary));
+    }
   }
   const screen = document.getElementById('auth-screen');
   if (screen) {
-    screen.style.display = 'flex';
+    // Reset to signin view on open
+    const panelSignin = document.getElementById('auth-panel-signin');
+    const panelSignup = document.getElementById('auth-panel-signup');
+    const panelForgot = document.getElementById('auth-panel-forgot');
+    const panelUpdate = document.getElementById('auth-panel-update');
+    
+    if (panelSignin) panelSignin.style.display = 'block';
+    if (panelSignup) panelSignup.style.display = 'none';
+    if (panelForgot) panelForgot.style.display = 'none';
+    if (panelUpdate) panelUpdate.style.display = 'none';
+    
+    // Restore social block if update was open
+    const socialBlock = document.getElementById('social-auth-block');
+    if (socialBlock) socialBlock.style.display = 'block';
+
+    if (typeof screen.showModal === 'function') {
+      screen.showModal();
+    } else {
+      screen.style.display = 'flex';
+    }
   }
 };
 
 window.closeAuthScreen = function() {
   const screen = document.getElementById('auth-screen');
   if (screen) {
-    screen.style.display = 'none';
+    if (typeof screen.close === 'function') {
+      screen.close();
+    } else {
+      screen.style.display = 'none';
+    }
   }
   state.redirectAfterLogin = null;
 };
+
+// Outside click detection for closing authentication dialog modal
+document.addEventListener('DOMContentLoaded', () => {
+  const authDialog = document.getElementById('auth-screen');
+  if (authDialog) {
+    authDialog.addEventListener('click', (event) => {
+      const rect = authDialog.getBoundingClientRect();
+      const isInDialog = (event.clientX >= rect.left && event.clientX <= rect.right &&
+                          event.clientY >= rect.top && event.clientY <= rect.bottom);
+      if (!isInDialog) {
+        window.closeAuthScreen();
+      }
+    });
+  }
+});
 
 window.toggleProfileMenu = function(event) {
   if (event) event.stopPropagation();
@@ -306,7 +375,15 @@ window.handleEmailSignIn = async function(event) {
     
     // Handle protected redirection
     if (state.redirectAfterLogin) {
-      navigateToView(state.redirectAfterLogin);
+      const target = state.redirectAfterLogin;
+      state.redirectAfterLogin = null;
+      localStorage.removeItem('aether_redirect_target');
+      localStorage.removeItem('aether_saved_itinerary');
+      if (target === 'checkout') {
+        window.startCheckoutFlow();
+      } else {
+        navigateToView(target);
+      }
     }
   } catch (err) {
     console.error(err);
@@ -1923,6 +2000,12 @@ let checkoutGuests = 1;
 window.startCheckoutFlow = function() {
   if (!state.itinerary.destination || !state.itinerary.flight || !state.itinerary.hotel) {
     alert("Please select a destination, flight, and hotel first before booking.");
+    return;
+  }
+  
+  if (!state.userSession) {
+    window.showToast("Please sign in to proceed with booking.", "info");
+    window.showAuthScreen('checkout');
     return;
   }
   

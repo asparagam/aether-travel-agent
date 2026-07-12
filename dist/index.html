@@ -732,42 +732,18 @@
   </dialog>
 
   <!-- 6. PREMIUM FULLSCREEN AUTHENTICATION FLOW OVERLAY -->
-  <div id="auth-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; background: var(--bg-main);">
-    <!-- Split Left: Immersive Travel Imagery -->
-    <div class="auth-split-image" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80');">
-      <div class="auth-image-overlay">
-        <div class="auth-brand" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
-          <svg viewBox="0 0 24 24" width="36" height="36" stroke="white" stroke-width="2.5" fill="none">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-            <line x1="12" y1="22.08" x2="12" y2="12" />
-          </svg>
-          <h2 style="margin: 0; color: #fff;">Aether</h2>
-        </div>
-        <blockquote>
-          "Travel is the only thing you buy that makes you richer."
-          <cite style="display: block; margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7); font-style: normal;">— Aether Co-Pilot</cite>
-        </blockquote>
-      </div>
-    </div>
-
-    <!-- Split Right: Dynamic Forms Panel -->
-    <div class="auth-split-form">
+  <dialog id="auth-screen" class="auth-modal-dialog">
+    <div class="auth-modal-content">
       <button class="btn-close-auth" onclick="window.closeAuthScreen()" aria-label="Close authentication page">×</button>
       
       <div class="auth-card-container">
         <!-- Glassmorphism Card Wrapper -->
         <div class="auth-glass-card">
-          <!-- Form Header Tabs -->
-          <div class="auth-tabs" id="auth-tabs-row">
-            <button type="button" class="auth-tab-btn active" id="tab-btn-signin" onclick="window.toggleAuthTab('signin')">Sign In</button>
-            <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="window.toggleAuthTab('signup')">Sign Up</button>
-          </div>
-
+          
           <!-- A. Sign In View -->
           <div class="auth-view-panel active" id="auth-panel-signin">
             <h3>Welcome Back</h3>
-            <p class="subtitle">Log in to manage your premium itineraries.</p>
+            <p class="subtitle">Sign in to continue planning your next adventure.</p>
             
             <form id="signin-form" onsubmit="window.handleEmailSignIn(event)">
               <div class="checkout-form-group">
@@ -817,12 +793,16 @@
               <button type="submit" class="btn-auth-submit" id="btn-signin-submit">
                 <span>Sign In</span>
               </button>
+
+              <p class="auth-switch-text" style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--color-text-secondary);">
+                New here? <button type="button" class="btn-link-action" onclick="window.toggleAuthTab('signup')">Create your free account</button>
+              </p>
             </form>
           </div>
 
           <!-- B. Sign Up View -->
           <div class="auth-view-panel" id="auth-panel-signup" style="display: none;">
-            <h3>Create Account</h3>
+            <h3>Create your free account</h3>
             <p class="subtitle">Join Aether to unlock co-pilot features.</p>
             
             <form id="signup-form" onsubmit="window.handleEmailSignUp(event)">
@@ -902,6 +882,10 @@
               <button type="submit" class="btn-auth-submit" id="btn-signup-submit">
                 <span>Register Account</span>
               </button>
+
+              <p class="auth-switch-text" style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--color-text-secondary);">
+                Already have an account? <button type="button" class="btn-link-action" onclick="window.toggleAuthTab('signin')">Sign in to continue</button>
+              </p>
             </form>
           </div>
 
@@ -976,7 +960,7 @@
           <!-- Social Authentication Block -->
           <div class="social-auth-block" id="social-auth-block">
             <div class="divider-text" style="text-align: center; margin: 1.5rem 0; position: relative; color: var(--color-text-muted);">
-              <span style="background: var(--bg-card); padding: 0 1rem; position: relative; z-index: 1;">or continue with</span>
+              <span style="background: var(--bg-card); padding: 0 1rem; position: relative; z-index: 1;">or continue in seconds with</span>
               <hr style="position: absolute; top: 50%; left: 0; right: 0; border: none; border-top: 1px solid var(--border-color); z-index: 0; margin: 0;">
             </div>
 
@@ -997,10 +981,11 @@
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 9999;"></div>
