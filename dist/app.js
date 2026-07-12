@@ -1100,102 +1100,105 @@ async function selectDestination(destId) {
 
   const container = document.getElementById('detail-view-content');
   container.innerHTML = `
-    <!-- Left Column: Hero Card & Map -->
-    <div class="detail-left-col">
-      <div class="detail-hero-card">
-        <div class="detail-hero-img-wrapper">
-          <img src="${dest.image}" alt="${dest.name}" id="detail-hero-img">
-          
-          <!-- Glassmorphic Weather Overlay (Bottom-Left) -->
-          <div class="weather-hero-overlay" id="weather-hero-overlay">
-            <span class="weather-overlay-icon">☀️</span>
-            <span class="weather-overlay-text" id="weather-overlay-text">Loading Weather...</span>
-          </div>
-
-          <button class="btn-favorite-circle ${(state.favorites && state.favorites.includes(dest.id)) ? 'active' : ''}" onclick="window.toggleFavoriteDestination('${dest.id}')" aria-label="Toggle Favorite" title="Add to Favorites">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="detail-main-content">
-          <div class="detail-header">
-            <span class="country">${dest.country}</span>
-            <h2>${dest.name}</h2>
-            <p class="tagline">${dest.tagline}</p>
+    <!-- Desktop-app Columns Wrapper -->
+    <div class="detail-columns-wrapper">
+      <!-- Left Column: Hero Card & Map -->
+      <div class="detail-left-col">
+        <div class="detail-hero-card">
+          <div class="detail-hero-img-wrapper">
+            <img src="${dest.image}" alt="${dest.name}" id="detail-hero-img">
             
-            <!-- Lightweight clickable text links meta container -->
-            <div class="detail-meta">
-              <button class="btn-meta-link rating" onclick="window.scrollToReviews()" aria-label="View reviews">
-                ⭐ ${dest.rating} (${dest.reviews} Reviews)
-              </button>
-              <button class="btn-meta-link weather" onclick="window.showWeatherInfo()" aria-label="View weather details">
-                <span id="weather-text-link">☀️ Loading Weather...</span>
-              </button>
+            <!-- Glassmorphic Weather Overlay (Bottom-Left) -->
+            <div class="weather-hero-overlay" id="weather-hero-overlay">
+              <span class="weather-overlay-icon">☀️</span>
+              <span class="weather-overlay-text" id="weather-overlay-text">Loading Weather...</span>
             </div>
-            
-            <!-- Trip Duration Component Row -->
-            <div class="duration-editor-row">
-              <div class="duration-editor-pill">
-                <span class="label-text">Trip Duration:</span>
-                <div class="duration-controls-group">
-                  <button type="button" class="btn-duration-adjust minus" onclick="window.adjustDetailDuration(-1)" aria-label="Decrease trip duration by 1 day">
-                    <svg viewBox="0 0 24 24" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                  </button>
-                  <span class="duration-display" id="duration-display-badge">${state.itinerary.durationDays} Days</span>
-                  <button type="button" class="btn-duration-adjust plus" onclick="window.adjustDetailDuration(1)" aria-label="Increase trip duration by 1 day">
-                    <svg viewBox="0 0 24 24" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                  </button>
+
+            <button class="btn-favorite-circle ${(state.favorites && state.favorites.includes(dest.id)) ? 'active' : ''}" onclick="window.toggleFavoriteDestination('${dest.id}')" aria-label="Toggle Favorite" title="Add to Favorites">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="detail-main-content">
+            <div class="detail-header">
+              <span class="country">${dest.country}</span>
+              <h2>${dest.name}</h2>
+              <p class="tagline">${dest.tagline}</p>
+              
+              <!-- Lightweight clickable text links meta container -->
+              <div class="detail-meta">
+                <button class="btn-meta-link rating" onclick="window.scrollToReviews()" aria-label="View reviews">
+                  ⭐ ${dest.rating} (${dest.reviews} Reviews)
+                </button>
+                <button class="btn-meta-link weather" onclick="window.showWeatherInfo()" aria-label="View weather details">
+                  <span id="weather-text-link">☀️ Loading Weather...</span>
+                </button>
+              </div>
+              
+              <!-- Trip Duration Component Row -->
+              <div class="duration-editor-row">
+                <div class="duration-editor-pill">
+                  <span class="label-text">Trip Duration:</span>
+                  <div class="duration-controls-group">
+                    <button type="button" class="btn-duration-adjust minus" onclick="window.adjustDetailDuration(-1)" aria-label="Decrease trip duration by 1 day">
+                      <svg viewBox="0 0 24 24" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    </button>
+                    <span class="duration-display" id="duration-display-badge">${state.itinerary.durationDays} Days</span>
+                    <button type="button" class="btn-duration-adjust plus" onclick="window.adjustDetailDuration(1)" aria-label="Increase trip duration by 1 day">
+                      <svg viewBox="0 0 24 24" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+            <p class="detail-desc-text">${dest.description}</p>
           </div>
-          <p class="detail-desc-text">${dest.description}</p>
+        </div>
+        <div class="detail-map-card" id="map-container" style="height: 300px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
+          <!-- Leaflet map -->
         </div>
       </div>
-      <div class="detail-map-card" id="map-container" style="height: 300px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
-        <!-- Leaflet map -->
+
+      <!-- Right Column: Flights & Stays -->
+      <div class="detail-right-col">
+        <!-- Flights Section -->
+        <section class="options-section detail-flights-card">
+          <h3>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
+            Available Flights
+          </h3>
+          <div class="options-list" id="flights-list">
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+          </div>
+        </section>
+
+        <!-- Stays Section -->
+        <section class="options-section detail-hotels-card" style="margin-top: 1.5rem;">
+          <h3>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+            Recommended Stays
+          </h3>
+          <div class="options-list" id="hotels-list">
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+          </div>
+        </section>
       </div>
     </div>
 
-    <!-- Right Column: Flights, Stays & CTA -->
-    <div class="detail-right-col">
-      <!-- Flights Section -->
-      <section class="options-section detail-flights-card">
-        <h3>
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
-          Available Flights
-        </h3>
-        <div class="options-list" id="flights-list">
-          <div class="skeleton-item"></div>
-          <div class="skeleton-item"></div>
-          <div class="skeleton-item"></div>
-        </div>
-      </section>
-
-      <!-- Stays Section -->
-      <section class="options-section detail-hotels-card" style="margin-top: 1.5rem;">
-        <h3>
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-          Recommended Stays
-        </h3>
-        <div class="options-list" id="hotels-list">
-          <div class="skeleton-item"></div>
-          <div class="skeleton-item"></div>
-          <div class="skeleton-item"></div>
-        </div>
-      </section>
-      
-      <!-- Premium "Continue" CTA Button to proceed to the Travel Planner -->
-      <div class="detail-cta-wrapper" style="margin-top: 1.5rem;">
-        <button class="btn-planner-primary continue-booking-cta" onclick="navigateToView('planner')" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.9rem; font-size: 1.05rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px var(--color-primary-glow);">
-          Continue to Travel Planner
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </button>
-      </div>
+    <!-- Sticky Bottom CTA (Peer Row) -->
+    <div class="detail-cta-wrapper">
+      <button class="btn-planner-primary continue-booking-cta" onclick="navigateToView('planner')" aria-label="Continue to Travel Planner">
+        Continue to Travel Planner
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </button>
     </div>
   `;
 
