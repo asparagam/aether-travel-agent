@@ -1,167 +1,123 @@
-# 🪐 Voyara AI Travel Planner
+# ✈️ Voyara AI Travel Planner
 
-> An AI-powered travel planning platform that helps travelers discover destinations, compare flights, find hotels, build personalized itineraries, and interact with an intelligent AI travel concierge.
+An AI-powered travel planning platform that helps users discover destinations, compare flights, find hotels, generate personalized itineraries, and plan trips through an intelligent AI travel concierge.
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://travel-agent-inky.vercel.app/)
-[![Google Gemini AI](https://img.shields.io/badge/Google%20Gemini-8E75C2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75C2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![Google Antigravity](https://img.shields.io/badge/Google%20Antigravity-4285F4?style=for-the-badge)](https://deepmind.google/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## ✨ Features
 
-- **🌍 AI-Powered Travel Planning**: Curate, customize, and arrange high-end holidays with ease.
-- **✈️ Smart Flight Recommendations**: Compare options, flight numbers, carriers, and rates instantly.
-- **🏨 Luxury Hotel Recommendations**: Explore curated boutique stays, five-star resorts, and retreats.
-- **🗺️ Interactive Destination Maps**: Beautiful Leaflet maps displaying custom local points of interest.
-- **🤖 AI Travel Concierge**: Context-aware natural chatbot helper loaded with smart travel tools.
-- **🎙️ Voice-Enabled Assistant**: Modern conversational loop (Listening ➔ Thinking ➔ Speaking ➔ Finished) with real-time SpeechRecognition.
-- **📅 Intelligent Itinerary Generation**: Build daily agendas, schedules, and activities dynamically.
-- **🌤️ Live Weather Insights**: Dynamic current forecasts integrated inside the explorer view.
-- **💰 Travel Budget Estimation**: Detailed breakdowns including flights, lodging, activities, food, and transit.
-- **❤️ Save Favorite Destinations**: Keep track of bookmarked locations.
-- **🌙 Dark & Light Mode**: Fluid design-token shifts that look premium across both themes.
-- **📱 Fully Responsive**: Flawless UX across desktop-app viewports, tablets, and mobile screens.
-- **♿ WCAG 2.2 AA Accessibility**: Semantic HTML, screen-reader alt text labels, and keyboard-friendly buttons.
-- **⚡ Modern Animations**: Glassmorphic overlays, card hover effects, and fade transitions.
+- **🤖 AI Travel Concierge**: Context-aware chat assistant loaded with custom planning tools.
+- **✈️ Smart Flight Recommendations**: Live flight comparisons, carrier codes, and rates.
+- **🏨 Hotel Discovery**: High-end stay matches, luxury resorts, and custom amenities.
+- **🗺️ Interactive Maps**: POI map indicators displaying hotels, airport transits, restaurants, and sights.
+- **📅 AI Itinerary Planner**: Dynamic calendar scheduler showing details and events.
+- **🎙️ Voice Assistant**: Immersive Speech Recognition loop with status indicator highlights.
+- **🌤️ Weather Insights**: Live local destination weather reports built into detail cards.
+- **💰 Budget Estimation**: Complete breakdowns including transit, food, and activities.
+- **❤️ Favorites**: Bookmark and catalog target vacation destinations.
+- **🌙 Dark & Light Mode**: Fluid design-system themes with glassmorphism overlays.
+- **📱 Fully Responsive**: Premium experience optimized across mobile, tablet, and desktop views.
+- **♿ WCAG 2.2 AA Accessible**: Semantic markup, keyboard access, and aria descriptors.
 
 ---
 
-## 📸 Screenshots
+## 🛠 Built With
 
-### Home Page
-*Placeholder for Home Page Layout Screenshot*
-
-### Explore Destinations
-*Placeholder for Grid Destinations Search Screenshot*
-
-### Destination Details
-*Placeholder for Split Column Fixed Desktop Details View*
-
-### AI Assistant
-*Placeholder for Chat Assistant Drawer with dynamic POI map pins*
-
-### Travel Planner
-*Placeholder for Stepper Booking and Calendar Export View*
-
-### Light & Dark Themes
-*Placeholder for Light Mode / Dark Mode Theme Comparisons*
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Vanilla CSS
+- **Backend Services**: Supabase Data layers
+- **AI Core**: Google Gemini, Google Antigravity Agent framework
+- **Maps**: Leaflet, OpenStreetMap
+- **Deployment**: Vercel Routing & Serverless Functions
 
 ---
 
-## 🛠 Tech Stack
+## 🤖 AI Features & Voyara Assistant
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | React, TypeScript, Vite, Tailwind CSS, Vanilla CSS |
-| **Backend** | Supabase, Vercel Serverless Functions |
-| **AI Engine** | Google Gemini (gemini-1.5-flash), AI Agent Architecture, Model Tools |
-| **Mapping** | Leaflet, OpenStreetMap, CartoDB Tiles |
-| **Deployment** | Vercel (Production Build & Domain Routing) |
+The Voyara Assistant acts as a personal luxury travel concierge:
+- **Conversational Concierge**: Processes natural chat instructions to query flights, hotels, and maps.
+- **Context memory**: Remembers travel destination, budget restrictions, dietary requests, and dates.
+- **Speech Recognition**: Custom Voice loop containing clear status animations:
+  - `🎤 Listening` (purple) ➔ `🧠 Thinking` (cyan) ➔ `🗣 Speaking` (green active waveform pulse).
+- **Interactive Cards**: Generates cost logs, stays list view grids, and flight rows instead of plain text.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Installation
-
-1. Clone the repository:
+1. Clone the project repository:
    ```bash
    git clone https://github.com/asparagam/aether-travel-agent.git
    cd aether-travel-agent
    ```
-
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Run the development server locally:
+3. Boot the local development server:
    ```bash
    npm run dev
    ```
 
 ### Production Build
-
-1. Build the production output bundle:
+1. Build the production package bundle:
    ```bash
    npm run build
    ```
-
-2. The static files will compile into the `dist/` folder.
+2. Static distribution builds will be compiled to the `dist/` directory.
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-.
-├── api/                  # Vercel Serverless API Functions
-│   ├── _utils.js         # API utility helpers
-│   ├── assistant.js      # Voyara AI Chatbot Concierge endpoint
-│   ├── checkout.js       # Booking checkout and biometric verification
-│   ├── flights.js        # Flight suggestions endpoint
-│   ├── hotels.js         # Stays suggestions endpoint
-│   └── weather.js        # Weather fetching endpoint
-├── auth/                 # OAuth authentication handlers
-│   └── callback/
-│       └── index.html    # OAuth redirect handling
-├── dist/                 # Compiled production distribution files
-├── app.js                # Core frontend controller & application logic
+├── api/                  # Vercel Serverless Functions
+│   ├── assistant.js      # Gemini Chat Concierge endpoint
+│   ├── flights.js        # Flight recommendations database
+│   ├── hotels.js         # Hotel recommendations database
+│   └── weather.js        # Live weather lookup API
+├── auth/                 # Authentication callback pages
+├── app.js                # Frontend Controller logic
 ├── index.html            # Main markup page
-├── mock-data.js          # Mock database configuration
-├── style.css             # Vanilla CSS design tokens & layout styles
-├── package.json          # Node dependencies and scripts
-└── vercel.json           # Vercel routing configurations
+├── mock-data.js          # Mock catalog data
+└── style.css             # Vanilla CSS design tokens & layouts
 ```
 
 ---
 
-## 🤖 AI Features & Voyara Assistant
+## 🎯 Future Roadmap
 
-Voyara Assistant behaves like modern chat assistants (ChatGPT Voice, Gemini Live) delivering a premium concierge experience:
-
-- **Natural Conversations**: Free-text queries that understand intent, retrieve recommendations, and format costs.
-- **Voice Interactions**: Seamless speech recognition using Web Speech APIs with visual indicators representing status states:
-  - `🎤 Listening`: Animated purple pulse.
-  - `🧠 Thinking`: Rapid cyan pulse (hides incomplete text).
-  - `🗣 Speaking`: Active green wave pulse with highlighting of the active chat bubble.
-  - `✓ Finished`: Graceful return to idle.
-- **Context-Aware Memory**: Stays, flights, destinations, budgets, and dietary specifications are retained during the conversation thread.
-- **Interactive Travel Cards**: Rendered dynamically inside the chat interface for flights, stays, cost breakdowns, and maps.
+- [ ] Supabase User login integration
+- [ ] Real-time flight search APIs ( Sabre / Amadeus )
+- [ ] Direct hotel reservation checkouts
+- [ ] Calendar sync (.ics export)
+- [ ] Offline itinerary access
+- [ ] Social travel sharing links
 
 ---
 
-## 🎯 Roadmap
+## 🚀 Live Demo
 
-- [x] Rebrand logo and design variables to **Voyara**
-- [x] Create stable desktop-app fixed viewport details grid
-- [x] Suppress internal agent execution trace logs from UI
-- [x] Implement dynamic suggestion chips and voice status animations
-- [ ] User authentication (Supabase Auth)
-- [ ] Real-time flight APIs integration (Amadeus / Sabre)
-- [ ] Live hotel booking APIs
-- [ ] Calendar sync (.ics export integration)
-- [ ] Offline travel mode support
-- [ ] Multi-language translation support
-- [ ] Social trip sharing features
+The application is deployed on Vercel:
+👉 **[travel-agent-inky.vercel.app](https://travel-agent-inky.vercel.app/)**
 
----
-
-## 📷 Demo
-
-- **Production Live URL**: [travel-agent-inky.vercel.app](https://travel-agent-inky.vercel.app/)
-- **Repository URL**: [github.com/asparagam/aether-travel-agent](https://github.com/asparagam/aether-travel-agent)
+Repository link:
+👉 **[github.com/asparagam/aether-travel-agent](https://github.com/asparagam/aether-travel-agent)**
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from senior developers and product designers!
 1. Fork this Repository.
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
@@ -172,7 +128,7 @@ We welcome contributions from senior developers and product designers!
 
 ## 📄 License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
@@ -180,9 +136,9 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
 
 **Fatma Doğan Seçkin**  
 *Founder & Senior Product Designer*  
- Space UX Design  
-- [Website](https://www.spaceuxdesign.design)  
-- [LinkedIn](https://www.linkedin.com/in/fatmaseckin/)  
+**Space UX Design**  
+- Website: [spaceuxdesign.design](https://www.spaceuxdesign.design)  
+- LinkedIn: [fatmaseckin](https://www.linkedin.com/in/fatmaseckin/)  
 
 ---
 
