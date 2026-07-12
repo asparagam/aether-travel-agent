@@ -2216,15 +2216,7 @@ I can also suggest ways to reduce your budget while keeping the same experience.
 }
 
 function addAgentActionLog(tool, details) {
-  const logs = document.getElementById('chat-logs');
-  const actionDiv = document.createElement('div');
-  actionDiv.className = 'chat-action-log';
-  actionDiv.innerHTML = `
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-    <span>[Agent running: ${tool}] ${details}</span>
-  `;
-  logs.appendChild(actionDiv);
-  logs.scrollTop = logs.scrollHeight;
+  console.log(`[Agent running: ${tool}] ${details}`);
 }
 
 function addBotMessage(htmlContent) {
