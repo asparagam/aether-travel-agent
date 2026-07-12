@@ -114,7 +114,7 @@ async function initSupabase() {
       if (window.location.pathname.includes('/auth/callback') || window.location.hash.includes('access_token')) {
         setTimeout(() => {
           window.history.replaceState(null, null, '/');
-        }, 1200);
+        }, 200);
       }
 
       // Check if password reset redirection
