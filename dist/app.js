@@ -1817,8 +1817,83 @@ function updateSummaryBtnState() {
 // -------------------------------------------------------------
 // Interactive AI Chat Assistant Simulator
 // -------------------------------------------------------------
+// Global memory state for concierge
+state.conciergeMemory = state.conciergeMemory || {
+  destination: null,
+  budget: null,
+  dates: null,
+  companions: null,
+  hotelStyle: null,
+  flightClass: null,
+  diet: null,
+  activities: []
+};
+
 function handleSuggestionClick(text) {
+  const t = text.toLowerCase();
+  
+  if (t.includes('show on map') || t.includes('open map') || t.includes('view map')) {
+    addBotMessage("🗺️ <strong>Opening the interactive map...</strong> Plotting premium locations: Voyara Grand Sovereign, international airport, local dining, historical temples, and transit hubs with walking distances.");
+    if (window.showPremiumMapDetails) {
+      window.showPremiumMapDetails('kyoto');
+    }
+    return;
+  }
+  
+  if (t.includes('view flights') || t.includes('compare flights') || t.includes('find cheaper flights')) {
+    addBotMessage("✈️ <strong>Navigating to flight selections...</strong>");
+    const flightSec = document.querySelector('.detail-flights-card');
+    if (flightSec) {
+      flightSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    return;
+  }
+  
+  if (t.includes('view hotels') || t.includes('view hotel') || t.includes('compare hotels') || t.includes('luxury hotels')) {
+    addBotMessage("🏨 <strong>Navigating to recommended stays...</strong>");
+    const hotelSec = document.querySelector('.detail-hotels-card');
+    if (hotelSec) {
+      hotelSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    return;
+  }
+  
+  if (t.includes('add flight')) {
+    if (state.selectedDestination && state.selectedDestination.flights && state.selectedDestination.flights[0]) {
+      const fl = state.selectedDestination.flights[0];
+      selectFlight(fl.id);
+      addBotMessage(`✈️ Added flight <strong>${fl.airline} (${fl.flightNumber})</strong> to your itinerary.`);
+    } else {
+      addBotMessage("Please select a destination first before adding flights.");
+    }
+    return;
+  }
+  
+  if (t.includes('create itinerary') || t.includes('plan 5-day')) {
+    if (state.selectedDestination) {
+      if (!state.itinerary.flight && state.selectedDestination.flights[0]) {
+        selectFlight(state.selectedDestination.flights[0].id);
+      }
+      if (!state.itinerary.hotel && state.selectedDestination.hotels[0]) {
+        selectHotel(state.selectedDestination.hotels[0].id);
+      }
+      navigateToView('planner');
+      addBotMessage("🗓️ I've loaded your destination overview, flight details, and luxury stays directly into your itinerary planner!");
+    } else {
+      addBotMessage("Please select a destination first before building the itinerary.");
+    }
+    return;
+  }
+  
   handleUserMessage(text);
+}
+
+function updateSuggestions(chips) {
+  const container = document.getElementById('chat-suggestions');
+  if (!container) return;
+  container.innerHTML = chips.map(c => `
+    <span class="suggestion-chip" onclick="handleSuggestionClick('${c}')">${c}</span>
+  `).join('');
 }
 
 let chatHistory = [];
@@ -1832,6 +1907,33 @@ async function handleUserMessage(text) {
     bubble.textContent = text;
     logs.appendChild(bubble);
     logs.scrollTop = logs.scrollHeight;
+  }
+
+  // Parse smart memory attributes from user message
+  const t = text.toLowerCase();
+  if (t.includes('kyoto') || t.includes('japan')) state.conciergeMemory.destination = 'Kyoto, Japan';
+  if (t.includes('amalfi') || t.includes('italy')) state.conciergeMemory.destination = 'Amalfi Coast, Italy';
+  if (t.includes('reykjavik') || t.includes('iceland')) state.conciergeMemory.destination = 'Reykjavik, Iceland';
+  
+  if (t.includes('budget') || t.includes('cost') || t.includes('price')) {
+    const numMatch = t.match(/\d+/);
+    if (numMatch) state.conciergeMemory.budget = `$${numMatch[0]}`;
+  }
+  if (t.includes('business')) state.conciergeMemory.flightClass = 'Business';
+  if (t.includes('first class')) state.conciergeMemory.flightClass = 'First Class';
+  if (t.includes('economy')) state.conciergeMemory.flightClass = 'Economy';
+  
+  if (t.includes('vegetarian') || t.includes('vegan') || t.includes('gluten')) {
+    state.conciergeMemory.diet = t.includes('vegetarian') ? 'Vegetarian' : (t.includes('vegan') ? 'Vegan' : 'Gluten-Free');
+  }
+
+  // Show active memory parameters as an agent action log if stored
+  if (Object.values(state.conciergeMemory).some(v => v !== null)) {
+    const activeParams = Object.keys(state.conciergeMemory)
+      .filter(k => state.conciergeMemory[k] !== null)
+      .map(k => `${k}: ${JSON.stringify(state.conciergeMemory[k])}`)
+      .join(', ');
+    addAgentActionLog('concierge-memory-recall', activeParams);
   }
 
   chatHistory.push({ role: 'user', content: text });
@@ -1859,7 +1961,6 @@ async function handleUserMessage(text) {
       body: JSON.stringify({ messages: chatHistory })
     });
 
-    // Remove typing indicator
     const typingIndicator = document.getElementById('chat-typing-indicator');
     if (typingIndicator) typingIndicator.remove();
 
@@ -1876,10 +1977,44 @@ async function handleUserMessage(text) {
 
     addBotMessage(data.content);
     chatHistory.push({ role: 'assistant', content: data.content });
+    
+    // Automatically update suggestions dynamically according to keywords
+    const contentLower = data.content.toLowerCase();
+    if (contentLower.includes('kyoto') || contentLower.includes('japan')) {
+      updateSuggestions([
+        '🗺️ Show on Map',
+        '✈️ View Flights',
+        '🏨 View Hotels',
+        '🗓️ Create Itinerary',
+        'Plan 5-Day Kyoto Trip',
+        'Luxury Hotels',
+        'Find Cheaper Flights'
+      ]);
+    } else if (contentLower.includes('hotel') || contentLower.includes('stay') || contentLower.includes('grand sovereign')) {
+      updateSuggestions([
+        '🏨 View Hotel',
+        '🗺️ Open Map',
+        '🏨 Compare Hotels',
+        'Luxury Hotels',
+        'Local Restaurants'
+      ]);
+    } else if (contentLower.includes('flight') || contentLower.includes('premium air')) {
+      updateSuggestions([
+        '✈️ Add Flight',
+        '✈️ Compare Flights',
+        'Find Cheaper Flights',
+        'Travel Tips'
+      ]);
+    } else if (contentLower.includes('budget') || contentLower.includes('total') || contentLower.includes('cost')) {
+      updateSuggestions([
+        'Find Cheaper Flights',
+        'Travel Tips',
+        'Plan 5-Day Kyoto Trip'
+      ]);
+    }
 
   } catch (err) {
     console.error('API assistant failed, routing to local simulator:', err);
-    // Remove typing indicator
     const typingIndicator = document.getElementById('chat-typing-indicator');
     if (typingIndicator) typingIndicator.remove();
 
@@ -1903,42 +2038,104 @@ function parseAndReply(text) {
   const t = text.toLowerCase();
   let reply = "";
   let actionLog = null;
+  let suggestionsList = [
+    'Explore Kyoto 🌸',
+    'Amalfi Itinerary 🍋',
+    'Iceland Hotels ❄️',
+    'Plan 5-Day Kyoto Trip'
+  ];
 
   // 1. Navigation / Destination Searches
   if (t.includes('kyoto') || t.includes('japan')) {
     actionLog = { tool: 'select-destination', details: 'id="kyoto"' };
     setTimeout(() => selectDestination('kyoto'), 500);
-    reply = "I've navigated to the <strong>Kyoto</strong> travel portal. By default, I've populated a 7-day cultural itinerary in your planner. Let's arrange your flights! Select a flight on the screen, or tell me to add one.";
+    reply = `Kyoto is a fantastic choice, especially during spring and autumn.
+<br><br>
+Here's a quick overview:
+<br><br>
+📍 <strong>Destination</strong><br>Kyoto, Japan
+<br><br>
+🌤 <strong>Weather</strong><br>22°C · Sunny this week
+<br><br>
+✈ <strong>Flights</strong><br>Starting from $520
+<br><br>
+🏨 <strong>Recommended Stay</strong><br>Voyara Grand Sovereign ($320/night)
+<br><br>
+💰 <strong>Estimated Trip Cost</strong><br>Approximately $2,850 for 6 days including flights and accommodation.
+<br><br>
+Would you like me to build a complete itinerary?`;
+
+    suggestionsList = [
+      '🗺️ Show on Map',
+      '✈️ View Flights',
+      '🏨 View Hotels',
+      '🗓️ Create Itinerary',
+      'Plan 5-Day Kyoto Trip',
+      'Luxury Hotels',
+      'Find Cheaper Flights'
+    ];
   } else if (t.includes('amalfi') || t.includes('italy')) {
     actionLog = { tool: 'select-destination', details: 'id="amalfi"' };
     setTimeout(() => selectDestination('amalfi'), 500);
-    reply = "Showing details for the breathtaking <strong>Amalfi Coast</strong>. I've populated the itinerary planner with lemon grove tours and clifftop hikes. Shall we book a room at Hotel Poseidon?";
+    reply = "Showing details for the breathtaking Amalfi Coast. I've populated the itinerary planner with lemon grove tours and clifftop hikes. Shall we book a room at Hotel Poseidon?";
+    suggestionsList = [
+      '🗺️ Show on Map',
+      '✈️ View Flights',
+      '🏨 View Hotels',
+      '🗓️ Create Itinerary'
+    ];
   } else if (t.includes('iceland') || t.includes('reykjavik')) {
     actionLog = { tool: 'select-destination', details: 'id="reykjavik"' };
     setTimeout(() => selectDestination('reykjavik'), 500);
-    reply = "Here's the <strong>Reykjavik & Southern Coast</strong> portal! I have set up your northern lights tracking agenda. Let me know if you would like me to add flights or hotels.";
+    reply = "Here's the Reykjavik & Southern Coast portal! I have set up your northern lights tracking agenda. Let me know if you would like me to add flights or hotels.";
+    suggestionsList = [
+      '🗺️ Show on Map',
+      '✈️ View Flights',
+      '🏨 View Hotels',
+      '🗓️ Create Itinerary'
+    ];
   } else if (t.includes('patagonia')) {
     actionLog = { tool: 'select-destination', details: 'id="patagonia"' };
     setTimeout(() => selectDestination('patagonia'), 500);
-    reply = "Navigated to the <strong>Patagonia Wilderness</strong> portal. A robust hiking itinerary is now active in your planner.";
+    reply = "Navigated to the Patagonia Wilderness portal. A robust hiking itinerary is now active in your planner.";
   } else if (t.includes('petra') || t.includes('jordan')) {
     actionLog = { tool: 'select-destination', details: 'id="petra"' };
     setTimeout(() => selectDestination('petra'), 500);
-    reply = "Navigated to the <strong>Petra & Wadi Rum</strong> portal. Your desert camping agenda is ready.";
+    reply = "Navigated to the Petra & Wadi Rum portal. Your desert camping agenda is ready.";
 
-  // 2. adding flights
-  } else if (t.includes('add flight') || t.includes('flight') || t.includes('airlines')) {
+  // 2. adding flights / flight queries
+  } else if (t.includes('add flight') || t.includes('flight') || t.includes('airlines') || t.includes('fly') || t.includes('airfare')) {
     if (!state.selectedDestination) {
-      reply = "Please explore a destination first (e.g. Kyoto or Amalfi Coast) before adding a flight.";
+      reply = "Please explore a destination first (e.g. Kyoto or Amalfi Coast) before checking flights.";
     } else {
       const fl = state.selectedDestination.flights[0];
-      actionLog = { tool: 'add-itinerary-item', details: `flightId="${fl.id}"` };
-      setTimeout(() => selectFlight(fl.id), 500);
-      reply = `I have automatically selected and added the <strong>${fl.airline} (${fl.flightNo})</strong> flight to your itinerary. Total pricing updated!`;
+      if (t.includes('add')) {
+        actionLog = { tool: 'add-itinerary-item', details: `flightId="${fl.id}"` };
+        setTimeout(() => selectFlight(fl.id), 500);
+        reply = `I have automatically selected and added the <strong>${fl.airline} (${fl.flightNo})</strong> flight to your itinerary. Total pricing updated!`;
+      } else {
+        reply = `I found the best option for your travel dates:
+<br><br>
+✈️ <strong>Voyara Premium Air</strong>
+<br>
+Departure: 09:00 AM
+<br>
+Duration: 6h 45m (Economy)
+<br>
+Price: $520
+<br><br>
+Would you like me to add this flight to your trip?`;
+      }
+      suggestionsList = [
+        '✈️ Add Flight',
+        '✈️ Compare Flights',
+        'Find Cheaper Flights',
+        'Travel Tips'
+      ];
     }
 
-  // 3. adding hotels
-  } else if (t.includes('hotel') || t.includes('stay') || t.includes('ryokan') || t.includes('retreat')) {
+  // 3. adding hotels / hotel queries
+  } else if (t.includes('hotel') || t.includes('stay') || t.includes('ryokan') || t.includes('retreat') || t.includes('lodging')) {
     if (!state.selectedDestination) {
       reply = "Please pick a destination first so I can fetch recommended stays.";
     } else {
@@ -1946,13 +2143,35 @@ function parseAndReply(text) {
       if (t.includes('hoshinoya')) {
         ht = state.selectedDestination.hotels.find(h => h.id.includes('ky-2')) || ht;
       }
-      actionLog = { tool: 'add-itinerary-item', details: `hotelId="${ht.id}"` };
-      setTimeout(() => selectHotel(ht.id), 500);
-      reply = `I have booked your stay at the <strong>${ht.name}</strong> and added it to your itinerary timeline.`;
+      
+      if (t.includes('add') || t.includes('book')) {
+        actionLog = { tool: 'add-itinerary-item', details: `hotelId="${ht.id}"` };
+        setTimeout(() => selectHotel(ht.id), 500);
+        reply = `I have booked your stay at the <strong>${ht.name}</strong> and added it to your itinerary timeline.`;
+      } else {
+        reply = `I found a hotel that matches your preferences:
+<br><br>
+🏨 <strong>Voyara Grand Sovereign</strong>
+<br>
+★★★★★ 4.9 · Central District
+<br><br>
+🍳 Free Breakfast · 💆 Spa & Wellness · ❌ Free Cancellation
+<br>
+💵 $320/night (Only 1.2 km from Kyoto city center)
+<br><br>
+Would you like to see photos, amenities, reviews, or book this hotel?`;
+      }
+      suggestionsList = [
+        '🏨 View Hotel',
+        '🗺️ Open Map',
+        '🏨 Compare Hotels',
+        'Luxury Hotels',
+        'Local Restaurants'
+      ];
     }
 
   // 4. Checkout flow
-  } else if (t.includes('book') || t.includes('checkout') || t.includes('reserve')) {
+  } else if (t.includes('checkout') || t.includes('reserve')) {
     if (!state.itinerary.destination || !state.itinerary.flight || !state.itinerary.hotel) {
       reply = "You must select a destination, a flight, and a hotel in the planner before initiating a booking! Ask me to 'show Kyoto' and 'add flight' first.";
     } else {
@@ -1961,7 +2180,25 @@ function parseAndReply(text) {
       reply = "Perfect, I've launched the checkout portal for your complete reservation. Please review the details in the dialog popup.";
     }
 
-  // 5. Help / Greeting
+  // 5. Budget queries
+  } else if (t.includes('budget') || t.includes('cost') || t.includes('price') || t.includes('how much')) {
+    reply = `Here is the estimated cost breakdown for your trip:<br><br>
+<strong>Estimated Cost:</strong><br>
+✈️ Flights: $520<br>
+🏨 Hotel: $320 × 6 nights = $1,920<br>
+🍔 Food: ≈ $300<br>
+🎟️ Activities: ≈ $250<br>
+🚕 Transportation: ≈ $80<br>
+────────────────────<br>
+💰 <strong>Estimated Total: $3,070</strong><br><br>
+I can also suggest ways to reduce your budget while keeping the same experience.`;
+    suggestionsList = [
+      'Find Cheaper Flights',
+      'Travel Tips',
+      'Plan 5-Day Kyoto Trip'
+    ];
+
+  // 6. Help / Greeting
   } else {
     reply = "I'm here to assist! Try typing: <ul><li><em>'Show me Kyoto, Japan'</em></li><li><em>'Add flight to my Kyoto itinerary'</em></li><li><em>'Plan a romantic trip to Amalfi Coast'</em></li><li><em>'Book my trip'</em></li></ul>";
   }
@@ -1974,6 +2211,7 @@ function parseAndReply(text) {
   // Stream text
   setTimeout(() => {
     addBotMessage(reply);
+    updateSuggestions(suggestionsList);
   }, 300);
 }
 
@@ -3157,6 +3395,43 @@ window.adjustDetailDuration = function(val) {
     renderFlightsList(state.selectedDestination.flights || []);
   }
 };
+
+window.showPremiumMapDetails = function(destId) {
+  navigateToView('detail');
+  
+  setTimeout(() => {
+    const detailSection = document.getElementById('map-container');
+    if (detailSection) {
+      detailSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    if (activeMap) {
+      const center = activeMap.getCenter();
+      const lat = center.lat;
+      const lon = center.lng;
+      
+      const points = [
+        { type: '🏨 Hotel', name: 'Voyara Grand Sovereign', offset: [0.005, -0.003], desc: 'Luxury Kyoto Stay (1.2 km from Center)' },
+        { type: '✈️ Airport', name: 'Kyoto International Airport Terminal', offset: [0.035, 0.045], desc: 'Main Terminal (45 mins drive)' },
+        { type: '🍜 Restaurant', name: 'Gion Ramen Kaji', offset: [-0.004, 0.008], desc: 'Michelin Starred (5 mins walk)' },
+        { type: '🎨 Museum', name: 'Kyoto National Museum', offset: [-0.012, -0.006], desc: 'Classical Art (12 mins walk)' },
+        { type: '⛩️ Temple', name: 'Kinkaku-ji (Golden Pavilion)', offset: [0.015, -0.018], desc: 'Historic temple complex' },
+        { type: '🚉 Train Station', name: 'Kyoto Central Station', offset: [-0.015, 0.002], desc: 'Shinkansen bullet train hub' }
+      ];
+      
+      points.forEach(p => {
+        const pLat = lat + p.offset[0];
+        const pLon = lon + p.offset[1];
+        L.marker([pLat, pLon]).addTo(activeMap)
+          .bindPopup(`<b>${p.type}: ${p.name}</b><br>${p.desc}`);
+      });
+      
+      activeMap.setZoom(12);
+      window.showToast("Premium destination points plotted on map!", "success");
+    }
+  }, 600);
+};
+
 
 // Sync Itinerary array size to dynamic duration count
 window.updateItineraryDays = function(newDays) {
