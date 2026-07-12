@@ -1105,6 +1105,13 @@ async function selectDestination(destId) {
       <div class="detail-hero-card">
         <div class="detail-hero-img-wrapper">
           <img src="${dest.image}" alt="${dest.name}" id="detail-hero-img">
+          
+          <!-- Glassmorphic Weather Overlay (Bottom-Left) -->
+          <div class="weather-hero-overlay" id="weather-hero-overlay">
+            <span class="weather-overlay-icon">☀️</span>
+            <span class="weather-overlay-text" id="weather-overlay-text">Loading Weather...</span>
+          </div>
+
           <button class="btn-favorite-circle ${(state.favorites && state.favorites.includes(dest.id)) ? 'active' : ''}" onclick="window.toggleFavoriteDestination('${dest.id}')" aria-label="Toggle Favorite" title="Add to Favorites">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -1116,25 +1123,30 @@ async function selectDestination(destId) {
             <span class="country">${dest.country}</span>
             <h2>${dest.name}</h2>
             <p class="tagline">${dest.tagline}</p>
+            
+            <!-- Lightweight clickable text links meta container -->
             <div class="detail-meta">
-              <div class="detail-meta-item rating">
-                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                ${dest.rating} (${dest.reviews} reviews)
-              </div>
-              
-              <!-- Editable Trip Duration Component -->
-              <div class="duration-editor-badge">
+              <button class="btn-meta-link rating" onclick="window.scrollToReviews()" aria-label="View reviews">
+                ⭐ ${dest.rating} (${dest.reviews} Reviews)
+              </button>
+              <button class="btn-meta-link weather" onclick="window.showWeatherInfo()" aria-label="View weather details">
+                <span id="weather-text-link">☀️ Loading Weather...</span>
+              </button>
+            </div>
+            
+            <!-- Trip Duration Component Row -->
+            <div class="duration-editor-row">
+              <div class="duration-editor-pill">
                 <span class="label-text">Trip Duration:</span>
-                <div class="duration-controls-row">
-                  <button type="button" class="btn-duration-adjust minus" onclick="window.adjustDetailDuration(-1)" aria-label="Decrease duration">-</button>
+                <div class="duration-controls-group">
+                  <button type="button" class="btn-duration-adjust minus" onclick="window.adjustDetailDuration(-1)" aria-label="Decrease trip duration by 1 day">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  </button>
                   <span class="duration-display" id="duration-display-badge">${state.itinerary.durationDays} Days</span>
-                  <button type="button" class="btn-duration-adjust plus" onclick="window.adjustDetailDuration(1)" aria-label="Increase duration">+</button>
+                  <button type="button" class="btn-duration-adjust plus" onclick="window.adjustDetailDuration(1)" aria-label="Increase trip duration by 1 day">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  </button>
                 </div>
-              </div>
-
-              <div class="detail-meta-item weather-badge" id="weather-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6z" /></svg>
-                <span id="weather-text">Loading Weather...</span>
               </div>
             </div>
           </div>
@@ -1248,16 +1260,24 @@ function initGoogleMapForDestination(dest) {
 
 async function fetchWeatherData(destId) {
   const cityName = destinationCityMap[destId] || 'Kyoto';
-  const textContainer = document.getElementById('weather-text');
-  if (!textContainer) return;
+  const textLink = document.getElementById('weather-text-link');
+  const overlayText = document.getElementById('weather-overlay-text');
   
   try {
     const res = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`);
     if (!res.ok) throw new Error();
     const weather = await res.json();
-    textContainer.textContent = `${weather.temp}°C ${weather.condition}`;
+    
+    let icon = '☀️';
+    if (weather.condition.toLowerCase().includes('rain')) icon = '🌧️';
+    else if (weather.condition.toLowerCase().includes('cloud')) icon = '☁️';
+    else if (weather.condition.toLowerCase().includes('snow')) icon = '❄️';
+    
+    if (textLink) textLink.textContent = `${icon} ${weather.temp}°C · ${weather.condition}`;
+    if (overlayText) overlayText.textContent = `${weather.temp}°C • ${weather.condition}`;
   } catch (err) {
-    textContainer.textContent = 'Weather Unavailable';
+    if (textLink) textLink.textContent = '☀️ Weather Unavailable';
+    if (overlayText) overlayText.textContent = 'Unavailable';
   }
 }
 
@@ -3315,4 +3335,19 @@ window.selectHotelFromModal = function(hotelId) {
   window.closeHotelModal();
   window.showToast("Hotel stay added to your planner itinerary!", "success");
 };
+
+// Scroll to Reviews helper
+window.scrollToReviews = function() {
+  const hotelSection = document.querySelector('.detail-hotels-card');
+  if (hotelSection) {
+    hotelSection.scrollIntoView({ behavior: 'smooth' });
+    window.showToast("Scrolling to stays and reviews", "info");
+  }
+};
+
+// Show Weather Info helper
+window.showWeatherInfo = function() {
+  window.showToast("Current conditions sourced via OpenWeather API", "info");
+};
+
 
