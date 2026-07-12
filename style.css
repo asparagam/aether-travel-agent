@@ -2463,8 +2463,8 @@ dialog.booking-modal::backdrop {
 }
 
 .auth-modal-dialog::backdrop {
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
 }
 
 .auth-modal-dialog[open] {
@@ -2489,49 +2489,57 @@ dialog.booking-modal::backdrop {
 
 .btn-close-auth {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  font-size: 1.3rem;
   color: var(--color-text-secondary);
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, transform 0.2s, border-color 0.2s;
   z-index: 10;
 }
 
 .btn-close-auth:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.light-theme .btn-close-auth {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.12);
 }
 
 .light-theme .btn-close-auth:hover {
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.2);
 }
 
 .auth-card-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
 }
 
 .auth-glass-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: #1e293b !important;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 2.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 3rem 2.5rem 2.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
 }
 
 .light-theme .auth-glass-card {
-  background: rgba(15, 23, 42, 0.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  background: #ffffff !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1);
 }
 
 /* Tabs */
@@ -2786,24 +2794,32 @@ dialog.booking-modal::backdrop {
   width: 100%;
   height: 50px;
   border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.02);
   color: var(--color-text-primary);
-  padding: 0 3rem;
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.light-theme .auth-input-wrapper input {
-  background: rgba(15, 23, 42, 0.02);
-  border: 1px solid rgba(15, 23, 42, 0.12);
+.auth-input-wrapper input[type="text"],
+.auth-input-wrapper input[type="email"],
+.auth-input-wrapper input[type="password"] {
+  padding-left: 3rem !important;
+  padding-right: 3.25rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.light-theme .auth-input-wrapper input[type="text"],
+.light-theme .auth-input-wrapper input[type="email"],
+.light-theme .auth-input-wrapper input[type="password"] {
+  background: rgba(15, 23, 42, 0.02) !important;
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
 }
 
 .auth-input-wrapper input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.18);
-  background-color: transparent;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.18) !important;
+  background-color: transparent !important;
 }
 
 .auth-input-wrapper .input-icon-svg {
@@ -2852,6 +2868,63 @@ dialog.booking-modal::backdrop {
   height: 21px;
   pointer-events: none;
 }
+
+/* Accessible Contrast, Placeholders, and Spacing Hierarchy */
+.auth-glass-card label {
+  color: var(--color-text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.auth-input-wrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.light-theme .auth-input-wrapper input::placeholder {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+
+.auth-view-panel h3 {
+  margin-bottom: 0.75rem !important;
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
+}
+
+.auth-view-panel .subtitle {
+  margin-bottom: 2rem !important;
+  font-size: 0.9rem !important;
+  color: var(--color-text-secondary) !important;
+  line-height: 1.46;
+}
+
+.checkout-form-group {
+  margin-bottom: 1.5rem !important;
+}
+
+.auth-options-row {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.75rem !important;
+}
+
+.social-auth-block {
+  margin-top: 2rem !important;
+}
+
+.social-btn {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  font-weight: 600 !important;
+}
+
+.light-theme .social-btn {
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  background: rgba(15, 23, 42, 0.02) !important;
+}
+
 
 
 
