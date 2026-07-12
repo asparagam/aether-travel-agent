@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aether Auth Callback</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    async function handleCallback() {
+      try {
+        const res = await fetch('/api/config');
+        const config = await res.json();
+        if (config.supabaseUrl && config.supabaseAnonKey) {
+          const supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+          
+          // Parse hash parameters to initialize session
+          const { data: { session }, error } = await supabaseClient.auth.getSession();
+          if (error) throw error;
+          
+          if (session) {
+            console.log("Session authenticated successfully via callback page.");
+            
+            // Look up saved redirect target or default to home root
+            const targetRedirect = localStorage.getItem('aether_redirect_target') || '/';
+            localStorage.removeItem('aether_redirect_target');
+            
+            // Redirect back to main page
+            window.location.href = targetRedirect;
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Auth callback error:", err);
+      }
+      
+      // Fallback redirect to home root
+      window.location.href = '/';
+    }
+    
+    window.onload = handleCallback;
+  </script>
+</head>
+<body>
+  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: system-ui, sans-serif; background: #0f172a; color: #fff;">
+    <div style="font-size: 1.25rem; font-weight: 500; margin-bottom: 1rem;">Completing secure authentication...</div>
+    <div style="width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s infinite linear;"></div>
+  </div>
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</body>
+</html>

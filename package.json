@@ -4,7 +4,7 @@
   "description": "AI-powered Travel Co-Pilot",
   "type": "module",
   "scripts": {
-    "build": "mkdir -p dist && cp index.html style.css app.js mock-data.js dist"
+    "build": "mkdir -p dist/auth/callback && cp index.html style.css app.js mock-data.js dist && cp auth/callback/index.html dist/auth/callback/"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
