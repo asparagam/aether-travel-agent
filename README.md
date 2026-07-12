@@ -132,13 +132,17 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 👩‍💻 Author
+## 👩💻 Author
 
 **Fatma Doğan Seçkin**  
-*Founder & Senior Product Designer*  
-**Space UX Design**  
-- Website: [spaceuxdesign.design](https://www.spaceuxdesign.design)  
-- LinkedIn: [fatmaseckin](https://www.linkedin.com/in/fatmaseckin/)  
+Founder & Senior Product Designer  
+Space UX Design
+
+🌐 Website  
+https://www.spaceuxdesign.design
+
+💼 LinkedIn  
+https://linkedin.com/in/fatmadoganseckin  
 
 ---
 
