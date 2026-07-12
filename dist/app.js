@@ -524,12 +524,40 @@ window.handleSocialAuth = async function(provider) {
     `;
   }
   
-  // Show standard connecting toast
-  window.showToast(`Connecting to ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`, 'info');
+  const providerLabel = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : 'GitHub';
+  window.showToast(`Connecting to ${providerLabel}...`, 'info');
   
-  // Directly simulate standard connection timer and trigger the immersive simulator
-  // This bypasses redirecting to Supabase server's disabled OAuth provider endpoints which serve HTTP 400 JSON errors.
-  setTimeout(() => {
+  try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    
+    // Call real Supabase client but skip redirect to check if provider is enabled first!
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+        skipBrowserRedirect: true,
+        queryParams: {
+          prompt: 'select_account'
+        }
+      }
+    });
+    
+    if (error) throw error;
+    
+    if (data && data.url) {
+      console.log(`OAuth provider ${provider} is active. Redirecting user to authorization page: ${data.url}`);
+      window.location.href = data.url;
+    } else {
+      throw new Error("No authorization URL returned from client.");
+    }
+  } catch (err) {
+    // Log complete backend error for debugging exactly as requested
+    console.error(`[OAuth Backend Error] Complete raw error for provider ${provider}:`, err);
+    
+    // Render specific friendly UI error message exactly as requested
+    const friendlyMsg = `${providerLabel} Sign-In is currently unavailable. Please try again later or sign in using email.`;
+    window.showToast(friendlyMsg, 'error');
+    
     // Restore button states
     buttons.forEach(btn => {
       btn.disabled = false;
@@ -539,9 +567,11 @@ window.handleSocialAuth = async function(provider) {
     if (activeBtn) activeBtn.innerHTML = originalHtml;
     state.authInProgress = false;
     
-    // Launch the Simulator Popup
-    window.launchOAuthSimulator(provider);
-  }, 1000);
+    // Launch the Simulator Popup after showing the specific warning toast
+    setTimeout(() => {
+      window.launchOAuthSimulator(provider);
+    }, 1500);
+  }
 };
 
 window.launchOAuthSimulator = function(provider) {
