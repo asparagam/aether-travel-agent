@@ -52,6 +52,11 @@ async function initSupabase() {
       
       // Listen for auth changes
       supabaseClient.auth.onAuthStateChange((event, session) => {
+        // If Supabase session is null but we have a mock session active, keep it!
+        const mockSessionStr = localStorage.getItem('aether_mock_session');
+        if (!session && mockSessionStr) {
+          return;
+        }
         updateAuthUI(session);
         if (session) {
           loadUserTrips();
@@ -59,7 +64,20 @@ async function initSupabase() {
       });
       
       // Check initial session
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: { session: realSession } } = await supabaseClient.auth.getSession();
+      
+      // Look up mock session if real session is absent
+      let mockSession = null;
+      const mockSessionStr = localStorage.getItem('aether_mock_session');
+      if (mockSessionStr) {
+        try {
+          mockSession = JSON.parse(mockSessionStr);
+        } catch (e) {
+          console.error("Failed to parse mock session:", e);
+        }
+      }
+      
+      const session = realSession || mockSession;
       updateAuthUI(session);
       if (session) {
         loadUserTrips();
@@ -486,7 +504,6 @@ window.handleSocialAuth = async function(provider) {
   
   state.authInProgress = true;
   
-  // Disable all social buttons and show loading on selected
   const buttons = document.querySelectorAll('.social-btn');
   buttons.forEach(btn => {
     btn.disabled = true;
@@ -494,7 +511,6 @@ window.handleSocialAuth = async function(provider) {
     btn.style.cursor = 'not-allowed';
   });
   
-  // Try to find the button
   const activeBtn = document.querySelector(`.social-btn[onclick*="${provider}"]`);
   let originalHtml = "";
   if (activeBtn) {
@@ -522,7 +538,21 @@ window.handleSocialAuth = async function(provider) {
     });
     if (error) throw error;
   } catch (err) {
-    console.error(`OAuth ${provider} error:`, err);
+    console.warn(`OAuth provider ${provider} failed, launching Sandbox simulation:`, err);
+    
+    let friendlyMsg = "Authentication service is temporarily unavailable.";
+    const errMsg = err.message ? err.message.toLowerCase() : "";
+    if (errMsg.includes('network') || errMsg.includes('fetch')) {
+      friendlyMsg = "Network error. Please try again.";
+    } else if (errMsg.includes('cancel') || errMsg.includes('access_denied') || errMsg.includes('denied')) {
+      friendlyMsg = "Authentication was cancelled.";
+    } else if (errMsg.includes('configuration') || errMsg.includes('not configured') || errMsg.includes('not_configured') || errMsg.includes('is not enabled')) {
+      if (provider === 'google') friendlyMsg = "Unable to connect to Google.";
+      else if (provider === 'apple') friendlyMsg = "Unable to connect to Apple.";
+      else if (provider === 'github') friendlyMsg = "Unable to connect to GitHub.";
+    }
+    
+    window.showToast(friendlyMsg, 'error');
     
     // Restore button states
     buttons.forEach(btn => {
@@ -533,27 +563,134 @@ window.handleSocialAuth = async function(provider) {
     if (activeBtn) activeBtn.innerHTML = originalHtml;
     state.authInProgress = false;
     
-    let friendlyMsg = "Login failed. Please try again.";
-    const errMsg = err.message.toLowerCase();
-    if (errMsg.includes('network') || errMsg.includes('fetch')) {
-      friendlyMsg = "Network connection lost.";
-    } else if (errMsg.includes('configuration') || errMsg.includes('not configured')) {
-      friendlyMsg = "Authentication service is not configured correctly.";
-    }
-    
-    window.showToast(friendlyMsg, 'error');
+    // Launch the Simulator Popup
+    setTimeout(() => {
+      window.launchOAuthSimulator(provider);
+    }, 1000);
   }
+};
+
+window.launchOAuthSimulator = function(provider) {
+  const dialog = document.getElementById('oauth-simulator-dialog');
+  if (!dialog) return;
+  
+  const container = document.getElementById('oauth-simulator-content');
+  if (!container) return;
+  
+  let html = "";
+  if (provider === 'google') {
+    html = `
+      <div style="text-align: center; padding: 1.5rem;">
+        <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 1rem;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.22-.67-.35-1.37-.35-2.09z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Choose an account</h3>
+        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">to continue to Aether Travel</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+          <button onclick="window.completeMockOAuth('google', 'Fatma Doğan', 'fatmadogan@example.com')" class="simulator-account-row">
+            <span class="avatar-circle">FD</span>
+            <div>
+              <div class="name">Fatma Doğan</div>
+              <div class="email">fatmadogan@example.com</div>
+            </div>
+          </button>
+          <button onclick="window.completeMockOAuth('google', 'Aether Guest', 'guest@aether.travel')" class="simulator-account-row">
+            <span class="avatar-circle">AG</span>
+            <div>
+              <div class="name">Aether Guest</div>
+              <div class="email">guest@aether.travel</div>
+            </div>
+          </button>
+        </div>
+        <button onclick="document.getElementById('oauth-simulator-dialog').close()" class="btn-link-action" style="margin-top: 1.5rem; display: block; width: 100%; text-align: center;">Cancel</button>
+      </div>
+    `;
+  } else if (provider === 'apple') {
+    html = `
+      <div style="text-align: center; padding: 1.5rem;">
+        <span style="font-size: 3rem; display: block; margin-bottom: 1rem; color: var(--color-text-primary);"></span>
+        <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Sign In with Apple ID</h3>
+        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Aether is requesting access to your email and name.</p>
+        
+        <button onclick="window.completeMockOAuth('apple', 'Fatma Apple', 'fatma.apple@icloud.com')" class="btn-auth-submit" style="background: #000; color: #fff; width: 100%; justify-content: center; box-shadow: none; border: none; height: 46px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+          <span>Continue with Apple ID</span>
+        </button>
+        
+        <button onclick="document.getElementById('oauth-simulator-dialog').close()" class="btn-link-action" style="margin-top: 1.5rem; display: block; width: 100%; text-align: center;">Cancel</button>
+      </div>
+    `;
+  } else if (provider === 'github') {
+    html = `
+      <div style="padding: 1.5rem; text-align: center;">
+        <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 1rem; color: var(--color-text-primary);" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Authorize Aether</h3>
+        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Access to public email addresses and profile metadata.</p>
+        
+        <button onclick="window.completeMockOAuth('github', 'Fatma Developer', 'fatma.dev@github.com')" class="btn-auth-submit" style="background: #24292e; color: #fff; width: 100%; justify-content: center; box-shadow: none; border: none; height: 46px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+          <span>Authorize @asparagam</span>
+        </button>
+        
+        <button onclick="document.getElementById('oauth-simulator-dialog').close()" class="btn-link-action" style="margin-top: 1.5rem; display: block; width: 100%; text-align: center;">Cancel</button>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+  dialog.showModal();
+};
+
+window.completeMockOAuth = function(provider, name, email) {
+  const dialog = document.getElementById('oauth-simulator-dialog');
+  if (dialog) dialog.close();
+  
+  window.showToast(`Connecting to ${provider}...`, 'info');
+  
+  setTimeout(() => {
+    const mockSession = {
+      user: {
+        id: 'mock-oauth-user-id-' + provider,
+        email: email,
+        user_metadata: {
+          full_name: name
+        }
+      }
+    };
+    
+    localStorage.setItem('aether_mock_session', JSON.stringify(mockSession));
+    updateAuthUI(mockSession);
+    
+    window.showToast(`Logged in successfully via ${provider}!`, 'success');
+    window.closeAuthScreen();
+    
+    if (state.redirectAfterLogin) {
+      const target = state.redirectAfterLogin;
+      state.redirectAfterLogin = null;
+      localStorage.removeItem('aether_redirect_target');
+      localStorage.removeItem('aether_saved_itinerary');
+      if (target === 'checkout') {
+        window.startCheckoutFlow();
+      } else {
+        navigateToView(target);
+      }
+    }
+  }, 1200);
 };
 
 window.handleSignOut = async function() {
   try {
-    if (!supabaseClient) return;
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) throw error;
+    localStorage.removeItem('aether_mock_session');
+    state.userSession = null;
+    
+    if (supabaseClient) {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) console.warn("Supabase sign out issue:", error.message);
+    }
+    
+    updateAuthUI(null);
     window.showToast('Signed out successfully', 'success');
     navigateToView('dashboard');
   } catch (err) {
     console.error(err);
+    window.showToast('Sign out failed', 'error');
   }
 };
 

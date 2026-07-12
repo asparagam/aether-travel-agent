@@ -2925,6 +2925,73 @@ dialog.booking-modal::backdrop {
   background: rgba(15, 23, 42, 0.02) !important;
 }
 
+/* OAuth Simulator Dialog Style Rules */
+#oauth-simulator-dialog .auth-modal-content {
+  background: #1e293b !important;
+  border-radius: 16px;
+  border: 1px solid var(--border-color) !important;
+}
+
+.light-theme #oauth-simulator-dialog .auth-modal-content {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
+}
+
+.simulator-account-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  text-align: left;
+}
+
+.simulator-account-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary);
+}
+
+.light-theme .simulator-account-row {
+  background: rgba(15, 23, 42, 0.02);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.light-theme .simulator-account-row:hover {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: var(--color-primary);
+}
+
+.simulator-account-row .avatar-circle {
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.simulator-account-row .name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.simulator-account-row .email {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+
 
 
 
