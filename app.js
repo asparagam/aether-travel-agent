@@ -1376,7 +1376,9 @@ function renderHotelsList(hotels) {
     const hotelPrice = ht.pricePerNight || ht.price || 320;
     const estTotal = hotelPrice * nights;
     
-    const ratingStars = '★'.repeat(ht.stars || 5) + '☆'.repeat(5 - (ht.stars || 5));
+    // Rating display calculation
+    const ratingVal = ht.rating || ht.stars || '5.0';
+    
     const location = ht.location || 'Central District';
     const reviewsCount = ht.reviews || (140 + idx * 23);
     const distance = ht.distance || `${1.2 + idx * 0.4} km from center`;
@@ -1384,21 +1386,30 @@ function renderHotelsList(hotels) {
     const availability = ht.availability || 'Available';
     
     return `
-      <div class="option-item stay-card-rich ${isSelected ? 'selected' : ''}" onclick="window.openHotelModal('${ht.id}')" tabindex="0" role="button" aria-label="${ht.name}, $${hotelPrice} per night. Click to view gallery and details.">
+      <div class="option-item stay-card-rich ${isSelected ? 'selected' : ''}" onclick="window.openHotelModal('${ht.id}')" tabindex="0" role="button" aria-label="${ht.name}, $${hotelPrice} per night. Click to view details.">
+        
+        <!-- 1. Hotel Image & Overlay Badges -->
         <div class="option-img-wrapper stay-img-rich" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();" title="View details and gallery">
           <img src="${ht.image}" alt="${ht.name}" loading="lazy">
           <span class="badge-free-cancel">Free Cancellation</span>
-        </div>
-        <div class="option-details stay-details-rich">
-          <div class="stay-header-row">
-            <span class="option-name">${ht.name}</span>
-            <span class="stay-rating-stars">${ratingStars} <span style="font-size:0.75rem; font-weight:400; color:var(--color-text-secondary);">(${reviewsCount})</span></span>
+          
+          <!-- Rating Badge Overlaid on Image Top-Right -->
+          <div class="card-badge rating" aria-label="Rating: ${ratingVal} out of 5 stars" onclick="event.stopPropagation();">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+            <span>${ratingVal}</span>
           </div>
-          <p class="stay-subtitle-row">${location} • ${distance}</p>
+        </div>
+        
+        <!-- 2. Hotel Details Content Area -->
+        <div class="option-details stay-details-rich">
+          <span class="option-name">${ht.name}</span>
+          <p class="stay-subtitle-row">${location} • ${distance} • <span style="font-size:0.75rem; color:var(--color-text-secondary);">(${reviewsCount} reviews)</span></p>
+          
           <div class="stay-badges-row">
             <span class="stay-badge breakfast">Free Breakfast</span>
             <span class="stay-badge availability">${availability}</span>
           </div>
+          
           <div class="stay-amenities-pills">
             ${amenities.map(am => `<span class="amenity-pill">${am}</span>`).join('')}
           </div>
@@ -1412,6 +1423,8 @@ function renderHotelsList(hotels) {
             </div>
           </div>
         </div>
+        
+        <!-- 3. Stays Action Button Selector -->
         <div class="option-actions stay-actions-rich">
           <button class="btn-add-option" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="Select ${ht.name}">
             ${isSelected ? 'Selected' : 'Choose Stay'}
