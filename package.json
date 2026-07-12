@@ -1,0 +1,14 @@
+{
+  "name": "aether-travel-agent",
+  "version": "1.0.0",
+  "description": "AI-powered Travel Co-Pilot",
+  "type": "module",
+  "scripts": {
+    "build": "mkdir -p dist && cp index.html style.css app.js mock-data.js dist"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@supabase/supabase-js": "^2.39.8",
+    "dotenv": "^16.4.5"
+  }
+}
