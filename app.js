@@ -418,6 +418,8 @@ function navigateToView(viewId) {
       renderPlannerView();
     } else if (viewId === 'detail') {
       document.getElementById('detail-view').classList.add('active-view');
+    } else if (viewId === 'checkout') {
+      document.getElementById('checkout-view').classList.add('active-view');
     }
 
     state.currentView = viewId;
@@ -1566,14 +1568,14 @@ function initWebMCP() {
     // 5. Open Booking Flow Tool
     modelContext.registerTool({
       name: "initiate_checkout",
-      description: "Launches the payment checkout modal dialog. Must have a destination, flight, and hotel selected in the planner first.",
+      description: "Launches the payment checkout view. Must have a destination, flight, and hotel selected in the planner first.",
       inputSchema: { type: "object", properties: {} },
       execute() {
         if (!state.itinerary.destination || !state.itinerary.flight || !state.itinerary.hotel) {
           throw new Error("Cannot checkout. Itinerary is incomplete.");
         }
-        openBookingDialog();
-        return { status: "success", message: "Checkout modal launched." };
+        window.startCheckoutFlow();
+        return { status: "success", message: "Checkout dashboard launched." };
       }
     });
 
@@ -1583,3 +1585,568 @@ function initWebMCP() {
     console.error("Failed to register WebMCP tools:", error);
   }
 }
+
+// -------------------------------------------------------------
+// Aether Premium Multi-Step Booking & Checkout Flow
+// -------------------------------------------------------------
+let promoApplied = false;
+let promoDiscount = 0;
+let checkoutGuests = 1;
+
+window.startCheckoutFlow = function() {
+  if (!state.itinerary.destination || !state.itinerary.flight || !state.itinerary.hotel) {
+    alert("Please select a destination, flight, and hotel first before booking.");
+    return;
+  }
+  
+  // Navigate to checkout view
+  navigateToView('checkout');
+  
+  // Set default dates
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() + 30);
+  const endDate = new Date(today);
+  endDate.setDate(today.getDate() + 37);
+  
+  document.getElementById('checkout-start-date').value = startDate.toISOString().split('T')[0];
+  document.getElementById('checkout-end-date').value = endDate.toISOString().split('T')[0];
+  
+  // Fill sidebar details
+  document.getElementById('summary-dest-title').textContent = state.itinerary.destination.name;
+  document.getElementById('summary-flight-offer').textContent = `${state.itinerary.flight.airline} (${state.itinerary.flight.cabin})`;
+  document.getElementById('summary-hotel-stay').textContent = state.itinerary.hotel.name;
+  
+  // Populate add-on activities
+  const activityList = state.itinerary.activities.map(act => act.name).join(', ') || 'None selected';
+  document.getElementById('summary-activities-list').textContent = activityList;
+
+  // Initialize variables
+  checkoutGuests = 1;
+  document.getElementById('checkout-guests-count').textContent = checkoutGuests;
+  promoApplied = false;
+  promoDiscount = 0;
+  document.getElementById('checkout-promo').value = '';
+  document.getElementById('promo-status-msg').textContent = '';
+  document.getElementById('calc-discount-row').style.display = 'none';
+  
+  // Reset payment stepper and forms
+  setStepperStep(1);
+  
+  window.recalculatePrices();
+};
+
+window.adjustCheckoutGuests = function(val) {
+  checkoutGuests += val;
+  if (checkoutGuests < 1) checkoutGuests = 1;
+  if (checkoutGuests > 10) checkoutGuests = 10;
+  document.getElementById('checkout-guests-count').textContent = checkoutGuests;
+  window.recalculatePrices();
+};
+
+window.applyPromoCode = function() {
+  const code = document.getElementById('checkout-promo').value.trim().toUpperCase();
+  const statusMsg = document.getElementById('promo-status-msg');
+  if (code === 'AETHER15') {
+    promoApplied = true;
+    statusMsg.textContent = '✅ Promo code AETHER15 applied! (15% discount)';
+    statusMsg.style.color = 'var(--color-secondary)';
+  } else if (code === 'WELCOME') {
+    promoApplied = true;
+    statusMsg.textContent = '✅ Promo code WELCOME applied! ($50 discount)';
+    statusMsg.style.color = 'var(--color-secondary)';
+  } else if (code === '') {
+    promoApplied = false;
+    statusMsg.textContent = '';
+  } else {
+    promoApplied = false;
+    statusMsg.textContent = '❌ Invalid promo code';
+    statusMsg.style.color = 'var(--color-accent)';
+  }
+  window.recalculatePrices();
+};
+
+window.recalculatePrices = function() {
+  const startDateVal = document.getElementById('checkout-start-date').value;
+  const endDateVal = document.getElementById('checkout-end-date').value;
+  
+  let nights = 7;
+  if (startDateVal && endDateVal) {
+    const start = new Date(startDateVal);
+    const end = new Date(endDateVal);
+    const diff = end - start;
+    if (diff > 0) {
+      nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+  }
+  
+  // Get prices
+  const flightPrice = state.itinerary.flight.price || 450;
+  const hotelPrice = state.itinerary.hotel.price || 250;
+  
+  // Room tier upgrade cost
+  const roomTier = document.getElementById('checkout-room-tier').value;
+  let upgradePrice = 0;
+  if (roomTier === 'suite') upgradePrice = 100;
+  if (roomTier === 'villa') upgradePrice = 250;
+  
+  // Activities cost
+  const activitiesCost = state.itinerary.activities.reduce((sum, act) => sum + (act.price || 0), 0);
+  
+  // Calculate Base Total
+  const baseTotal = (hotelPrice * nights * checkoutGuests) + 
+                    (upgradePrice * nights * checkoutGuests) + 
+                    (flightPrice * checkoutGuests) + 
+                    (activitiesCost * checkoutGuests);
+                    
+  // Insurance
+  const hasInsurance = document.getElementById('checkout-insurance').checked;
+  const insuranceFee = hasInsurance ? (49 * checkoutGuests) : 0;
+  
+  // Subtotal before taxes & fees
+  const subtotal = baseTotal;
+  
+  const taxesFees = Math.round(subtotal * 0.12);
+  const serviceFee = Math.round(subtotal * 0.05);
+  
+  // Promo Discount
+  let discount = 0;
+  if (promoApplied) {
+    const code = document.getElementById('checkout-promo').value.trim().toUpperCase();
+    if (code === 'AETHER15') {
+      discount = Math.round(subtotal * 0.15);
+    } else if (code === 'WELCOME') {
+      discount = 50;
+    }
+  }
+  
+  const grandTotal = subtotal + taxesFees + serviceFee + insuranceFee - discount;
+  
+  // Update sidebar UI
+  document.getElementById('calc-base-price').textContent = `$${baseTotal.toLocaleString()}`;
+  document.getElementById('calc-taxes-fees').textContent = `$${taxesFees.toLocaleString()}`;
+  document.getElementById('calc-service-fee').textContent = `$${serviceFee.toLocaleString()}`;
+  
+  const insuranceEl = document.getElementById('summary-insurance-fee');
+  insuranceEl.textContent = hasInsurance ? `$${insuranceFee} ($49 per guest)` : 'Not included';
+  
+  const discountRow = document.getElementById('calc-discount-row');
+  if (discount > 0) {
+    discountRow.style.display = 'flex';
+    document.getElementById('calc-discount-price').textContent = `-$${discount.toLocaleString()}`;
+  } else {
+    discountRow.style.display = 'none';
+  }
+  
+  document.getElementById('calc-grand-total').textContent = `$${grandTotal.toLocaleString()}`;
+  
+  // Store computed values in checkout state
+  window.checkoutState = {
+    baseTotal,
+    taxesFees,
+    serviceFee,
+    insuranceFee,
+    discount,
+    grandTotal,
+    nights,
+    guests: checkoutGuests
+  };
+};
+
+function setStepperStep(step) {
+  // Update progress bar UI
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`stepper-step-${i}`);
+    const flow = document.getElementById(`checkout-flow-${i}`);
+    if (i === step) {
+      el.classList.add('active');
+      flow.style.display = 'block';
+    } else {
+      el.classList.remove('active');
+      flow.style.display = 'none';
+    }
+  }
+}
+
+window.goToCheckoutPayment = function() {
+  setStepperStep(2);
+  
+  // Check browser user agents for Apple Pay / Google Pay button displays
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isMacOriOS = /Macintosh|iPhone|iPad|iPod/i.test(navigator.platform);
+  
+  const appleBtn = document.getElementById('btn-apple-pay');
+  const googleBtn = document.getElementById('btn-google-pay');
+  
+  if (isSafari || isMacOriOS) {
+    appleBtn.style.display = 'flex';
+    googleBtn.style.display = 'none';
+  } else {
+    appleBtn.style.display = 'none';
+    googleBtn.style.display = 'flex';
+  }
+  
+  // Fill in email from active session if logged in
+  const ccEmail = document.getElementById('cc-email');
+  if (ccEmail && ccEmail.value === '') {
+    const activeSummary = document.getElementById('user-profile-summary');
+    if (activeSummary && activeSummary.textContent && activeSummary.textContent.includes('@')) {
+      ccEmail.value = activeSummary.textContent.trim();
+    }
+  }
+};
+
+window.goToCheckoutReview = function() {
+  setStepperStep(1);
+};
+
+window.formatCardNumber = function(input) {
+  // Remove all non-digits
+  let value = input.value.replace(/\D/g, '');
+  // Auto-group into blocks of 4 digits
+  let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+  input.value = formatted;
+  
+  // Card brand detection using prefix patterns
+  const logo = document.getElementById('cc-brand-logo');
+  if (value.startsWith('4')) {
+    logo.textContent = 'Visa 💳';
+    logo.style.color = '#150485';
+  } else if (/^(5[1-5]|2[2-7])/.test(value)) {
+    logo.textContent = 'Mastercard 💳';
+    logo.style.color = '#ff5f00';
+  } else if (/^3[47]/.test(value)) {
+    logo.textContent = 'Amex 💳';
+    logo.style.color = '#0070cd';
+  } else if (/^(6011|65)/.test(value)) {
+    logo.textContent = 'Discover 💳';
+    logo.style.color = '#f9a825';
+  } else {
+    logo.textContent = '';
+  }
+};
+
+window.formatCardExpiry = function(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length > 2) {
+    input.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+  } else {
+    input.value = value;
+  }
+};
+
+window.processCardPayment = async function(event) {
+  event.preventDefault();
+  
+  const ccNumber = document.getElementById('cc-number').value.replace(/\s/g, '');
+  const ccExpiry = document.getElementById('cc-expiry').value;
+  const ccCvv = document.getElementById('cc-cvv').value;
+  const ccName = document.getElementById('cc-name').value;
+  const alertEl = document.getElementById('card-validation-alert');
+  
+  // Basic validation check
+  if (ccNumber.length < 15 || ccNumber.length > 16) {
+    alertEl.textContent = '⚠️ Please enter a valid 15 or 16-digit card number.';
+    alertEl.style.display = 'block';
+    return;
+  }
+  if (!/^\d{2}\/\d{2}$/.test(ccExpiry)) {
+    alertEl.textContent = '⚠️ Expiry date must be in MM/YY format.';
+    alertEl.style.display = 'block';
+    return;
+  }
+  if (ccCvv.length < 3 || ccCvv.length > 4) {
+    alertEl.textContent = '⚠️ CVV must be 3 or 4 digits.';
+    alertEl.style.display = 'block';
+    return;
+  }
+  alertEl.style.display = 'none';
+  
+  // Prepare dynamic loading overlay
+  const originalContent = document.getElementById('checkout-flow-2').innerHTML;
+  const mainContentContainer = document.getElementById('checkout-flow-2');
+  
+  mainContentContainer.innerHTML = `
+    <div style="text-align: center; padding: 4rem 0;">
+      <div class="typing-indicator" style="margin: 0 auto 1.5rem; justify-content: center;">
+        <div class="typing-dot" style="background-color: var(--color-primary);"></div>
+        <div class="typing-dot" style="background-color: var(--color-primary);"></div>
+        <div class="typing-dot" style="background-color: var(--color-primary);"></div>
+      </div>
+      <h3>Securely Processing Transaction...</h3>
+      <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Authenticating payment with Stripe (3D Secure)...</p>
+    </div>
+  `;
+  
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        amount: window.checkoutState.grandTotal,
+        paymentMethodType: 'card',
+        ccName,
+        ccEmail: document.getElementById('cc-email').value
+      })
+    });
+    
+    if (!res.ok) throw new Error('Payment processing failed');
+    const data = await res.json();
+    
+    // Simulate slight authorization lag for premium realism
+    setTimeout(() => {
+      completeBookingSuccess();
+    }, 1500);
+    
+  } catch (err) {
+    console.error('Payment API Error:', err);
+    mainContentContainer.innerHTML = originalContent; // Restore form
+    const newAlert = document.getElementById('card-validation-alert');
+    if (newAlert) {
+      newAlert.textContent = '❌ Payment authorization failed. Please verify credentials or retry.';
+      newAlert.style.display = 'block';
+    }
+  }
+};
+
+window.triggerApplePay = function() {
+  const grandTotal = window.checkoutState.grandTotal;
+  
+  if (window.PaymentRequest) {
+    const methodData = [{
+      supportedMethods: 'https://apple.com/apple-pay',
+      data: {
+        version: 3,
+        merchantIdentifier: 'merchant.aether.travel',
+        merchantCapabilities: ['supports3DS'],
+        supportedNetworks: ['visa', 'mastercard', 'amex'],
+        countryCode: 'US',
+        primaryPaymentMethodType: 'card'
+      }
+    }];
+    
+    const details = {
+      total: {
+        label: 'Aether Vacation Package',
+        amount: { currency: 'USD', value: grandTotal.toString() }
+      }
+    };
+    
+    const request = new PaymentRequest(methodData, details);
+    request.show().then(response => {
+      response.complete('success').then(() => {
+        completeBookingSuccess();
+      });
+    }).catch(err => {
+      console.warn('Apple Pay Sheet cancelled or failed, running demo fallback:', err);
+      runDemoWalletSheet('Apple Pay');
+    });
+  } else {
+    runDemoWalletSheet('Apple Pay');
+  }
+};
+
+window.triggerGooglePay = function() {
+  const grandTotal = window.checkoutState.grandTotal;
+  
+  if (window.PaymentRequest) {
+    const methodData = [{
+      supportedMethods: 'https://google.com/pay',
+      data: {
+        environment: 'TEST',
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['VISA', 'MASTERCARD', 'AMEX']
+          }
+        }]
+      }
+    }];
+    
+    const details = {
+      total: {
+        label: 'Aether Vacation Package',
+        amount: { currency: 'USD', value: grandTotal.toString() }
+      }
+    };
+    
+    const request = new PaymentRequest(methodData, details);
+    request.show().then(response => {
+      response.complete('success').then(() => {
+        completeBookingSuccess();
+      });
+    }).catch(err => {
+      console.warn('Google Pay Sheet cancelled or failed, running demo fallback:', err);
+      runDemoWalletSheet('Google Pay');
+    });
+  } else {
+    runDemoWalletSheet('Google Pay');
+  }
+};
+
+function runDemoWalletSheet(walletType) {
+  // Show premium wallet sheet modal simulation
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.right = '0';
+  overlay.style.bottom = '0';
+  overlay.style.background = 'rgba(0,0,0,0.85)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '99999';
+  overlay.style.backdropFilter = 'blur(10px)';
+  
+  const sheet = document.createElement('div');
+  sheet.style.background = 'var(--bg-card)';
+  sheet.style.border = '1px solid var(--border-color)';
+  sheet.style.borderRadius = 'var(--radius-md)';
+  sheet.style.padding = '2.5rem';
+  sheet.style.maxWidth = '400px';
+  sheet.style.width = '95%';
+  sheet.style.textAlign = 'center';
+  sheet.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
+  
+  sheet.innerHTML = `
+    <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size:1.3rem;">${walletType} Authentication</h3>
+    <p style="color:var(--color-text-secondary); font-size:0.85rem; margin-bottom: 2rem;">Authorized merchant: Aether Travel Co-Pilot</p>
+    
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding:1rem; text-align: left; margin-bottom: 2rem;">
+      <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
+        <span style="color:var(--color-text-muted); font-size:0.8rem;">Item</span>
+        <span style="font-weight:bold; color:var(--color-text-primary); font-size:0.85rem;">Vacation Itinerary</span>
+      </div>
+      <div style="display:flex; justify-content:space-between;">
+        <span style="color:var(--color-text-muted); font-size:0.8rem;">Grand Total</span>
+        <span style="font-weight:bold; color:var(--color-secondary); font-size:1.05rem;">$${window.checkoutState.grandTotal.toLocaleString()}</span>
+      </div>
+    </div>
+    
+    <div style="margin-bottom: 2rem; display: flex; justify-content: center;">
+      <div class="success-icon-wrapper" style="width: 50px; height: 50px; border-radius: 50%; border: 2.5px solid var(--color-primary); display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 1.25rem; font-weight: bold; color: var(--color-primary);">Touch</span>
+      </div>
+    </div>
+    
+    <p style="color:var(--color-text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;">Confirming via Biometrics (Face ID / Touch ID)...</p>
+    <button type="button" class="btn-wizard-nav next" style="width:100%;" onclick="this.parentElement.parentElement.remove(); window.completeBookingSuccess();">Authorize and Pay</button>
+  `;
+  
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+window.completeBookingSuccess = async function() {
+  setStepperStep(3);
+  
+  // Generate random reference code
+  const refCode = 'ATH-' + Math.floor(1000 + Math.random() * 9000) + '-' + Math.floor(10 + Math.random() * 89);
+  document.getElementById('ticket-booking-ref').textContent = refCode;
+  
+  // Set voucher elements
+  document.getElementById('ticket-dest-name').textContent = state.itinerary.destination.name;
+  document.getElementById('ticket-guests-count').textContent = `${window.checkoutState.guests} Traveler${window.checkoutState.guests > 1 ? 's' : ''}`;
+  
+  const startD = document.getElementById('checkout-start-date').value;
+  const endD = document.getElementById('checkout-end-date').value;
+  document.getElementById('ticket-travel-dates').textContent = `${startD} to ${endD}`;
+  
+  // Sync booking details to Supabase table
+  if (supabaseClient) {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const payload = {
+        booking_reference: refCode,
+        user_id: session ? session.user.id : null,
+        itinerary_data: {
+          destination: state.itinerary.destination,
+          flight: state.itinerary.flight,
+          hotel: state.itinerary.hotel,
+          activities: state.itinerary.activities,
+          dates: { start: startD, end: endD },
+        },
+        total_price: window.checkoutState.grandTotal
+      };
+      
+      const { error } = await supabaseClient
+        .from('bookings')
+        .insert(payload);
+        
+      if (error) {
+        console.warn('Booking sync failed (bookings table might not exist in sandbox DB):', error.message);
+      } else {
+        console.log('Booking successfully written to Supabase!');
+      }
+    } catch (err) {
+      console.error('Supabase booking sync error:', err);
+    }
+  }
+};
+
+window.downloadPDFItinerary = function() {
+  alert('Preparing PDF Itinerary generation... Initializing document layout.');
+  window.print();
+};
+
+window.downloadInvoice = function() {
+  const content = `
+    AETHER TRAVEL CO-PILOT
+    INVOICE RECEIPT
+    =========================
+    Booking Reference: ${document.getElementById('ticket-booking-ref').textContent}
+    Destination: ${state.itinerary.destination.name}
+    Travelers: ${window.checkoutState.guests}
+    Nights: ${window.checkoutState.nights}
+    
+    Base Total: $${window.checkoutState.baseTotal.toLocaleString()}
+    Taxes & Fees: $${window.checkoutState.taxesFees.toLocaleString()}
+    Service Charge: $${window.checkoutState.serviceFee.toLocaleString()}
+    Discounts: -$${window.checkoutState.discount.toLocaleString()}
+    
+    GRAND TOTAL PAID: $${window.checkoutState.grandTotal.toLocaleString()}
+    Payment Status: APPROVED via Secure Gateway
+  `;
+  
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Invoice-${document.getElementById('ticket-booking-ref').textContent}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+window.shareTripDetails = function() {
+  const shareText = `I just booked a premium travel getaway to ${state.itinerary.destination.name} with Aether Travel Co-Pilot! Reference: ${document.getElementById('ticket-booking-ref').textContent}`;
+  if (navigator.share) {
+    navigator.share({
+      title: 'My Aether Travel Itinerary',
+      text: shareText,
+      url: window.location.origin
+    }).catch(err => console.log(err));
+  } else {
+    navigator.clipboard.writeText(shareText);
+    alert('Voucher share details copied to clipboard!');
+  }
+};
+
+window.returnToDashboard = function() {
+  // Clear planner state
+  state.itinerary = {
+    destination: null,
+    flight: null,
+    hotel: null,
+    activities: []
+  };
+  renderPlannerView();
+  navigateToView('dashboard');
+};

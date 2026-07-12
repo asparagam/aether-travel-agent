@@ -2057,3 +2057,395 @@ dialog.booking-modal::backdrop {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.03) 25%, rgba(0, 0, 0, 0.06) 50%, rgba(0, 0, 0, 0.03) 75%);
   background-size: 200% 100%;
 }
+
+/* Premium Checkout Styling */
+.checkout-stepper-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.stepper-step.active {
+  color: var(--color-primary);
+}
+
+.stepper-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.stepper-step.active .stepper-num {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .checkout-grid {
+    grid-template-columns: 1fr 380px;
+    gap: 3rem;
+  }
+}
+
+.checkout-main-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+}
+
+.checkout-sidebar {
+  position: sticky;
+  top: 6.5rem;
+}
+
+.checkout-summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.5rem 0;
+}
+
+.summary-divider.subtotal {
+  border-top-style: dashed;
+}
+
+.summary-row, .price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.summary-row .label, .price-row span:first-child {
+  color: var(--color-text-secondary);
+}
+
+.summary-row .val, .price-row span:last-child {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.price-row.grand-total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.price-row.grand-total span:last-child {
+  color: var(--color-secondary);
+}
+
+/* Modifiers styles */
+.checkout-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.checkout-form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.checkout-form-group input[type="text"],
+.checkout-form-group input[type="email"],
+.checkout-form-group input[type="date"],
+.checkout-form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--color-text-primary);
+  outline: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.light-theme .checkout-form-group input[type="text"],
+.light-theme .checkout-form-group input[type="email"],
+.light-theme .checkout-form-group input[type="date"] {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+.checkout-form-group input:focus,
+.checkout-form-group select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+/* Counter */
+.btn-counter {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-counter:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.light-theme .btn-counter {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .btn-counter:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Toggles */
+.checkout-form-group.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  border-radius: var(--radius-sm);
+}
+
+.toggle-label-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-label-desc .label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.toggle-label-desc .desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.checkout-form-group.toggle-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+/* Promo row */
+.btn-apply-promo {
+  padding: 0 1.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-apply-promo:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .btn-apply-promo {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .btn-apply-promo:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Ticket Voucher */
+.ticket-voucher {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  max-width: 500px;
+  margin: 2rem auto;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.light-theme .ticket-voucher {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.005));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-header {
+  background: var(--border-color);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.ticket-body {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: 1.5rem;
+  align-items: center;
+  text-align: left;
+}
+
+.ticket-col {
+  margin-bottom: 0.75rem;
+}
+
+.ticket-col .label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.ticket-col .val {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.ticket-qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  padding: 0.5rem;
+  border-radius: var(--radius-xs);
+  width: 90px;
+  height: 90px;
+  color: #000;
+}
+
+/* Success layout rows */
+.success-actions-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-success-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-success-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-secondary);
+}
+
+.light-theme .btn-success-action {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.light-theme .btn-success-action:hover {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+/* Wallet buttons */
+.wallet-passes-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.wallet-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.wallet-button:hover {
+  transform: translateY(-2px);
+}
+
+.wallet-button.apple {
+  background: #000;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.wallet-button.google {
+  background: #1a73e8;
+  color: #fff;
+}
+
