@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
-      systemInstruction: `You are Aether, an elegant and knowledgeable AI Travel assistant.
+      systemInstruction: `You are Voyara, an elegant and knowledgeable AI Travel assistant.
       You help users search flights, find hotels, check weather, and customize itineraries.
       Keep answers concise and luxurious. Whenever the user asks for flights, hotels, or weather, execute the matching tool immediately.`
     });
@@ -139,9 +139,9 @@ function runMockChatResponse(messages, res) {
   let content = "I can guide you on your custom holiday. Would you like to check flights, find luxury lodging, or review local weather forecast?";
   
   if (lastMsg.includes('flight') || lastMsg.includes('fly')) {
-    content = "I've queried flight offers. We have direct flight suggestions with Aether Airways starting from $520. Let me know if you would like me to map out a flight booking.";
+    content = "I've queried flight offers. We have direct flight suggestions with Voyara Airways starting from $520. Let me know if you would like me to map out a flight booking.";
   } else if (lastMsg.includes('hotel') || lastMsg.includes('stay')) {
-    content = "I retrieved several hotel suggestions for you, notably the Aether Palace Resort ($320/night) with private spa amenities. Would you like to select this accommodation?";
+    content = "I retrieved several hotel suggestions for you, notably the Voyara Palace Resort ($320/night) with private spa amenities. Would you like to select this accommodation?";
   } else if (lastMsg.includes('weather')) {
     content = "The current weather forecast is clear and sunny (22°C), ideal for outdoor sightseeing. Should I recommend local tours?";
   }

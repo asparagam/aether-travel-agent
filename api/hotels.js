@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     // Fallback hotels if Amadeus has no listing for this IATA city code in the test environment
     if (rawHotels.length === 0) {
       rawHotels = [
-        { hotelId: 'AEHOTEL1', name: 'AETHER PALACE RESORT', geoCode: { latitude: 35.6895, longitude: 139.6917 } },
+        { hotelId: 'AEHOTEL1', name: 'VOYARA PALACE RESORT', geoCode: { latitude: 35.6895, longitude: 139.6917 } },
         { hotelId: 'AEHOTEL2', name: 'THE SKYLINE REGENCY', geoCode: { latitude: 35.6762, longitude: 139.6503 } },
         { hotelId: 'AEHOTEL3', name: 'GRAND CONCIERGE RESIDENCE', geoCode: { latitude: 35.6586, longitude: 139.7454 } }
       ];
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     res.status(200).json([
       {
         id: 'fallback-hotel-emergency',
-        name: 'Aether Grand Sovereign',
+        name: 'Voyara Grand Sovereign',
         rating: '4.8',
         reviewsCount: 245,
         price: 320,

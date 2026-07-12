@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Aether Auth Callback</title>
+  <title>Voyara Auth Callback</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     async function handleCallback() {
@@ -20,8 +20,8 @@
             console.log("Session authenticated successfully via callback page.");
             
             // Look up saved redirect target or default to home root
-            const targetRedirect = localStorage.getItem('aether_redirect_target') || '/';
-            localStorage.removeItem('aether_redirect_target');
+            const targetRedirect = localStorage.getItem('voyara_redirect_target') || '/';
+            localStorage.removeItem('voyara_redirect_target');
             
             // Redirect back to main page
             window.location.href = targetRedirect;

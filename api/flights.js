@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     
     // Sandbox fallback: generate high-quality live-like flight options if route is not supported in the sandbox
     const fallbackAirlines = [
-      { name: 'Aether Airways', code: 'AE' },
+      { name: 'Voyara Airways', code: 'AE' },
       { name: 'SkyLink Express', code: 'SL' },
       { name: 'Horizon Jets', code: 'HJ' }
     ];
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     res.status(200).json([
       {
         id: 'fallback-emergency',
-        airline: 'Aether Premium Air',
+        airline: 'Voyara Premium Air',
         carrierCode: 'AE',
         flightNumber: 'AE482',
         price: 520,

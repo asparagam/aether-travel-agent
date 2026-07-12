@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aether Travel Planner - Premium AI Travel Co-Pilot</title>
-  <meta name="description" content="Discover, plan, and book your next luxury vacation with Aether Travel - your personalized AI Travel Agent.">
+  <title>Voyara Travel Planner - Premium AI Travel Co-Pilot</title>
+  <meta name="description" content="Discover, plan, and book your next luxury vacation with Voyara Travel - your personalized AI Travel Agent.">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -23,7 +23,7 @@
               <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
           </div>
-          <span class="brand-name">AETHER</span>
+          <span class="brand-name">VOYARA</span>
         </div>
 
         <nav>
@@ -141,7 +141,7 @@
         <header class="content-header">
           <div>
             <h1 id="list-heading">Unveil the Extraordinary</h1>
-            <p>Select a destination to curate your personalized journey with Aether.</p>
+            <p>Select a destination to curate your personalized journey with Voyara.</p>
           </div>
         </header>
 
@@ -479,7 +479,7 @@
               <div class="checkout-form-group">
                 <label for="checkout-promo">Promo Code</label>
                 <div class="promo-input-row" style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="checkout-promo" placeholder="Enter promo code (e.g. AETHER15)" style="flex: 1;">
+                  <input type="text" id="checkout-promo" placeholder="Enter promo code (e.g. VOYARA15)" style="flex: 1;">
                   <button type="button" class="btn-apply-promo" onclick="applyPromoCode()">Apply</button>
                 </div>
                 <span id="promo-status-msg" style="font-size: 0.8rem; display: block; margin-top: 0.25rem;"></span>
@@ -582,12 +582,12 @@
                 </div>
 
                 <h2>Booking Confirmed!</h2>
-                <p class="success-tag" style="color: var(--color-text-secondary); margin-bottom: 2rem;">We have reserved your luxury vacation with Aether.</p>
+                <p class="success-tag" style="color: var(--color-text-secondary); margin-bottom: 2rem;">We have reserved your luxury vacation with Voyara.</p>
 
                 <!-- Luxury Ticket Voucher representation -->
                 <div class="ticket-voucher">
                   <div class="ticket-header">
-                    <span class="logo">AETHER CO-PILOT VOUCHER</span>
+                    <span class="logo">VOYARA CO-PILOT VOUCHER</span>
                     <span class="booking-ref" id="ticket-booking-ref">ATH-5942-89</span>
                   </div>
                   <div class="ticket-body">
@@ -726,7 +726,7 @@
       <div class="chat-header-title">
         <div class="chat-bot-indicator" id="voice-status-light"></div>
         <div>
-          <h3 id="voice-status-text">Aether Assistant</h3>
+          <h3 id="voice-status-text">Voyara Assistant</h3>
           <p>AI Travel Agent Co-Pilot</p>
         </div>
       </div>
@@ -777,7 +777,7 @@
             toolname="send-chat-query"
             tooldescription="Sends a free-text question or command to the AI Travel assistant (e.g. 'Add Hoshinoya hotel to my itinerary' or 'Find trips under $2000')."
             toolautosubmit>
-        <input type="text" id="chat-input-field" name="query" placeholder="Ask Aether to plan your getaway..." required>
+        <input type="text" id="chat-input-field" name="query" placeholder="Ask Voyara to plan your getaway..." required>
         <button type="button" class="btn-chat-mic" id="btn-chat-mic" aria-label="Start voice input">
           <svg viewBox="0 0 24 24">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -828,7 +828,7 @@
     <!-- Step 1: Summary -->
     <div class="wizard-form-step active" id="wizard-step-1">
       <div class="booking-summary-box">
-        <h4>Aether Trip Details</h4>
+        <h4>Voyara Trip Details</h4>
         <div id="modal-summary-content">
           <!-- Populated dynamically -->
         </div>
@@ -976,7 +976,7 @@
           <!-- B. Sign Up View -->
           <div class="auth-view-panel" id="auth-panel-signup" style="display: none;">
             <h3>Create your free account</h3>
-            <p class="subtitle">Join Aether to unlock co-pilot features.</p>
+            <p class="subtitle">Join Voyara to unlock co-pilot features.</p>
             
             <form id="signup-form" onsubmit="window.handleEmailSignUp(event)">
               <div class="checkout-form-group">

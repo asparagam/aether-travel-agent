@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------
-   Aether Travel Agent - Application Controller & AI Simulator
+   Voyara Travel Agent - Application Controller & AI Simulator
    ------------------------------------------------------------- */
 
 // Global state
@@ -53,7 +53,7 @@ async function initSupabase() {
       // Listen for auth changes
       supabaseClient.auth.onAuthStateChange((event, session) => {
         // If Supabase session is null but we have a mock session active, keep it!
-        const mockSessionStr = localStorage.getItem('aether_mock_session');
+        const mockSessionStr = localStorage.getItem('voyara_mock_session');
         if (!session && mockSessionStr) {
           return;
         }
@@ -68,7 +68,7 @@ async function initSupabase() {
       
       // Look up mock session if real session is absent
       let mockSession = null;
-      const mockSessionStr = localStorage.getItem('aether_mock_session');
+      const mockSessionStr = localStorage.getItem('voyara_mock_session');
       if (mockSessionStr) {
         try {
           mockSession = JSON.parse(mockSessionStr);
@@ -83,7 +83,7 @@ async function initSupabase() {
         loadUserTrips();
         
         // Restore itinerary and redirect target from localStorage if present
-        const savedItineraryStr = localStorage.getItem('aether_saved_itinerary');
+        const savedItineraryStr = localStorage.getItem('voyara_saved_itinerary');
         if (savedItineraryStr) {
           try {
             const parsed = JSON.parse(savedItineraryStr);
@@ -94,12 +94,12 @@ async function initSupabase() {
           } catch (e) {
             console.error("Failed to restore saved itinerary:", e);
           }
-          localStorage.removeItem('aether_saved_itinerary');
+          localStorage.removeItem('voyara_saved_itinerary');
         }
 
-        const savedRedirect = localStorage.getItem('aether_redirect_target');
+        const savedRedirect = localStorage.getItem('voyara_redirect_target');
         if (savedRedirect) {
-          localStorage.removeItem('aether_redirect_target');
+          localStorage.removeItem('voyara_redirect_target');
           setTimeout(() => {
             if (savedRedirect === 'checkout') {
               window.startCheckoutFlow();
@@ -300,9 +300,9 @@ window.validatePasswordStrength = function(input) {
 window.showAuthScreen = function(redirectTarget = null) {
   if (redirectTarget) {
     state.redirectAfterLogin = redirectTarget;
-    localStorage.setItem('aether_redirect_target', redirectTarget);
+    localStorage.setItem('voyara_redirect_target', redirectTarget);
     if (state.itinerary && state.itinerary.destination) {
-      localStorage.setItem('aether_saved_itinerary', JSON.stringify(state.itinerary));
+      localStorage.setItem('voyara_saved_itinerary', JSON.stringify(state.itinerary));
     }
   }
   const screen = document.getElementById('auth-screen');
@@ -402,8 +402,8 @@ window.handleEmailSignIn = async function(event) {
     if (state.redirectAfterLogin) {
       const target = state.redirectAfterLogin;
       state.redirectAfterLogin = null;
-      localStorage.removeItem('aether_redirect_target');
-      localStorage.removeItem('aether_saved_itinerary');
+      localStorage.removeItem('voyara_redirect_target');
+      localStorage.removeItem('voyara_saved_itinerary');
       if (target === 'checkout') {
         window.startCheckoutFlow();
       } else {
@@ -594,7 +594,7 @@ window.launchOAuthSimulator = function(provider) {
       <div style="text-align: center; padding: 1.5rem;">
         <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 1rem;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.22-.67-.35-1.37-.35-2.09z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Choose an account</h3>
-        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">to continue to Aether Travel</p>
+        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">to continue to Voyara Travel</p>
         
         <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
           <button onclick="window.completeMockOAuth('google', 'Fatma Doğan', 'fatmadogan@example.com')" class="simulator-account-row">
@@ -604,11 +604,11 @@ window.launchOAuthSimulator = function(provider) {
               <div class="email">fatmadogan@example.com</div>
             </div>
           </button>
-          <button onclick="window.completeMockOAuth('google', 'Aether Guest', 'guest@aether.travel')" class="simulator-account-row">
+          <button onclick="window.completeMockOAuth('google', 'Voyara Guest', 'guest@voyara.travel')" class="simulator-account-row">
             <span class="avatar-circle">AG</span>
             <div>
-              <div class="name">Aether Guest</div>
-              <div class="email">guest@aether.travel</div>
+              <div class="name">Voyara Guest</div>
+              <div class="email">guest@voyara.travel</div>
             </div>
           </button>
         </div>
@@ -620,7 +620,7 @@ window.launchOAuthSimulator = function(provider) {
       <div style="text-align: center; padding: 1.5rem;">
         <span style="font-size: 3rem; display: block; margin-bottom: 1rem; color: var(--color-text-primary);"></span>
         <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Sign In with Apple ID</h3>
-        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Aether is requesting access to your email and name.</p>
+        <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Voyara is requesting access to your email and name.</p>
         
         <button onclick="window.completeMockOAuth('apple', 'Fatma Apple', 'fatma.apple@icloud.com')" class="btn-auth-submit" style="background: #000; color: #fff; width: 100%; justify-content: center; box-shadow: none; border: none; height: 46px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
           <span>Continue with Apple ID</span>
@@ -633,7 +633,7 @@ window.launchOAuthSimulator = function(provider) {
     html = `
       <div style="padding: 1.5rem; text-align: center;">
         <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 1rem; color: var(--color-text-primary);" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-        <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Authorize Aether</h3>
+        <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size: 1.3rem;">Authorize Voyara</h3>
         <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Access to public email addresses and profile metadata.</p>
         
         <button onclick="window.completeMockOAuth('github', 'Fatma Developer', 'fatma.dev@github.com')" class="btn-auth-submit" style="background: #24292e; color: #fff; width: 100%; justify-content: center; box-shadow: none; border: none; height: 46px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
@@ -666,7 +666,7 @@ window.completeMockOAuth = function(provider, name, email) {
       }
     };
     
-    localStorage.setItem('aether_mock_session', JSON.stringify(mockSession));
+    localStorage.setItem('voyara_mock_session', JSON.stringify(mockSession));
     updateAuthUI(mockSession);
     
     window.showToast(`Logged in successfully via ${provider}!`, 'success');
@@ -675,8 +675,8 @@ window.completeMockOAuth = function(provider, name, email) {
     if (state.redirectAfterLogin) {
       const target = state.redirectAfterLogin;
       state.redirectAfterLogin = null;
-      localStorage.removeItem('aether_redirect_target');
-      localStorage.removeItem('aether_saved_itinerary');
+      localStorage.removeItem('voyara_redirect_target');
+      localStorage.removeItem('voyara_saved_itinerary');
       if (target === 'checkout') {
         window.startCheckoutFlow();
       } else {
@@ -688,7 +688,7 @@ window.completeMockOAuth = function(provider, name, email) {
 
 window.handleSignOut = async function() {
   try {
-    localStorage.removeItem('aether_mock_session');
+    localStorage.removeItem('voyara_mock_session');
     state.userSession = null;
     
     if (supabaseClient) {
@@ -865,7 +865,7 @@ function setupEventListeners() {
     });
   }
 
-  // Voice Toggle Button (Aether Assistant popover)
+  // Voice Toggle Button (Voyara Assistant popover)
   const voiceToggleBtn = document.getElementById('btn-chat-voice-toggle');
   if (voiceToggleBtn) {
     voiceToggleBtn.addEventListener('click', () => {
@@ -873,7 +873,7 @@ function setupEventListeners() {
     });
   }
 
-  // Microphone Button (Aether Assistant popover)
+  // Microphone Button (Voyara Assistant popover)
   const micBtn = document.getElementById('btn-chat-mic');
   if (micBtn) {
     micBtn.addEventListener('click', () => {
@@ -881,7 +881,7 @@ function setupEventListeners() {
     });
   }
 
-  // Aether Assistant Popover drawer lifecycle hooks
+  // Voyara Assistant Popover drawer lifecycle hooks
   const assistantPopover = document.getElementById('ai-chat-panel');
   if (assistantPopover) {
     assistantPopover.addEventListener('beforetoggle', (event) => {
@@ -895,7 +895,7 @@ function setupEventListeners() {
       } else {
         // If assistant opens, play a welcoming text if voice is enabled
         if (state.voiceOutput) {
-          speakText("Aether Assistant ready. How can I help you?");
+          speakText("Voyara Assistant ready. How can I help you?");
         }
       }
     });
@@ -1013,7 +1013,7 @@ function renderDestinationsGrid() {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--color-text-secondary);">
         <h3>No getaways match your parameters</h3>
-        <p style="margin-top:0.5rem; font-size: 0.9rem;">Try adjusting your filters or ask Aether to widen the search.</p>
+        <p style="margin-top:0.5rem; font-size: 0.9rem;">Try adjusting your filters or ask Voyara to widen the search.</p>
       </div>
     `;
     return;
@@ -2003,7 +2003,7 @@ function addBotMessage(htmlContent) {
   // Update voice status text to ready
   const statusText = document.getElementById('voice-status-text');
   if (statusText) {
-    statusText.textContent = "Aether Assistant";
+    statusText.textContent = "Voyara Assistant";
   }
 
   // Speak response if voice output is enabled
@@ -2014,7 +2014,7 @@ function addBotMessage(htmlContent) {
     // Reset status back to idle after a simulated timeout based on length
     setTimeout(() => {
       if (statusText && statusText.textContent === "Speaking...") {
-        statusText.textContent = "Aether Assistant";
+        statusText.textContent = "Voyara Assistant";
       }
     }, Math.max(3000, htmlContent.length * 60));
   }
@@ -2049,7 +2049,7 @@ function toggleSpeechRecognition() {
         micBtn.setAttribute('aria-label', 'Start voice input');
       }
       if (statusLight) statusLight.classList.remove('active');
-      if (statusText) statusText.textContent = "Aether Assistant";
+      if (statusText) statusText.textContent = "Voyara Assistant";
     }
   };
 
@@ -2352,7 +2352,7 @@ function initWebMCP() {
     // 1. Search Destinations Tool
     modelContext.registerTool({
       name: "search_destinations",
-      description: "Search and filter Aether's luxury travel catalog. Supports filtering by country name, max budget in USD, or duration in days.",
+      description: "Search and filter Voyara's luxury travel catalog. Supports filtering by country name, max budget in USD, or duration in days.",
       inputSchema: {
         type: "object",
         properties: {
@@ -2461,7 +2461,7 @@ function initWebMCP() {
 }
 
 // -------------------------------------------------------------
-// Aether Premium Multi-Step Booking & Checkout Flow
+// Voyara Premium Multi-Step Booking & Checkout Flow
 // -------------------------------------------------------------
 let promoApplied = false;
 let promoDiscount = 0;
@@ -2527,9 +2527,9 @@ window.adjustCheckoutGuests = function(val) {
 window.applyPromoCode = function() {
   const code = document.getElementById('checkout-promo').value.trim().toUpperCase();
   const statusMsg = document.getElementById('promo-status-msg');
-  if (code === 'AETHER15') {
+  if (code === 'VOYARA15') {
     promoApplied = true;
-    statusMsg.textContent = '✅ Promo code AETHER15 applied! (15% discount)';
+    statusMsg.textContent = '✅ Promo code VOYARA15 applied! (15% discount)';
     statusMsg.style.color = 'var(--color-secondary)';
   } else if (code === 'WELCOME') {
     promoApplied = true;
@@ -2595,7 +2595,7 @@ window.recalculatePrices = function() {
   let discount = 0;
   if (promoApplied) {
     const code = document.getElementById('checkout-promo').value.trim().toUpperCase();
-    if (code === 'AETHER15') {
+    if (code === 'VOYARA15') {
       discount = Math.round(subtotal * 0.15);
     } else if (code === 'WELCOME') {
       discount = 50;
@@ -2801,7 +2801,7 @@ window.triggerApplePay = function() {
       supportedMethods: 'https://apple.com/apple-pay',
       data: {
         version: 3,
-        merchantIdentifier: 'merchant.aether.travel',
+        merchantIdentifier: 'merchant.voyara.travel',
         merchantCapabilities: ['supports3DS'],
         supportedNetworks: ['visa', 'mastercard', 'amex'],
         countryCode: 'US',
@@ -2811,7 +2811,7 @@ window.triggerApplePay = function() {
     
     const details = {
       total: {
-        label: 'Aether Vacation Package',
+        label: 'Voyara Vacation Package',
         amount: { currency: 'USD', value: grandTotal.toString() }
       }
     };
@@ -2852,7 +2852,7 @@ window.triggerGooglePay = function() {
     
     const details = {
       total: {
-        label: 'Aether Vacation Package',
+        label: 'Voyara Vacation Package',
         amount: { currency: 'USD', value: grandTotal.toString() }
       }
     };
@@ -2898,7 +2898,7 @@ function runDemoWalletSheet(walletType) {
   
   sheet.innerHTML = `
     <h3 style="margin-bottom: 0.5rem; color: var(--color-text-primary); font-size:1.3rem;">${walletType} Authentication</h3>
-    <p style="color:var(--color-text-secondary); font-size:0.85rem; margin-bottom: 2rem;">Authorized merchant: Aether Travel Co-Pilot</p>
+    <p style="color:var(--color-text-secondary); font-size:0.85rem; margin-bottom: 2rem;">Authorized merchant: Voyara Travel Co-Pilot</p>
     
     <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding:1rem; text-align: left; margin-bottom: 2rem;">
       <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
@@ -2979,7 +2979,7 @@ window.downloadPDFItinerary = function() {
 
 window.downloadInvoice = function() {
   const content = `
-    AETHER TRAVEL CO-PILOT
+    VOYARA TRAVEL CO-PILOT
     INVOICE RECEIPT
     =========================
     Booking Reference: ${document.getElementById('ticket-booking-ref').textContent}
@@ -3008,10 +3008,10 @@ window.downloadInvoice = function() {
 };
 
 window.shareTripDetails = function() {
-  const shareText = `I just booked a premium travel getaway to ${state.itinerary.destination.name} with Aether Travel Co-Pilot! Reference: ${document.getElementById('ticket-booking-ref').textContent}`;
+  const shareText = `I just booked a premium travel getaway to ${state.itinerary.destination.name} with Voyara Travel Co-Pilot! Reference: ${document.getElementById('ticket-booking-ref').textContent}`;
   if (navigator.share) {
     navigator.share({
-      title: 'My Aether Travel Itinerary',
+      title: 'My Voyara Travel Itinerary',
       text: shareText,
       url: window.location.origin
     }).catch(err => console.log(err));
@@ -3088,13 +3088,13 @@ window.addTripToCalendar = function() {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Aether Travel Co-Pilot//EN',
+    'PRODID:-//Voyara Travel Co-Pilot//EN',
     'BEGIN:VEVENT',
-    `UID:${refCode}@aethertravel.com`,
+    `UID:${refCode}@voyaratravel.com`,
     `DTSTAMP:${formatICSDate(startD)}`,
     `DTSTART:${formatICSDate(startD)}`,
     `DTEND:${formatICSDate(endD)}`,
-    `SUMMARY:Trip to ${destName} (Aether Booking)`,
+    `SUMMARY:Trip to ${destName} (Voyara Booking)`,
     `DESCRIPTION:Your luxury trip to ${destName}. Booking Ref: ${refCode}. Enjoy your premium travel co-pilot experience!`,
     `LOCATION:${destName}`,
     'END:VEVENT',
@@ -3105,7 +3105,7 @@ window.addTripToCalendar = function() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Aether-Trip-${refCode}.ics`;
+  a.download = `Voyara-Trip-${refCode}.ics`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

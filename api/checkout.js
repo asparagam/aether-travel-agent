@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         receipt_email: ccEmail || undefined,
         metadata: {
           customerName: ccName || 'Anonymous Traveler',
-          platform: 'Aether Co-Pilot Checkout'
+          platform: 'Voyara Co-Pilot Checkout'
         }
       });
 
