@@ -64,6 +64,16 @@ async function initSupabase() {
       if (session) {
         loadUserTrips();
       }
+
+      // Check if password reset redirection
+      const hash = window.location.hash || window.location.href;
+      if (hash && (hash.includes('type=recovery') || hash.includes('recovery'))) {
+        setTimeout(() => {
+          window.showToast('Secure recovery link authenticated! Please define your new password.', 'info');
+          window.showAuthScreen();
+          window.showUpdatePasswordPanel();
+        }, 800);
+      }
     } else {
       updateAuthUI(null);
     }
@@ -73,6 +83,8 @@ async function initSupabase() {
   }
 }
 
+
+
 function updateAuthUI(session) {
   const profileSummary = document.getElementById('user-profile-summary');
   const avatar = document.getElementById('user-avatar');
@@ -81,67 +93,282 @@ function updateAuthUI(session) {
   
   if (!profileSummary || !avatar || !displayName || !displayTag) return;
   
+  state.userSession = session;
+
   if (session) {
     const user = session.user;
-    const initial = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+    const email = user.email;
+    const name = user.user_metadata?.full_name || email.split('@')[0];
+    const initial = name.charAt(0).toUpperCase();
+    
     avatar.textContent = initial;
-    displayName.textContent = user.email;
+    displayName.textContent = name;
     displayTag.textContent = 'Premium Traveler';
     
-    profileSummary.onclick = async () => {
-      if (confirm('Do you want to sign out?')) {
-        await supabaseClient.auth.signOut();
-        alert('Signed out successfully.');
-      }
-    };
+    // Update profile dropdown header
+    const dropdownAvatar = document.getElementById('menu-user-avatar');
+    const dropdownName = document.getElementById('menu-user-name');
+    const dropdownEmail = document.getElementById('menu-user-email');
+    
+    if (dropdownAvatar) dropdownAvatar.textContent = initial;
+    if (dropdownName) dropdownName.textContent = name;
+    if (dropdownEmail) dropdownEmail.textContent = email;
+
   } else {
     avatar.textContent = '?';
     displayName.textContent = 'Sign In';
     displayTag.textContent = 'Guest Session';
     
-    profileSummary.onclick = () => {
-      window.openAuthModal();
-    };
+    // Hide menu if open
+    const menu = document.getElementById('profile-dropdown-menu');
+    if (menu) menu.style.display = 'none';
   }
 }
 
-window.openAuthModal = function() {
-  const modal = document.getElementById('auth-modal');
-  if (modal) modal.showModal();
+window.showToast = function(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast-notification ${type}`;
+  toast.innerHTML = `<div class="toast-message">${msg}</div>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.3s forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
 };
 
-window.closeAuthModal = function() {
-  const modal = document.getElementById('auth-modal');
-  if (modal) modal.close();
-};
-
-window.handleEmailLogin = async function(event) {
-  event.preventDefault();
-  const emailInput = document.getElementById('auth-email');
-  if (!emailInput || !supabaseClient) return;
+window.toggleAuthTab = function(tab) {
+  const tabSignin = document.getElementById('tab-btn-signin');
+  const tabSignup = document.getElementById('tab-btn-signup');
+  const panelSignin = document.getElementById('auth-panel-signin');
+  const panelSignup = document.getElementById('auth-panel-signup');
+  const panelForgot = document.getElementById('auth-panel-forgot');
   
-  const email = emailInput.value;
-  try {
-    const { error } = await supabaseClient.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    });
-    if (error) throw error;
-    alert('Magic Link sent! Please check your email inbox.');
-    window.closeAuthModal();
-  } catch (err) {
-    console.error(err);
-    alert('Failed to send Magic Link: ' + err.message);
+  panelForgot.style.display = 'none';
+  
+  if (tab === 'signin') {
+    tabSignin.classList.add('active');
+    tabSignup.classList.remove('active');
+    panelSignin.style.display = 'block';
+    panelSignup.style.display = 'none';
+  } else {
+    tabSignin.classList.remove('active');
+    tabSignup.classList.add('active');
+    panelSignin.style.display = 'none';
+    panelSignup.style.display = 'block';
   }
 };
 
-window.handleGoogleLogin = async function() {
-  if (!supabaseClient) return;
+window.showForgotPasswordPanel = function() {
+  document.getElementById('auth-panel-signin').style.display = 'none';
+  document.getElementById('auth-panel-signup').style.display = 'none';
+  document.getElementById('auth-panel-forgot').style.display = 'block';
+};
+
+window.hideForgotPasswordPanel = function() {
+  window.toggleAuthTab('signin');
+};
+
+window.togglePasswordVisibility = function(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+};
+
+window.validatePasswordStrength = function(input) {
+  const value = input.value;
+  const meter = document.getElementById('password-strength-indicator');
+  if (!meter) return;
+  
+  meter.className = 'strength-meter';
+  if (value.length === 0) return;
+  
+  let strength = 0;
+  if (value.length >= 8) strength++;
+  if (/[0-9]/.test(value)) strength++;
+  if (/[A-Z]/.test(value) || /[^A-Za-z0-9]/.test(value)) strength++;
+  
+  if (strength === 1) {
+    meter.classList.add('weak');
+  } else if (strength === 2) {
+    meter.classList.add('medium');
+  } else if (strength === 3) {
+    meter.classList.add('strong');
+  }
+};
+
+window.showAuthScreen = function(redirectTarget = null) {
+  if (redirectTarget) {
+    state.redirectAfterLogin = redirectTarget;
+  }
+  const screen = document.getElementById('auth-screen');
+  if (screen) {
+    screen.style.display = 'flex';
+  }
+};
+
+window.closeAuthScreen = function() {
+  const screen = document.getElementById('auth-screen');
+  if (screen) {
+    screen.style.display = 'none';
+  }
+  state.redirectAfterLogin = null;
+};
+
+window.toggleProfileMenu = function(event) {
+  if (event) event.stopPropagation();
+  
+  const isLoggedIn = state.userSession !== null && state.userSession !== undefined;
+  if (!isLoggedIn) {
+    window.showAuthScreen();
+    return;
+  }
+  
+  const menu = document.getElementById('profile-dropdown-menu');
+  if (menu) {
+    const isHidden = menu.style.display === 'none';
+    menu.style.display = isHidden ? 'block' : 'none';
+  }
+};
+
+// Close menu if user clicks outside
+document.addEventListener('click', () => {
+  const menu = document.getElementById('profile-dropdown-menu');
+  if (menu) menu.style.display = 'none';
+});
+
+window.handleEmailSignIn = async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('signin-email').value;
+  const password = document.getElementById('signin-password').value;
+  const errEl = document.getElementById('signin-error');
+  const submitBtn = document.getElementById('btn-signin-submit');
+  
+  errEl.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.firstElementChild.textContent = 'Signing in...';
+  
   try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    
+    window.showToast('Successfully signed in!', 'success');
+    window.closeAuthScreen();
+    
+    // Handle protected redirection
+    if (state.redirectAfterLogin) {
+      navigateToView(state.redirectAfterLogin);
+    }
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = `❌ ${err.message}`;
+    errEl.style.display = 'block';
+    window.showToast('Authentication failed', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.firstElementChild.textContent = 'Sign In';
+  }
+};
+
+window.handleEmailSignUp = async function(event) {
+  event.preventDefault();
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+  const confirm = document.getElementById('signup-confirm-password').value;
+  const errEl = document.getElementById('signup-error');
+  const submitBtn = document.getElementById('btn-signup-submit');
+  
+  errEl.style.display = 'none';
+  
+  if (password.length < 8 || !/[0-9]/.test(password) || !/[a-zA-Z]/.test(password)) {
+    errEl.textContent = '❌ Password must be at least 8 characters and contain both letters and numbers.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password !== confirm) {
+    errEl.textContent = '❌ Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+  
+  submitBtn.disabled = true;
+  submitBtn.firstElementChild.textContent = 'Registering...';
+  
+  try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          full_name: name
+        }
+      }
+    });
+    if (error) throw error;
+    
+    window.showToast('Registration successful! Verification email sent.', 'success');
+    window.toggleAuthTab('signin');
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = `❌ ${err.message}`;
+    errEl.style.display = 'block';
+    window.showToast('Registration failed', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.firstElementChild.textContent = 'Register Account';
+  }
+};
+
+window.handleForgotPasswordSubmit = async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('forgot-email').value;
+  const errEl = document.getElementById('forgot-error');
+  const succEl = document.getElementById('forgot-success');
+  const submitBtn = document.getElementById('btn-forgot-submit');
+  
+  errEl.style.display = 'none';
+  succEl.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.firstElementChild.textContent = 'Sending reset email...';
+  
+  try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin
+    });
+    if (error) throw error;
+    
+    succEl.textContent = '✅ Recovery email sent. Please check your inbox.';
+    succEl.style.display = 'block';
+    window.showToast('Reset email dispatched!', 'success');
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = `❌ ${err.message}`;
+    errEl.style.display = 'block';
+    window.showToast('Reset email failed', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.firstElementChild.textContent = 'Send Recovery Email';
+  }
+};
+
+window.handleSocialAuth = async function(provider) {
+  try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
     const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: {
         redirectTo: window.location.origin
       }
@@ -149,7 +376,19 @@ window.handleGoogleLogin = async function() {
     if (error) throw error;
   } catch (err) {
     console.error(err);
-    alert('Google login failed: ' + err.message);
+    window.showToast(`OAuth ${provider} failed`, 'error');
+  }
+};
+
+window.handleSignOut = async function() {
+  try {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    window.showToast('Signed out successfully', 'success');
+    navigateToView('dashboard');
+  } catch (err) {
+    console.error(err);
   }
 };
 
@@ -2149,4 +2388,45 @@ window.returnToDashboard = function() {
   };
   renderPlannerView();
   navigateToView('dashboard');
+};
+
+window.showUpdatePasswordPanel = function() {
+  document.getElementById('auth-panel-signin').style.display = 'none';
+  document.getElementById('auth-panel-signup').style.display = 'none';
+  document.getElementById('auth-panel-forgot').style.display = 'none';
+  document.getElementById('auth-panel-update').style.display = 'block';
+  document.getElementById('social-auth-block').style.display = 'none';
+  document.getElementById('auth-tabs-row').style.display = 'none';
+};
+
+window.handleUpdatePasswordSubmit = async function(event) {
+  event.preventDefault();
+  const password = document.getElementById('update-password').value;
+  const errEl = document.getElementById('update-error');
+  const submitBtn = document.getElementById('btn-update-submit');
+  
+  errEl.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.firstElementChild.textContent = 'Updating password...';
+  
+  try {
+    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    const { data, error } = await supabaseClient.auth.updateUser({ password });
+    if (error) throw error;
+    
+    window.showToast('Password updated successfully! Please sign in.', 'success');
+    // Hide update panel and restore tabs
+    document.getElementById('auth-panel-update').style.display = 'none';
+    document.getElementById('social-auth-block').style.display = 'block';
+    document.getElementById('auth-tabs-row').style.display = 'flex';
+    window.toggleAuthTab('signin');
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = `❌ ${err.message}`;
+    errEl.style.display = 'block';
+    window.showToast('Password update failed', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.firstElementChild.textContent = 'Update Password';
+  }
 };

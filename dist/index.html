@@ -54,13 +54,62 @@
         </nav>
       </div>
 
-      <div class="sidebar-footer">
-        <div class="user-profile-summary" id="user-profile-summary" style="cursor: pointer;">
+      <div class="sidebar-footer" style="position: relative;">
+        <div class="user-profile-summary" id="user-profile-summary" onclick="window.toggleProfileMenu(event)" style="cursor: pointer; width: 100%;">
           <div class="user-avatar" id="user-avatar">JD</div>
           <div class="user-info">
             <p class="user-name" id="user-display-name">John Doe</p>
             <p class="user-tag" id="user-display-tag">Premium Traveler</p>
           </div>
+        </div>
+
+        <!-- Floating Profile Menu Dropdown -->
+        <div class="profile-dropdown-menu" id="profile-dropdown-menu" style="display: none; position: absolute; bottom: 4.5rem; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; padding: 1rem; backdrop-filter: blur(10px);">
+          <div class="menu-header" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div class="menu-avatar" id="menu-user-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">JD</div>
+            <div class="menu-user-details" style="display: flex; flex-direction: column; overflow: hidden;">
+              <span class="name" id="menu-user-name" style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">John Doe</span>
+              <span class="email" id="menu-user-email" style="font-size: 0.75rem; color: var(--color-text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">john@example.com</span>
+            </div>
+          </div>
+          <hr class="menu-divider" style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+          <ul class="menu-links" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem;">
+            <li>
+              <button onclick="navigateToView('planner'); window.toggleProfileMenu(event);" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                My Trips
+              </button>
+            </li>
+            <li>
+              <button onclick="navigateToView('dashboard'); window.toggleProfileMenu(event);" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"/></svg>
+                Saved Destinations
+              </button>
+            </li>
+            <li>
+              <button onclick="alert('Booking history coming soon!'); window.toggleProfileMenu(event);" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Booking History
+              </button>
+            </li>
+            <li>
+              <button onclick="alert('Saved payments coming soon!'); window.toggleProfileMenu(event);" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Payment Methods
+              </button>
+            </li>
+            <li>
+              <button onclick="alert('User settings coming soon!'); window.toggleProfileMenu(event);" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+              </button>
+            </li>
+          </ul>
+          <hr class="menu-divider" style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+          <button class="btn-logout" onclick="window.handleSignOut()" style="width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--color-accent); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-xs); font-weight: 500;">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Log Out
+          </button>
         </div>
         <!-- Theme Toggle -->
         <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" aria-label="Toggle theme">
@@ -682,29 +731,188 @@
     </div>
   </dialog>
 
-  <!-- Auth Dialog -->
-  <dialog id="auth-modal" class="booking-modal">
-    <div class="booking-modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h3 style="margin: 0;">Sign in to Aether</h3>
-      <button class="btn-close-modal" onclick="closeAuthModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--color-text-secondary); cursor: pointer;">×</button>
-    </div>
-    <div class="booking-modal-body">
-      <form id="auth-form" onsubmit="handleEmailLogin(event)">
-        <div class="form-group" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
-          <label for="auth-email" style="font-weight: 500; font-size: 0.9rem; color: var(--color-text-secondary);">Email Address</label>
-          <input type="email" id="auth-email" required placeholder="Enter your email" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0, 0, 0, 0.2); color: var(--color-text-primary); outline: none;">
+  <!-- 6. PREMIUM FULLSCREEN AUTHENTICATION FLOW OVERLAY -->
+  <div id="auth-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; background: var(--bg-main);">
+    <!-- Split Left: Immersive Travel Imagery -->
+    <div class="auth-split-image" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80');">
+      <div class="auth-image-overlay">
+        <div class="auth-brand" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
+          <svg viewBox="0 0 24 24" width="36" height="36" stroke="white" stroke-width="2.5" fill="none">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+          <h2 style="margin: 0; color: #fff;">Aether</h2>
         </div>
-        <button type="submit" class="btn-wizard-nav next" style="width: 100%; justify-content: center; margin-bottom: 1rem; padding: 0.75rem;">
-          Send Magic Link
-        </button>
-      </form>
-      <div style="text-align: center; margin: 1rem 0; color: var(--color-text-muted); font-size: 0.9rem;">or</div>
-      <button type="button" class="btn-wizard-nav" style="width: 100%; justify-content: center; background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem; display: flex; align-items: center;" onclick="handleGoogleLogin()">
-        <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 8px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.22-.67-.35-1.37-.35-2.09z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Sign in with Google
-      </button>
+        <blockquote>
+          "Travel is the only thing you buy that makes you richer."
+          <cite style="display: block; margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7); font-style: normal;">— Aether Co-Pilot</cite>
+        </blockquote>
+      </div>
     </div>
-  </dialog>
+
+    <!-- Split Right: Dynamic Forms Panel -->
+    <div class="auth-split-form">
+      <button class="btn-close-auth" onclick="window.closeAuthScreen()" aria-label="Close authentication page">×</button>
+      
+      <div class="auth-card-container">
+        <!-- Glassmorphism Card Wrapper -->
+        <div class="auth-glass-card">
+          <!-- Form Header Tabs -->
+          <div class="auth-tabs" id="auth-tabs-row">
+            <button type="button" class="auth-tab-btn active" id="tab-btn-signin" onclick="window.toggleAuthTab('signin')">Sign In</button>
+            <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="window.toggleAuthTab('signup')">Sign Up</button>
+          </div>
+
+          <!-- A. Sign In View -->
+          <div class="auth-view-panel active" id="auth-panel-signin">
+            <h3>Welcome Back</h3>
+            <p class="subtitle">Log in to manage your premium itineraries.</p>
+            
+            <form id="signin-form" onsubmit="window.handleEmailSignIn(event)">
+              <div class="checkout-form-group">
+                <label for="signin-email">Email Address</label>
+                <input type="email" id="signin-email" required placeholder="name@domain.com">
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="signin-password">Password</label>
+                <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="signin-password" required placeholder="••••••••" style="width: 100%;">
+                  <button type="button" class="btn-toggle-password" onclick="window.togglePasswordVisibility('signin-password', this)" style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: var(--color-text-secondary);">👁️</button>
+                </div>
+              </div>
+
+              <div class="auth-options-row">
+                <label class="remember-me">
+                  <input type="checkbox" id="signin-remember"> Remember Me
+                </label>
+                <button type="button" class="btn-link-action" onclick="window.showForgotPasswordPanel()">Forgot Password?</button>
+              </div>
+
+              <div id="signin-error" class="auth-inline-error"></div>
+
+              <button type="submit" class="btn-auth-submit" id="btn-signin-submit">
+                <span>Sign In</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- B. Sign Up View -->
+          <div class="auth-view-panel" id="auth-panel-signup" style="display: none;">
+            <h3>Create Account</h3>
+            <p class="subtitle">Join Aether to unlock co-pilot features.</p>
+            
+            <form id="signup-form" onsubmit="window.handleEmailSignUp(event)">
+              <div class="checkout-form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" required placeholder="John Doe">
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" required placeholder="name@domain.com">
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="signup-password">Password</label>
+                <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="signup-password" required placeholder="Min 8 chars, letters & numbers" oninput="window.validatePasswordStrength(this)" style="width: 100%;">
+                  <button type="button" class="btn-toggle-password" onclick="window.togglePasswordVisibility('signup-password', this)" style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: var(--color-text-secondary);">👁️</button>
+                </div>
+                <div id="password-strength-indicator" class="strength-meter"></div>
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" required placeholder="••••••••">
+              </div>
+
+              <div id="signup-error" class="auth-inline-error"></div>
+
+              <button type="submit" class="btn-auth-submit" id="btn-signup-submit">
+                <span>Register Account</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- C. Forgot Password View -->
+          <div class="auth-view-panel" id="auth-panel-forgot" style="display: none;">
+            <h3>Recover Password</h3>
+            <p class="subtitle">We will email you a secure recovery token.</p>
+            
+            <form id="forgot-form" onsubmit="window.handleForgotPasswordSubmit(event)">
+              <div class="checkout-form-group">
+                <label for="forgot-email">Email Address</label>
+                <input type="email" id="forgot-email" required placeholder="name@domain.com">
+              </div>
+
+              <div id="forgot-error" class="auth-inline-error"></div>
+              <div id="forgot-success" class="auth-inline-success" style="color: var(--color-secondary); font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
+
+              <button type="submit" class="btn-auth-submit" id="btn-forgot-submit">
+                <span>Send Recovery Email</span>
+              </button>
+
+              <button type="button" class="btn-link-action" style="margin: 1.5rem auto 0; display: block; text-align: center;" onclick="window.hideForgotPasswordPanel()">
+                Back to Sign In
+              </button>
+            </form>
+          </div>
+
+          <!-- D. Create New Password View (Recovery Redirect landing) -->
+          <div class="auth-view-panel" id="auth-panel-update" style="display: none;">
+            <h3>Create New Password</h3>
+            <p class="subtitle">Please enter a strong new password.</p>
+            
+            <form id="update-password-form" onsubmit="window.handleUpdatePasswordSubmit(event)">
+              <div class="checkout-form-group">
+                <label for="update-password">New Password</label>
+                <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="update-password" required placeholder="Min 8 characters" style="width: 100%;">
+                  <button type="button" class="btn-toggle-password" onclick="window.togglePasswordVisibility('update-password', this)" style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: var(--color-text-secondary);">👁️</button>
+                </div>
+              </div>
+
+              <div id="update-error" class="auth-inline-error"></div>
+
+              <button type="submit" class="btn-auth-submit" id="btn-update-submit">
+                <span>Update Password</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Social Authentication Block -->
+          <div class="social-auth-block" id="social-auth-block">
+            <div class="divider-text" style="text-align: center; margin: 1.5rem 0; position: relative; color: var(--color-text-muted);">
+              <span style="background: var(--bg-card); padding: 0 1rem; position: relative; z-index: 1;">or continue with</span>
+              <hr style="position: absolute; top: 50%; left: 0; right: 0; border: none; border-top: 1px solid var(--border-color); z-index: 0; margin: 0;">
+            </div>
+
+            <div class="social-buttons-row" style="display: flex; gap: 0.5rem;">
+              <button type="button" class="social-btn" onclick="window.handleSocialAuth('google')" aria-label="Sign in with Google" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem 0.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--color-text-primary); cursor: pointer;">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.22-.67-.35-1.37-.35-2.09z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span>Google</span>
+              </button>
+              
+              <button type="button" class="social-btn" onclick="window.handleSocialAuth('apple')" aria-label="Sign in with Apple" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.3rem; padding: 0.6rem 0.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--color-text-primary); cursor: pointer;">
+                <span style="font-size: 1.1rem; line-height: 1; font-weight: bold;"></span>
+                <span>Apple</span>
+              </button>
+
+              <button type="button" class="social-btn" onclick="window.handleSocialAuth('github')" aria-label="Sign in with GitHub" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem 0.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--color-text-primary); cursor: pointer;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                <span>GitHub</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 9999;"></div>
 
   <!-- Load Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
