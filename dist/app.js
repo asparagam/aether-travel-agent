@@ -110,6 +110,13 @@ async function initSupabase() {
         }
       }
 
+      // Check if we are on the auth callback page and clean it up to keep clean URLs
+      if (window.location.pathname.includes('/auth/callback') || window.location.hash.includes('access_token')) {
+        setTimeout(() => {
+          window.history.replaceState(null, null, '/');
+        }, 1200);
+      }
+
       // Check if password reset redirection
       const hash = window.location.hash || window.location.href;
       if (hash && (hash.includes('type=recovery') || hash.includes('recovery'))) {
@@ -534,7 +541,7 @@ window.handleSocialAuth = async function(provider) {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: window.location.origin + "/auth/callback",
         skipBrowserRedirect: true,
         queryParams: {
           prompt: 'select_account'
