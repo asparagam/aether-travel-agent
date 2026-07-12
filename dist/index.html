@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aether Travel - Premium AI Travel Co-Pilot</title>
+  <title>Aether Travel Planner - Premium AI Travel Co-Pilot</title>
   <meta name="description" content="Discover, plan, and book your next luxury vacation with Aether Travel - your personalized AI Travel Agent.">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -47,7 +47,7 @@
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Itinerary Planner
+                Travel Planner
               </button>
             </li>
           </ul>
@@ -198,50 +198,219 @@
       </div>
 
       <!-- View: Itinerary Planner & Timeline -->
+      <!-- View: Travel Planner & Timeline -->
       <div id="planner-view" class="view-section">
         <header class="content-header">
           <div>
-            <h1>Itinerary Co-Pilot</h1>
-            <p>Organize your daily agenda, manage selected flights/hotels, and complete your reservation.</p>
+            <h1>Travel Planner</h1>
+            <p>Customize your complete trip itinerary, track flight and hotel details, manage travel budgets, and verify check-in documents.</p>
           </div>
         </header>
 
+        <!-- Planner navigation pills -->
+        <div class="planner-tabs-nav">
+          <button class="planner-tab-btn active" id="planner-btn-itinerary" onclick="switchPlannerTab('itinerary')">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Itinerary Schedule
+          </button>
+          <button class="planner-tab-btn" id="planner-btn-bookings" onclick="switchPlannerTab('bookings')">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Flights & Stays
+          </button>
+          <button class="planner-tab-btn" id="planner-btn-budget" onclick="switchPlannerTab('budget')">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Expenses & Budget
+          </button>
+          <button class="planner-tab-btn" id="planner-btn-documents" onclick="switchPlannerTab('documents')">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Passports & Docs
+          </button>
+        </div>
+
         <div class="itinerary-container">
-          <!-- Timeline Track -->
-          <div>
-            <div class="timeline-track" id="timeline-track">
-              <!-- Dynamically populated daily activity nodes -->
+          <!-- Left Column Content Blocks -->
+          <div class="planner-main-panel">
+            
+            <!-- A. Itinerary Tab Panel -->
+            <div class="planner-tab-content active" id="planner-panel-itinerary">
+              <div class="timeline-track" id="timeline-track">
+                <!-- Dynamically populated daily activity nodes -->
+              </div>
+              <div class="planner-empty-state" id="planner-empty-state">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="16" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                <h3>Your Timeline is Empty</h3>
+                <p>Go to the destination explorer, select flights and hotels, or tell the AI Co-Pilot what you'd like to do!</p>
+              </div>
+
+              <!-- Add custom activity inline form -->
+              <div class="planner-card add-activity-form" style="margin-top: 1.5rem;">
+                <h4>Add Custom Activity</h4>
+                <div class="form-row-grid">
+                  <div class="form-group-custom">
+                    <label for="new-act-day">Day Number</label>
+                    <input type="number" id="new-act-day" placeholder="Day (e.g. 1)" min="1" value="1">
+                  </div>
+                  <div class="form-group-custom">
+                    <label for="new-act-time">Time Slot</label>
+                    <input type="text" id="new-act-time" placeholder="Time (e.g. 10:00 AM)">
+                  </div>
+                  <div class="form-group-custom" style="grid-column: span 2;">
+                    <label for="new-act-title">Activity Title</label>
+                    <input type="text" id="new-act-title" placeholder="What are you planning to do?">
+                  </div>
+                </div>
+                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                  <button type="button" class="btn-planner-primary" onclick="addNewPlannerActivity()">Add Activity</button>
+                  <button type="button" class="btn-planner-secondary" onclick="triggerPlannerAIRecommendations()">💡 AI Suggestions</button>
+                </div>
+              </div>
             </div>
-            <div class="planner-empty-state" id="planner-empty-state">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="16" />
-                <line x1="8" y1="12" x2="16" y2="12" />
-              </svg>
-              <h3>Your Timeline is Empty</h3>
-              <p>Go to the destination explorer, select flights and hotels, or tell the AI Co-Pilot what you'd like to do!</p>
+
+            <!-- B. Bookings Tab Panel (Flights & Hotels) -->
+            <div class="planner-tab-content" id="planner-panel-bookings" style="display: none;">
+              <!-- Flight Sub-Card -->
+              <div class="planner-card" id="planner-flight-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header-with-action">
+                  <h4>Flight Reservation</h4>
+                  <button class="btn-card-edit" onclick="navigateToView('dashboard')">Edit Flight</button>
+                </div>
+                <div id="planner-flight-info-content">
+                  <!-- Flight detail nodes -->
+                </div>
+              </div>
+
+              <!-- Stay Sub-Card -->
+              <div class="planner-card" id="planner-stay-card">
+                <div class="card-header-with-action">
+                  <h4>Hotel Accommodation</h4>
+                  <button class="btn-card-edit" onclick="navigateToView('dashboard')">Edit stay</button>
+                </div>
+                <div id="planner-stay-info-content">
+                  <!-- Stay detail nodes -->
+                </div>
+              </div>
+            </div>
+
+            <!-- C. Expenses & Budget Tab Panel -->
+            <div class="planner-tab-content" id="planner-panel-budget" style="display: none;">
+              <div class="planner-card" style="margin-bottom: 1.5rem;">
+                <h4>Travel Budget Manager</h4>
+                <p class="card-description">Track package costs, set spending thresholds, and monitor remaining limits.</p>
+                
+                <div class="budget-summary-grid">
+                  <div class="budget-stat-box">
+                    <span class="label">Total Spent</span>
+                    <span class="val spent-color" id="budget-total-spent">$0</span>
+                  </div>
+                  <div class="budget-stat-box">
+                    <span class="label">Remaining Budget</span>
+                    <span class="val remaining-color" id="budget-remaining">$5,000</span>
+                  </div>
+                </div>
+
+                <div class="form-row-grid" style="margin-top: 1.5rem;">
+                  <div class="form-group-custom">
+                    <label for="budget-limit-input">Set Budget Limit</label>
+                    <input type="number" id="budget-limit-input" value="5000" oninput="window.recalculateBudget()" style="width: 100%;">
+                  </div>
+                  <div class="form-group-custom">
+                    <label for="budget-currency-selector">Currency</label>
+                    <select id="budget-currency-selector" onchange="window.changePlannerCurrency()" style="width: 100%;">
+                      <option value="USD">USD ($)</option>
+                      <option value="EUR">EUR (€)</option>
+                      <option value="GBP">GBP (£)</option>
+                      <option value="TRY">TRY (₺)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="planner-card">
+                <h4>Cost Breakdown</h4>
+                <ul class="budget-breakdown-list" id="budget-breakdown-list">
+                  <!-- Dynamic breakdown rows -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- D. Passports & Documents Panel -->
+            <div class="planner-tab-content" id="planner-panel-documents" style="display: none;">
+              <div class="planner-card" style="margin-bottom: 1.5rem;">
+                <h4>Digital Travel Wallet</h4>
+                <p class="card-description">Manage confirmations, checklist tasks, and verification documents.</p>
+                
+                <div class="docs-checklist">
+                  <label class="doc-check-row">
+                    <input type="checkbox" checked>
+                    <span class="checkmark"></span>
+                    <span class="text">Passport valid for at least 6 months</span>
+                  </label>
+                  <label class="doc-check-row">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                    <span class="text">Boarding Passes saved to Wallet</span>
+                  </label>
+                  <label class="doc-check-row">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                    <span class="text">Hotel voucher confirmations printed/saved</span>
+                  </label>
+                  <label class="doc-check-row">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                    <span class="text">Travel health insurance certificate loaded</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="planner-card">
+                <h4>Quick Wallet Shortcuts</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                  <button type="button" class="btn-wallet-add google" style="border: none; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                    Add to Google Wallet
+                  </button>
+                  <button type="button" class="btn-wallet-add apple" style="border: none; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                    Add to Apple Wallet
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Sticky Trip Summary -->
+          <div class="trip-summary-sidebar">
+            <div class="trip-summary-card">
+              <h3>Trip Summary</h3>
+              <ul class="summary-details-list" id="summary-details-list">
+                <!-- Dynamically updated flight, hotel, and pricing details -->
+              </ul>
+              
+              <div class="summary-divider"></div>
+              
+              <div class="summary-pricing-rows" id="summary-pricing-breakdown">
+                <!-- Base, taxes, fees rows -->
+              </div>
+              
+              <div class="summary-total-row">
+                <span>Grand Total</span>
+                <span class="val" id="summary-total-price">$0</span>
+              </div>
+              
+              <button class="btn-book-trip" id="btn-book-trip" onclick="startCheckoutFlow()" disabled>
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2.5" fill="none">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+                Complete Reservation
+              </button>
             </div>
           </div>
 
-          <!-- Trip Summary Panel -->
-          <div class="trip-summary-card">
-            <h3>Trip Summary</h3>
-            <ul class="summary-details-list" id="summary-details-list">
-              <!-- Dynamically updated flight, hotel, and pricing details -->
-            </ul>
-            <div class="summary-total-row">
-              <span>Total Price</span>
-              <span class="val" id="summary-total-price">$0</span>
-            </div>
-            <!-- Declarative Popover/Dialog control -->
-            <button class="btn-book-trip" id="btn-book-trip" onclick="startCheckoutFlow()" disabled>
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2.5" fill="none">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <line x1="2" y1="10" x2="22" y2="10" />
-              </svg>
-              Complete Reservation
-            </button>
-          </div>
         </div>
       </div>
 
@@ -463,6 +632,10 @@
                   <button type="button" class="btn-success-action" onclick="window.downloadInvoice()">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="2" x2="16" y2="4"/><line x1="8" y1="2" x2="8" y2="4"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     Download Invoice
+                  </button>
+                  <button type="button" class="btn-success-action" onclick="window.addTripToCalendar()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Add to Calendar
                   </button>
                 </div>
 

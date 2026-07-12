@@ -1382,6 +1382,7 @@ function removeItineraryActivity(index) {
 }
 
 // Render Planner view
+// Render Planner view
 function renderPlannerView() {
   const timeline = document.getElementById('timeline-track');
   const emptyState = document.getElementById('planner-empty-state');
@@ -1421,37 +1422,36 @@ function renderPlannerView() {
   const dest = state.itinerary.destination;
   const flight = state.itinerary.flight;
   const hotel = state.itinerary.hotel;
-
-  const nights = parseInt(dest.duration.split(' ')[0]) - 1 || 1;
+  const nights = dest ? (parseInt(dest.duration.split(' ')[0]) - 1 || 1) : 1;
 
   let detailsHTML = `
     <li class="summary-detail-row">
       <span class="label">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polygon points="12 8 8 12 12 16 16 12 12 8" /></svg>
-        ${dest.name} Package
+        <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10" /><polygon points="12 8 8 12 12 16 16 12 12 8" /></svg>
+        ${dest ? dest.name : 'No Destination'} Package
       </span>
-      <span class="val">$${dest.price}</span>
+      <span class="val">${currencySymbol}${Math.round((dest ? dest.price : 0) * conversionRate).toLocaleString()}</span>
     </li>
   `;
 
-  let total = dest.price;
+  let total = dest ? dest.price : 0;
 
   if (flight) {
     detailsHTML += `
       <li class="summary-detail-row">
         <span class="label">
-          <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
+          <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
           Flight: ${flight.flightNo}
         </span>
-        <span class="val">$${flight.price}</span>
+        <span class="val">${currencySymbol}${Math.round(flight.price * conversionRate).toLocaleString()}</span>
       </li>
     `;
     total += flight.price;
   } else {
     detailsHTML += `
-      <li class="summary-detail-row" style="color: var(--color-accent);">
+      <li class="summary-detail-row" style="color: var(--color-text-secondary);">
         <span class="label">⚠️ Flight</span>
-        <span class="val">Not selected</span>
+        <span class="val">No flight selected</span>
       </li>
     `;
   }
@@ -1461,28 +1461,251 @@ function renderPlannerView() {
     detailsHTML += `
       <li class="summary-detail-row">
         <span class="label">
-          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-          Stay: ${hotel.name} (${nights} nights)
+          <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          Stay: ${hotel.name}
         </span>
-        <span class="val">$${hotelCost}</span>
+        <span class="val">${currencySymbol}${Math.round(hotelCost * conversionRate).toLocaleString()}</span>
       </li>
     `;
     total += hotelCost;
   } else {
     detailsHTML += `
-      <li class="summary-detail-row" style="color: var(--color-accent);">
-        <span class="label">⚠️ Hotel Stay</span>
-        <span class="val">Not selected</span>
+      <li class="summary-detail-row" style="color: var(--color-text-secondary);">
+        <span class="label">⚠️ Accommodation</span>
+        <span class="val">No accommodation selected</span>
       </li>
     `;
   }
 
   summaryList.innerHTML = detailsHTML;
-  totalPriceEl.textContent = `$${total}`;
+
+  // Render pricing details in summary panel
+  const taxesFees = Math.round(total * 0.12);
+  const serviceFee = Math.round(total * 0.05);
+  const grandTotal = total + taxesFees + serviceFee;
+
+  const breakdownEl = document.getElementById('summary-pricing-breakdown');
+  if (breakdownEl) {
+    breakdownEl.innerHTML = `
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
+        <span>Base Total</span>
+        <span>${currencySymbol}${Math.round(total * conversionRate).toLocaleString()}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
+        <span>Taxes & Fees (12%)</span>
+        <span>${currencySymbol}${Math.round(taxesFees * conversionRate).toLocaleString()}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
+        <span>Service Fee (5%)</span>
+        <span>${currencySymbol}${Math.round(serviceFee * conversionRate).toLocaleString()}</span>
+      </div>
+    `;
+  }
+
+  totalPriceEl.textContent = `${currencySymbol}${Math.round(grandTotal * conversionRate).toLocaleString()}`;
+
+  // Populate Flight Detail Card
+  const flightContainer = document.getElementById('planner-flight-info-content');
+  if (flightContainer) {
+    if (flight) {
+      flightContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--color-text-primary);">
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>✈️ ${flight.airline} (${flight.flightNo})</span>
+            <span>$${flight.price}</span>
+          </div>
+          <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
+            <div>Class: <strong style="color: var(--color-text-primary);">${flight.cabin}</strong></div>
+            <div>Departure: <strong>${flight.departure || '08:00 AM'}</strong></div>
+            <div>Arrival: <strong>${flight.arrival || '11:30 AM'}</strong></div>
+          </div>
+        </div>
+      `;
+    } else {
+      flightContainer.innerHTML = `
+        <div style="color: var(--color-text-secondary); text-align: center; padding: 1rem 0;">
+          <p style="margin-bottom: 1rem;">No flight selected</p>
+          <button class="btn-planner-secondary" onclick="navigateToView('dashboard')">Browse Flights</button>
+        </div>
+      `;
+    }
+  }
+
+  // Populate Stay Detail Card
+  const stayContainer = document.getElementById('planner-stay-info-content');
+  if (stayContainer) {
+    if (hotel) {
+      stayContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--color-text-primary);">
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>🏨 ${hotel.name}</span>
+            <span>$${hotel.pricePerNight * nights} ($${hotel.pricePerNight}/night)</span>
+          </div>
+          <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
+            <div>Duration: <strong>${nights} nights</strong></div>
+            <div>Room Type: <strong style="color: var(--color-text-primary);">Deluxe Double Room</strong></div>
+            <div>Amenities: <strong>Free Wi-Fi, Pool, Spa, Free Breakfast</strong></div>
+          </div>
+        </div>
+      `;
+    } else {
+      stayContainer.innerHTML = `
+        <div style="color: var(--color-text-secondary); text-align: center; padding: 1rem 0;">
+          <p style="margin-bottom: 1rem;">No accommodation selected</p>
+          <button class="btn-planner-secondary" onclick="navigateToView('dashboard')">Browse Stays</button>
+        </div>
+      `;
+    }
+  }
+
+  // Recalculate budget statistics
+  window.recalculateBudget();
 
   // Enable/Disable booking button
   updateSummaryBtnState();
 }
+
+// Tab switcher for Travel Planner
+window.switchPlannerTab = function(tabId) {
+  document.querySelectorAll('.planner-tab-content').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.planner-tab-btn').forEach(btn => btn.classList.remove('active'));
+  
+  const activePanel = document.getElementById(`planner-panel-${tabId}`);
+  if (activePanel) activePanel.style.display = 'block';
+  
+  const activeBtn = document.getElementById(`planner-btn-${tabId}`);
+  if (activeBtn) activeBtn.classList.add('active');
+};
+
+// Add manual activity in schedule
+window.addNewPlannerActivity = function() {
+  const day = parseInt(document.getElementById('new-act-day').value) || 1;
+  const time = document.getElementById('new-act-time').value.trim() || 'All Day';
+  const title = document.getElementById('new-act-title').value.trim();
+  
+  if (!title) {
+    window.showToast("Please provide an activity title.", "error");
+    return;
+  }
+  
+  if (!state.itinerary.destination) {
+    window.showToast("Please select a destination first.", "error");
+    return;
+  }
+  
+  const newActivity = {
+    day: day,
+    time: time,
+    title: title,
+    description: 'Custom activity added manually'
+  };
+  
+  state.itinerary.activities.push(newActivity);
+  state.itinerary.activities.sort((a, b) => a.day - b.day);
+  
+  document.getElementById('new-act-time').value = '';
+  document.getElementById('new-act-title').value = '';
+  
+  renderPlannerView();
+  window.showToast(`Added activity: "${title}"`, "success");
+};
+
+// Trigger AI Recommendations inside chat
+window.triggerPlannerAIRecommendations = function() {
+  if (!state.itinerary.destination) {
+    window.showToast("Please select a destination first.", "error");
+    return;
+  }
+  const destName = state.itinerary.destination.name;
+  window.showToast("Opening Co-Pilot recommendations...", "info");
+  
+  const chatDrawer = document.getElementById('ai-assistant-drawer');
+  if (chatDrawer && !chatDrawer.classList.contains('open')) {
+    window.toggleAIAssistant();
+  }
+  
+  handleUserMessage(`Give me a daily itinerary with 5 high-rating recommendations for my trip to ${destName}`);
+};
+
+// Travel Budget calculations
+let selectedCurrency = 'USD';
+let currencySymbol = '$';
+let conversionRate = 1.0;
+
+window.recalculateBudget = function() {
+  const limitInput = document.getElementById('budget-limit-input');
+  if (!limitInput) return;
+  
+  const limit = parseFloat(limitInput.value) || 5000;
+  
+  const destPrice = state.itinerary.destination ? state.itinerary.destination.price : 0;
+  const flightPrice = (state.itinerary.flight && state.itinerary.flight.price) ? state.itinerary.flight.price : 0;
+  const hotelPrice = (state.itinerary.hotel && state.itinerary.hotel.pricePerNight) ? state.itinerary.hotel.pricePerNight : 0;
+  
+  const dest = state.itinerary.destination;
+  const nights = dest ? (parseInt(dest.duration.split(' ')[0]) - 1 || 1) : 1;
+  const hotelCost = hotelPrice * nights;
+  const activitiesCost = state.itinerary.activities.reduce((sum, act) => sum + (act.price || 0), 0);
+  
+  const subtotal = destPrice + flightPrice + hotelCost + activitiesCost;
+  
+  document.getElementById('budget-total-spent').textContent = `${currencySymbol}${Math.round(subtotal * conversionRate).toLocaleString()}`;
+  
+  const remaining = limit - (subtotal * conversionRate);
+  const remainingEl = document.getElementById('budget-remaining');
+  remainingEl.textContent = `${currencySymbol}${Math.round(remaining).toLocaleString()}`;
+  
+  if (remaining < 0) {
+    remainingEl.style.color = 'var(--color-accent)';
+  } else {
+    remainingEl.style.color = 'var(--color-secondary)';
+  }
+  
+  const breakdownList = document.getElementById('budget-breakdown-list');
+  if (breakdownList) {
+    breakdownList.innerHTML = `
+      <li class="summary-detail-row">
+        <span class="label">Destination Package</span>
+        <span class="val">${currencySymbol}${Math.round(destPrice * conversionRate).toLocaleString()}</span>
+      </li>
+      <li class="summary-detail-row">
+        <span class="label">Flight Tickets</span>
+        <span class="val">${currencySymbol}${Math.round(flightPrice * conversionRate).toLocaleString()}</span>
+      </li>
+      <li class="summary-detail-row">
+        <span class="label">Accommodation</span>
+        <span class="val">${currencySymbol}${Math.round(hotelCost * conversionRate).toLocaleString()}</span>
+      </li>
+      <li class="summary-detail-row">
+        <span class="label">Daily Activities</span>
+        <span class="val">${currencySymbol}${Math.round(activitiesCost * conversionRate).toLocaleString()}</span>
+      </li>
+    `;
+  }
+};
+
+window.changePlannerCurrency = function() {
+  const currencySelector = document.getElementById('budget-currency-selector');
+  if (!currencySelector) return;
+  
+  selectedCurrency = currencySelector.value;
+  if (selectedCurrency === 'USD') {
+    currencySymbol = '$';
+    conversionRate = 1.0;
+  } else if (selectedCurrency === 'EUR') {
+    currencySymbol = '€';
+    conversionRate = 0.92;
+  } else if (selectedCurrency === 'GBP') {
+    currencySymbol = '£';
+    conversionRate = 0.78;
+  } else if (selectedCurrency === 'TRY') {
+    currencySymbol = '₺';
+    conversionRate = 32.5;
+  }
+  
+  window.recalculateBudget();
+  renderPlannerView(); 
+};
 
 function updateSummaryBtnState() {
   const bookBtn = document.getElementById('btn-book-trip');
@@ -2171,9 +2394,9 @@ window.startCheckoutFlow = function() {
   document.getElementById('checkout-end-date').value = endDate.toISOString().split('T')[0];
   
   // Fill sidebar details
-  document.getElementById('summary-dest-title').textContent = state.itinerary.destination.name;
-  document.getElementById('summary-flight-offer').textContent = `${state.itinerary.flight.airline} (${state.itinerary.flight.cabin})`;
-  document.getElementById('summary-hotel-stay').textContent = state.itinerary.hotel.name;
+  document.getElementById('summary-dest-title').textContent = state.itinerary.destination ? state.itinerary.destination.name : 'No destination selected';
+  document.getElementById('summary-flight-offer').textContent = state.itinerary.flight ? `${state.itinerary.flight.airline} (${state.itinerary.flight.cabin})` : 'No flight selected';
+  document.getElementById('summary-hotel-stay').textContent = state.itinerary.hotel ? state.itinerary.hotel.name : 'No accommodation selected';
   
   // Populate add-on activities
   const activityList = state.itinerary.activities.map(act => act.name).join(', ') || 'None selected';
@@ -2238,9 +2461,10 @@ window.recalculatePrices = function() {
     }
   }
   
-  // Get prices
-  const flightPrice = state.itinerary.flight.price || 450;
-  const hotelPrice = state.itinerary.hotel.price || 250;
+  // Get prices safely
+  const destPrice = state.itinerary.destination ? (state.itinerary.destination.price || 0) : 0;
+  const flightPrice = (state.itinerary.flight && state.itinerary.flight.price) ? state.itinerary.flight.price : 0;
+  const hotelPrice = (state.itinerary.hotel && state.itinerary.hotel.pricePerNight) ? state.itinerary.hotel.pricePerNight : (state.itinerary.hotel && state.itinerary.hotel.price) ? state.itinerary.hotel.price : 0;
   
   // Room tier upgrade cost
   const roomTier = document.getElementById('checkout-room-tier').value;
@@ -2251,8 +2475,9 @@ window.recalculatePrices = function() {
   // Activities cost
   const activitiesCost = state.itinerary.activities.reduce((sum, act) => sum + (act.price || 0), 0);
   
-  // Calculate Base Total
-  const baseTotal = (hotelPrice * nights * checkoutGuests) + 
+  // Calculate Base Total including Destination Package
+  const baseTotal = (destPrice * checkoutGuests) +
+                    (hotelPrice * nights * checkoutGuests) + 
                     (upgradePrice * nights * checkoutGuests) + 
                     (flightPrice * checkoutGuests) + 
                     (activitiesCost * checkoutGuests);
@@ -2748,4 +2973,44 @@ window.handleUpdatePasswordSubmit = async function(event) {
     submitBtn.disabled = false;
     submitBtn.firstElementChild.textContent = 'Update Password';
   }
+};
+
+window.addTripToCalendar = function() {
+  const destName = state.itinerary.destination ? state.itinerary.destination.name : 'Luxury Vacation';
+  const startD = document.getElementById('checkout-start-date').value || new Date().toISOString().split('T')[0];
+  const endD = document.getElementById('checkout-end-date').value || new Date().toISOString().split('T')[0];
+  const refCode = document.getElementById('ticket-booking-ref').textContent || 'ATH-VOUCHER';
+  
+  // Format date for ICS
+  const formatICSDate = (dateStr) => {
+    return dateStr.replace(/-/g, '') + 'T090000Z';
+  };
+  
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Aether Travel Co-Pilot//EN',
+    'BEGIN:VEVENT',
+    `UID:${refCode}@aethertravel.com`,
+    `DTSTAMP:${formatICSDate(startD)}`,
+    `DTSTART:${formatICSDate(startD)}`,
+    `DTEND:${formatICSDate(endD)}`,
+    `SUMMARY:Trip to ${destName} (Aether Booking)`,
+    `DESCRIPTION:Your luxury trip to ${destName}. Booking Ref: ${refCode}. Enjoy your premium travel co-pilot experience!`,
+    `LOCATION:${destName}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Aether-Trip-${refCode}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  window.showToast("Trip calendar file downloaded! Open it to add to Apple or Google Calendar.", "success");
 };
