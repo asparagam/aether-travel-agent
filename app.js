@@ -1402,7 +1402,7 @@ function renderHotelsList(hotels) {
         
         <!-- 2. Hotel Details Content Area -->
         <div class="option-details stay-details-rich">
-          <span class="option-name">${ht.name}</span>
+          <h4 class="option-name" title="${ht.name}">${ht.name}</h4>
           <p class="stay-subtitle-row">${location} • ${distance} • <span style="font-size:0.75rem; color:var(--color-text-secondary);">(${reviewsCount} reviews)</span></p>
           
           <div class="stay-badges-row">
