@@ -2230,8 +2230,9 @@ function addAgentActionLog(tool, details) {
 function addBotMessage(htmlContent) {
   // Add Bot Bubble to Chat Logs
   const logs = document.getElementById('chat-logs');
+  let bubble = null;
   if (logs) {
-    const bubble = document.createElement('div');
+    bubble = document.createElement('div');
     bubble.className = 'chat-bubble bot';
     bubble.innerHTML = htmlContent;
     logs.appendChild(bubble);
@@ -2240,22 +2241,23 @@ function addBotMessage(htmlContent) {
 
   // Update voice status text to ready
   const statusText = document.getElementById('voice-status-text');
-  if (statusText) {
-    statusText.textContent = "Voyara Assistant";
-  }
+  const statusLight = document.getElementById('voice-status-light');
 
   // Speak response if voice output is enabled
   if (state.voiceOutput) {
-    if (statusText) statusText.textContent = "Speaking...";
-    speakText(stripHtml(htmlContent));
-    
-    // Reset status back to idle after a simulated timeout based on length
+    speakText(stripHtml(htmlContent), bubble);
+  } else {
+    if (statusLight) statusLight.className = 'chat-bot-indicator finished';
+    if (statusText) statusText.textContent = "✓ Finished";
     setTimeout(() => {
-      if (statusText && statusText.textContent === "Speaking...") {
-        statusText.textContent = "Voyara Assistant";
+      if (!state.isSpeaking && !state.isListening && !state.isThinking) {
+        if (statusLight) statusLight.className = 'chat-bot-indicator';
+        if (statusText) statusText.textContent = "Voyara Assistant";
       }
-    }, Math.max(3000, htmlContent.length * 60));
+    }, 2000);
   }
+  
+  return bubble;
 }
 
 // -------------------------------------------------------------
@@ -2344,11 +2346,19 @@ function toggleSpeechRecognition() {
   }
 }
 
-function speakText(text) {
+function speakText(text, bubble = null) {
   if (!window.speechSynthesis) return;
 
   // Stop any currently playing speech immediately
   window.speechSynthesis.cancel();
+
+  state.isSpeaking = true;
+  const statusLight = document.getElementById('voice-status-light');
+  const statusText = document.getElementById('voice-status-text');
+
+  if (statusLight) statusLight.className = 'chat-bot-indicator speaking';
+  if (statusText) statusText.textContent = "🗣 Speaking";
+  if (bubble) bubble.classList.add('speaking-active');
 
   // 1. Text Cleaning for humanized pronunciation
   let cleanedText = text
@@ -2423,6 +2433,24 @@ function speakText(text) {
   if (selectedVoice) {
     utterance.voice = selectedVoice;
   }
+
+  const cleanUpSpeechState = () => {
+    state.isSpeaking = false;
+    if (bubble) bubble.classList.remove('speaking-active');
+    
+    if (statusLight) statusLight.className = 'chat-bot-indicator finished';
+    if (statusText) statusText.textContent = "✓ Finished";
+    setTimeout(() => {
+      // Only reset if we haven't transitioned to another active task
+      if (!state.isSpeaking && !state.isListening && !state.isThinking) {
+        if (statusLight) statusLight.className = 'chat-bot-indicator';
+        if (statusText) statusText.textContent = "Voyara Assistant";
+      }
+    }, 2000);
+  };
+
+  utterance.onend = cleanUpSpeechState;
+  utterance.onerror = cleanUpSpeechState;
 
   window.speechSynthesis.speak(utterance);
 }

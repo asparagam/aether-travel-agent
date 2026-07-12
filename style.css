@@ -4401,6 +4401,62 @@ dialog.booking-modal::backdrop {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Voice status light transition states */
+.chat-bot-indicator {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* 🎤 Listening: purple pulse */
+.chat-bot-indicator.listening {
+  background-color: #5B49DE !important;
+  box-shadow: 0 0 14px rgba(91, 73, 222, 0.7) !important;
+  animation: listeningPulse 1s infinite alternate !important;
+}
+
+/* 🧠 Thinking: cyan fast-pulse */
+.chat-bot-indicator.thinking {
+  background-color: #00D2FF !important;
+  box-shadow: 0 0 14px rgba(0, 210, 255, 0.7) !important;
+  animation: thinkingPulse 0.6s infinite alternate !important;
+}
+
+/* 🗣 Speaking: green active pulse waves */
+.chat-bot-indicator.speaking {
+  background-color: #00E676 !important;
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.7) !important;
+  animation: speakingPulse 0.8s infinite alternate !important;
+}
+
+/* ✓ Finished / Standard */
+.chat-bot-indicator.finished {
+  background-color: #00E676 !important;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.4) !important;
+  animation: none !important;
+}
+
+@keyframes listeningPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes thinkingPulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.4); opacity: 1; }
+}
+
+@keyframes speakingPulse {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.35); opacity: 1; }
+}
+
+/* Speak active bubble highlighting */
+.chat-bubble.bot.speaking-active {
+  box-shadow: 0 0 20px rgba(91, 73, 222, 0.18) !important;
+  border: 1.5px solid #5B49DE !important;
+  transform: translateY(-2px);
+  transition: all 0.25s ease;
+}
+
 
 
 
