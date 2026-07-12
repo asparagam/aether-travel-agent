@@ -1029,9 +1029,9 @@ function renderDestinationsGrid() {
     card.innerHTML = `
       <div class="card-img-wrapper">
         <img src="${dest.image}" alt="${dest.name}">
-        <div class="card-badge rating">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-          ${dest.rating}
+        <div class="card-badge rating" aria-label="Rating: ${dest.rating} out of 5 stars">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+          <span>${dest.rating}</span>
         </div>
       </div>
       <div class="card-content">
