@@ -74,6 +74,39 @@ async function initSupabase() {
           window.showUpdatePasswordPanel();
         }, 800);
       }
+
+      // Check if OAuth callback error parameters are in URL query or hash
+      const urlParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(hash.includes('#') ? hash.split('#')[1] : '');
+      const errorCode = urlParams.get('error_code') || hashParams.get('error_code');
+      const errorDesc = urlParams.get('error_description') || hashParams.get('error_description') || urlParams.get('error') || hashParams.get('error');
+
+      if (errorDesc) {
+        let userMsg = "Login failed. Please try again.";
+        const descLower = errorDesc.toLowerCase();
+        
+        if (descLower.includes('configuration') || descLower.includes('not_configured') || descLower.includes('client')) {
+          userMsg = "Authentication service is not configured correctly.";
+        } else if (descLower.includes('redirect') || descLower.includes('uri')) {
+          userMsg = "Redirect URI configuration error.";
+        } else if (descLower.includes('cancel') || descLower.includes('access_denied') || descLower.includes('denied')) {
+          userMsg = "Authentication was cancelled.";
+        } else if (descLower.includes('network') || descLower.includes('connect')) {
+          userMsg = "Network connection lost.";
+        } else if (descLower.includes('unavailable') || descLower.includes('server')) {
+          userMsg = "OAuth provider is temporarily unavailable.";
+        } else if (descLower.includes('unable') || descLower.includes('connect')) {
+          userMsg = "Unable to connect to the authentication provider.";
+        }
+        
+        console.error("Supabase OAuth error detected:", errorDesc, errorCode);
+        setTimeout(() => {
+          window.showToast(userMsg, 'error');
+        }, 1000);
+        
+        // Clean URL parameters to keep address bar clean
+        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
+      }
     } else {
       updateAuthUI(null);
     }
@@ -365,18 +398,66 @@ window.handleForgotPasswordSubmit = async function(event) {
 };
 
 window.handleSocialAuth = async function(provider) {
+  if (state.authInProgress) return;
+  
+  state.authInProgress = true;
+  
+  // Disable all social buttons and show loading on selected
+  const buttons = document.querySelectorAll('.social-btn');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  });
+  
+  // Try to find the button
+  const activeBtn = document.querySelector(`.social-btn[onclick*="${provider}"]`);
+  let originalHtml = "";
+  if (activeBtn) {
+    originalHtml = activeBtn.innerHTML;
+    activeBtn.innerHTML = `
+      <span class="typing-indicator" style="margin: 0; justify-content: center; gap: 4px;">
+        <span class="typing-dot" style="background-color: var(--color-text-primary); width: 6px; height: 6px; display: inline-block; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+        <span class="typing-dot" style="background-color: var(--color-text-primary); width: 6px; height: 6px; display: inline-block; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: 0.2s;"></span>
+        <span class="typing-dot" style="background-color: var(--color-text-primary); width: 6px; height: 6px; display: inline-block; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: 0.4s;"></span>
+      </span>
+    `;
+  }
+  
   try {
     if (!supabaseClient) throw new Error('Supabase Client not initialized.');
+    
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account'
+        }
       }
     });
     if (error) throw error;
   } catch (err) {
-    console.error(err);
-    window.showToast(`OAuth ${provider} failed`, 'error');
+    console.error(`OAuth ${provider} error:`, err);
+    
+    // Restore button states
+    buttons.forEach(btn => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    });
+    if (activeBtn) activeBtn.innerHTML = originalHtml;
+    state.authInProgress = false;
+    
+    let friendlyMsg = "Login failed. Please try again.";
+    const errMsg = err.message.toLowerCase();
+    if (errMsg.includes('network') || errMsg.includes('fetch')) {
+      friendlyMsg = "Network connection lost.";
+    } else if (errMsg.includes('configuration') || errMsg.includes('not configured')) {
+      friendlyMsg = "Authentication service is not configured correctly.";
+    }
+    
+    window.showToast(friendlyMsg, 'error');
   }
 };
 
