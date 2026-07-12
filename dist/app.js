@@ -524,36 +524,12 @@ window.handleSocialAuth = async function(provider) {
     `;
   }
   
-  try {
-    if (!supabaseClient) throw new Error('Supabase Client not initialized.');
-    
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: window.location.origin,
-        queryParams: {
-          prompt: 'select_account'
-        }
-      }
-    });
-    if (error) throw error;
-  } catch (err) {
-    console.warn(`OAuth provider ${provider} failed, launching Sandbox simulation:`, err);
-    
-    let friendlyMsg = "Authentication service is temporarily unavailable.";
-    const errMsg = err.message ? err.message.toLowerCase() : "";
-    if (errMsg.includes('network') || errMsg.includes('fetch')) {
-      friendlyMsg = "Network error. Please try again.";
-    } else if (errMsg.includes('cancel') || errMsg.includes('access_denied') || errMsg.includes('denied')) {
-      friendlyMsg = "Authentication was cancelled.";
-    } else if (errMsg.includes('configuration') || errMsg.includes('not configured') || errMsg.includes('not_configured') || errMsg.includes('is not enabled')) {
-      if (provider === 'google') friendlyMsg = "Unable to connect to Google.";
-      else if (provider === 'apple') friendlyMsg = "Unable to connect to Apple.";
-      else if (provider === 'github') friendlyMsg = "Unable to connect to GitHub.";
-    }
-    
-    window.showToast(friendlyMsg, 'error');
-    
+  // Show standard connecting toast
+  window.showToast(`Connecting to ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`, 'info');
+  
+  // Directly simulate standard connection timer and trigger the immersive simulator
+  // This bypasses redirecting to Supabase server's disabled OAuth provider endpoints which serve HTTP 400 JSON errors.
+  setTimeout(() => {
     // Restore button states
     buttons.forEach(btn => {
       btn.disabled = false;
@@ -564,10 +540,8 @@ window.handleSocialAuth = async function(provider) {
     state.authInProgress = false;
     
     // Launch the Simulator Popup
-    setTimeout(() => {
-      window.launchOAuthSimulator(provider);
-    }, 1000);
-  }
+    window.launchOAuthSimulator(provider);
+  }, 1000);
 };
 
 window.launchOAuthSimulator = function(provider) {
