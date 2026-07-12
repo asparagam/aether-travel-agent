@@ -1100,11 +1100,11 @@ async function selectDestination(destId) {
 
   const container = document.getElementById('detail-view-content');
   container.innerHTML = `
-    <!-- Column 1: Details Hero and Map -->
-    <div>
+    <!-- Left Column: Hero Card & Map -->
+    <div class="detail-left-col">
       <div class="detail-hero-card">
         <div class="detail-hero-img-wrapper">
-          <img src="${dest.image}" alt="${dest.name}">
+          <img src="${dest.image}" alt="${dest.name}" id="detail-hero-img">
           <button class="btn-favorite-circle ${(state.favorites && state.favorites.includes(dest.id)) ? 'active' : ''}" onclick="window.toggleFavoriteDestination('${dest.id}')" aria-label="Toggle Favorite" title="Add to Favorites">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -1141,14 +1141,15 @@ async function selectDestination(destId) {
           <p class="detail-desc-text">${dest.description}</p>
         </div>
       </div>
-      <div id="map-container" style="height: 250px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
+      <div class="detail-map-card" id="map-container" style="height: 300px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
         <!-- Leaflet map -->
       </div>
     </div>
 
-    <!-- Column 2: Flights Selection -->
-    <div class="detail-options-column">
-      <section class="options-section">
+    <!-- Right Column: Flights, Stays & CTA -->
+    <div class="detail-right-col">
+      <!-- Flights Section -->
+      <section class="options-section detail-flights-card">
         <h3>
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
           Available Flights
@@ -1159,11 +1160,9 @@ async function selectDestination(destId) {
           <div class="skeleton-item"></div>
         </div>
       </section>
-    </div>
 
-    <!-- Column 3: Stays Selection -->
-    <div class="detail-options-column">
-      <section class="options-section">
+      <!-- Stays Section -->
+      <section class="options-section detail-hotels-card" style="margin-top: 1.5rem;">
         <h3>
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           Recommended Stays
@@ -1176,7 +1175,7 @@ async function selectDestination(destId) {
       </section>
       
       <!-- Premium "Continue" CTA Button to proceed to the Travel Planner -->
-      <div style="margin-top: 1.5rem;">
+      <div class="detail-cta-wrapper" style="margin-top: 1.5rem;">
         <button class="btn-planner-primary continue-booking-cta" onclick="navigateToView('planner')" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.9rem; font-size: 1.05rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px var(--color-primary-glow);">
           Continue to Travel Planner
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
