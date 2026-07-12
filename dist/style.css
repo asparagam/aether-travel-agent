@@ -3947,6 +3947,121 @@ dialog.booking-modal::backdrop {
   min-height: 44px !important; /* Touch target minimum */
 }
 
+/* Premium Flight Card Refinements */
+.flight-card-rich {
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 24px !important; /* 24px padding around card */
+  gap: 0 !important;
+  box-sizing: border-box !important;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.flight-card-rich:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+.flight-card-rich:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Row 1: Header styling */
+.flight-header-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important; /* Header -> 16px spacing */
+  width: 100% !important;
+}
+
+.flight-brand-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.flight-airline {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
+  line-height: 1.2 !important;
+}
+
+.flight-number {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.flight-price {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: var(--color-secondary) !important;
+  line-height: 1 !important;
+}
+
+/* Row 2: Flight Info styling */
+.flight-info-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 20px !important; /* Flight Info -> 20px spacing */
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.flight-info-row .divider {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.light-theme .flight-info-row .divider {
+  color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Row 3: Action Button styling */
+.flight-actions-row {
+  width: 100% !important;
+}
+
+.flight-action-btn {
+  width: 100% !important;
+  height: 48px !important;
+  border-radius: 999px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.flight-action-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(91, 73, 222, 0.2) !important;
+  border-color: #5B49DE !important;
+}
+
+.flight-action-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.flight-action-btn:focus-visible {
+  outline: 2px solid #5B49DE !important;
+  outline-offset: 2px !important;
+}
+
 /* Stacking and wrapping options list on mobile devices */
 @media (max-width: 480px) {
   .option-item {

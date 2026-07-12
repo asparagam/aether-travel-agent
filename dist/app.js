@@ -1337,20 +1337,29 @@ function renderFlightsList(flights) {
     const isSelected = state.itinerary.flight && state.itinerary.flight.id === fl.id;
     const depTime = fl.departure.includes('T') ? new Date(fl.departure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : fl.departure;
     return `
-      <div class="option-item ${isSelected ? 'selected' : ''}">
-        <div class="option-details">
-          <span class="option-name">${fl.airline} (${fl.flightNumber})</span>
-          <div class="option-sub">
-            <span>Dep: ${depTime}</span>
-            <span class="divider"></span>
-            <span>${fl.duration}</span>
-            <span class="divider"></span>
-            <span>${fl.cabin}</span>
+      <div class="option-item flight-card-rich ${isSelected ? 'selected' : ''}" tabindex="0" role="button" aria-label="${fl.airline} flight ${fl.flightNumber}, price $${fl.price}. Click to choose flight.">
+        
+        <!-- Row 1: Header Row (Airline & Price) -->
+        <div class="flight-header-row">
+          <div class="flight-brand-info">
+            <span class="flight-airline">${fl.airline}</span>
+            <span class="flight-number">(${fl.flightNumber})</span>
           </div>
+          <span class="flight-price">$${fl.price}</span>
         </div>
-        <div class="option-actions">
-          <span class="option-price">$${fl.price}</span>
-          <button class="btn-add-option" onclick="window.selectFlight('${fl.id}')">
+        
+        <!-- Row 2: Flight Info Details Row -->
+        <div class="flight-info-row">
+          <span>Dep: ${depTime}</span>
+          <span class="divider">•</span>
+          <span>${fl.duration}</span>
+          <span class="divider">•</span>
+          <span>${fl.cabin}</span>
+        </div>
+        
+        <!-- Row 3: Action Button CTA -->
+        <div class="flight-actions-row">
+          <button class="btn-add-option flight-action-btn" onclick="window.selectFlight('${fl.id}'); event.stopPropagation();">
             ${isSelected ? 'Flight Added' : 'Add Flight'}
           </button>
         </div>
