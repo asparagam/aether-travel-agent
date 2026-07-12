@@ -205,14 +205,21 @@ window.hideForgotPasswordPanel = function() {
 
 window.togglePasswordVisibility = function(inputId, btn) {
   const input = document.getElementById(inputId);
-  if (input) {
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = '🙈';
-    } else {
-      input.type = 'password';
-      btn.textContent = '👁️';
-    }
+  if (!input) return;
+  
+  const eyeOpen = btn.querySelector('.eye-open');
+  const eyeClosed = btn.querySelector('.eye-closed');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.setAttribute('aria-label', 'Hide password');
+    if (eyeOpen) eyeOpen.style.display = 'none';
+    if (eyeClosed) eyeClosed.style.display = 'block';
+  } else {
+    input.type = 'password';
+    btn.setAttribute('aria-label', 'Show password');
+    if (eyeOpen) eyeOpen.style.display = 'block';
+    if (eyeClosed) eyeClosed.style.display = 'none';
   }
 };
 

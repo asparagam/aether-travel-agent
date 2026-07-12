@@ -2804,4 +2804,85 @@ dialog.booking-modal::backdrop {
   40% { transform: scale(1.0); }
 }
 
+/* Premium Form Input Icons & Styling */
+.auth-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.auth-input-wrapper input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-primary);
+  padding: 0 3rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.light-theme .auth-input-wrapper input {
+  background: rgba(15, 23, 42, 0.02);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.auth-input-wrapper input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.18);
+  background-color: transparent;
+}
+
+.auth-input-wrapper .input-icon-svg {
+  position: absolute;
+  left: 1.1rem;
+  width: 21px;
+  height: 21px;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.auth-input-wrapper:focus-within .input-icon-svg {
+  color: var(--color-primary);
+}
+
+.auth-input-wrapper .btn-toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  outline: none;
+  padding: 0;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.auth-input-wrapper .btn-toggle-password:hover {
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.light-theme .auth-input-wrapper .btn-toggle-password:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.auth-input-wrapper .eye-icon-svg {
+  width: 21px;
+  height: 21px;
+  pointer-events: none;
+}
+
+
 
