@@ -175,6 +175,13 @@ aside.sidebar {
   -webkit-text-fill-color: transparent;
 }
 
+.light-theme .brand-name {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  color: #9FABBD !important;
+}
+
 .nav-links {
   list-style: none;
   display: flex;
