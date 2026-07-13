@@ -1492,8 +1492,15 @@ function selectHotel(hotelId) {
     state.itinerary.hotel = null;
     addBotMessage(`🗑️ Removed hotel <strong>${hotel.name}</strong> from your stay.`);
   } else {
+    // If no room is selected yet, default to Deluxe Double Room
+    if (!hotel.selectedRoomId) {
+      hotel.selectedRoomId = 'deluxe';
+      hotel.roomType = 'Deluxe Double Room';
+      const basePrice = parseFloat(hotel.price || hotel.pricePerNight || 0);
+      hotel.pricePerNight = basePrice;
+    }
     state.itinerary.hotel = hotel;
-    addBotMessage(`🏨 Selected <strong>${hotel.name}</strong> for your stay.`);
+    addBotMessage(`🏨 Selected <strong>${hotel.name}</strong> (${hotel.roomType}) for your stay.`);
   }
   
   renderHotelsList(state.selectedDestination.hotels);
@@ -3674,6 +3681,134 @@ window.updateItineraryDays = function(newDays) {
 };
 
 // Dialog details modal open & close helpers
+window.renderRoomOptionsHTML = function(hotelId, hotel) {
+  const rate = parseFloat(hotel.price || hotel.pricePerNight || 0);
+  const selectedRoomId = hotel.selectedRoomId || 'deluxe';
+  
+  const rooms = [
+    {
+      id: 'deluxe',
+      name: 'Deluxe Double Room',
+      desc: 'King Bed • Garden View',
+      price: rate,
+      status: 'Available'
+    },
+    {
+      id: 'executive',
+      name: 'Executive Suite',
+      desc: 'Separate Living Area • Spa Access',
+      price: rate + 150,
+      status: 'Available'
+    },
+    {
+      id: 'family',
+      name: 'Family Suite',
+      desc: 'Interconnected Rooms • Kitchenette',
+      price: rate + 250,
+      status: 'Available'
+    },
+    {
+      id: 'villa',
+      name: 'Garden Villa',
+      desc: 'Private Hot Tub • Butler Service',
+      price: rate + 400,
+      status: 'Sold Out'
+    }
+  ];
+  
+  return rooms.map(room => {
+    const isSelected = room.id === selectedRoomId && room.status !== 'Sold Out';
+    const isSoldOut = room.status === 'Sold Out';
+    
+    let badgeText = '';
+    if (isSoldOut) {
+      badgeText = '<span class="room-status red">✕ Sold Out</span>';
+    } else if (isSelected) {
+      badgeText = '<span class="room-status green selected-badge">✓ Selected</span>';
+    } else {
+      badgeText = '<span class="room-status green">✓ Available</span>';
+    }
+    
+    const ariaLabel = `${room.name}, ${room.desc}, ${formatCurrency(room.price)} per night. ${isSoldOut ? 'Sold out.' : (isSelected ? 'Currently selected.' : 'Available. Click to select.')}`;
+    
+    return `
+      <div class="room-option-card ${isSelected ? 'selected' : ''} ${isSoldOut ? 'sold-out' : ''}" 
+           onclick="if(!${isSoldOut}) { window.selectRoomOption('${hotelId}', '${room.id}'); }"
+           onkeydown="if(!${isSoldOut} && (event.key === 'Enter' || event.key === ' ')) { window.selectRoomOption('${hotelId}', '${room.id}'); event.preventDefault(); }"
+           tabindex="${isSoldOut ? '-1' : '0'}"
+           role="radio"
+           aria-checked="${isSelected ? 'true' : 'false'}"
+           aria-disabled="${isSoldOut ? 'true' : 'false'}"
+           aria-label="${ariaLabel}">
+        <div class="room-card-content">
+          <div class="room-card-header">
+            <strong>${room.name}</strong>
+            <p style="font-size:0.8rem; margin:0; margin-top:2px;">${room.desc}</p>
+          </div>
+          <div class="room-card-footer">
+            <span class="room-price-info"><strong>${formatCurrency(room.price)}</strong> / night</span>
+            ${badgeText}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.selectRoomOption = function(hotelId, roomId) {
+  if (!state.selectedDestination || !state.selectedDestination.hotels) return;
+  const hotel = state.selectedDestination.hotels.find(h => h.id === hotelId);
+  if (!hotel) return;
+  
+  const basePrice = parseFloat(hotel.price || hotel.pricePerNight || 0);
+  
+  // Set rate offsets
+  const roomPrices = {
+    deluxe: basePrice,
+    executive: basePrice + 150,
+    family: basePrice + 250,
+    villa: basePrice + 400
+  };
+  const roomNames = {
+    deluxe: 'Deluxe Double Room',
+    executive: 'Executive Suite',
+    family: 'Family Suite',
+    villa: 'Garden Villa'
+  };
+  
+  if (roomId === 'villa') return; // Sold out, cannot select
+  
+  hotel.selectedRoomId = roomId;
+  hotel.roomType = roomNames[roomId];
+  hotel.pricePerNight = roomPrices[roomId]; // Update the nightly rate to the room's price!
+  
+  // Update modal values live!
+  const estTotal = hotel.pricePerNight * (state.itinerary.durationDays - 1 || 1);
+  
+  // Re-render the Room Options section in the modal
+  const roomSection = document.getElementById('modal-room-options-container');
+  if (roomSection) {
+    roomSection.innerHTML = window.renderRoomOptionsHTML(hotelId, hotel);
+  }
+  
+  // Update footer pricing inside modal
+  const modalRateEl = document.querySelector('.modal-footer-cta .rate');
+  const modalTotalEl = document.querySelector('.modal-footer-cta .total');
+  if (modalRateEl && modalTotalEl) {
+    modalRateEl.innerHTML = `${formatCurrency(hotel.pricePerNight)} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span>`;
+    modalTotalEl.innerHTML = `${formatCurrency(hotel.pricePerNight)} × ${state.itinerary.durationDays - 1 || 1} nights = <strong>${formatCurrency(estTotal)}</strong> Est. Total`;
+  }
+  
+  // If the hotel is currently selected in the itinerary, update the itinerary as well!
+  if (state.itinerary.hotel && state.itinerary.hotel.id === hotelId) {
+    state.itinerary.hotel.selectedRoomId = roomId;
+    state.itinerary.hotel.roomType = hotel.roomType;
+    state.itinerary.hotel.pricePerNight = hotel.pricePerNight;
+    window.recalculateBudget();
+    renderPlannerView();
+  }
+};
+
 window.openHotelModal = function(hotelId) {
   if (!state.selectedDestination || !state.selectedDestination.hotels) return;
   const hotel = state.selectedDestination.hotels.find(h => h.id === hotelId);
@@ -3687,7 +3822,15 @@ window.openHotelModal = function(hotelId) {
   const dest = state.selectedDestination;
   const days = state.itinerary.durationDays || 7;
   const nights = days - 1 || 1;
-  const rate = parseFloat(hotel.pricePerNight || hotel.price || 0);
+  
+  // Initialize default stay room properties if not selected
+  if (!hotel.selectedRoomId) {
+    hotel.selectedRoomId = 'deluxe';
+    hotel.roomType = 'Deluxe Double Room';
+    hotel.pricePerNight = parseFloat(hotel.price || hotel.pricePerNight || 0);
+  }
+  
+  const rate = hotel.pricePerNight;
   const estTotal = rate * nights;
   
   const images = [
@@ -3763,19 +3906,8 @@ window.openHotelModal = function(hotelId) {
             
             <div class="modal-section">
               <h4>Room Options</h4>
-              <div class="modal-room-row">
-                <div>
-                  <strong>Deluxe Double Room</strong>
-                  <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">King Bed • Garden View</p>
-                </div>
-                <span class="room-status green">Available</span>
-              </div>
-              <div class="modal-room-row" style="margin-top: 0.5rem;">
-                <div>
-                  <strong>Executive Suite</strong>
-                  <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">Separate Living Area • Spa Access</p>
-                </div>
-                <span class="room-status red">Sold Out</span>
+              <div id="modal-room-options-container" class="modal-room-options-container" role="radiogroup" aria-label="Select a room option">
+                ${window.renderRoomOptionsHTML(hotelId, hotel)}
               </div>
             </div>
             
@@ -3862,7 +3994,24 @@ window.openHotelWebsite = function(hotelName) {
 };
 
 window.selectHotelFromModal = function(hotelId) {
-  window.selectHotel(hotelId);
+  if (!state.selectedDestination || !state.selectedDestination.hotels) return;
+  const hotel = state.selectedDestination.hotels.find(h => h.id === hotelId);
+  if (!hotel) return;
+  
+  if (!hotel.selectedRoomId) {
+    hotel.selectedRoomId = 'deluxe';
+    hotel.roomType = 'Deluxe Double Room';
+    hotel.pricePerNight = parseFloat(hotel.price || hotel.pricePerNight || 0);
+  }
+  
+  state.itinerary.hotel = hotel;
+  
+  renderHotelsList(state.selectedDestination.hotels);
+  updateSummaryBtnState();
+  updateContinueButtonState();
+  updateBookingStatusTags();
+  renderPlannerView();
+  
   window.closeHotelModal();
   window.showToast("Hotel stay added to your planner itinerary!", "success");
 };
