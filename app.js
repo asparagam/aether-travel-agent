@@ -1536,7 +1536,7 @@ function renderPlannerView() {
     <div class="timeline-node">
       <div class="timeline-marker"></div>
       <div class="timeline-card">
-        <h5 class="timeline-day-num">Day ${act.day}</h5>
+        <h6 class="timeline-day-num">Day ${act.day}</h6>
         <div class="timeline-details">
           <span class="timeline-time">${act.time}</span>
           <h4 class="timeline-title">${act.title}</h4>
