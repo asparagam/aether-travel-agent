@@ -5153,3 +5153,147 @@ dialog.booking-modal::backdrop {
   color: #FFFFFF !important;
   border: 1px solid #5B49DE !important;
 }
+
+/* Hotel Carousel / Slider layout classes */
+.hotels-slider-container {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+}
+
+.hotels-track-wrapper {
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+.hotels-track {
+  display: flex !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 100% !important;
+}
+
+.slider-hotel-card {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-card) !important;
+  border-radius: 16px !important;
+}
+
+.slider-arrow {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #FFFFFF !important;
+  width: 44px !important; /* 44px accessible size */
+  height: 44px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 5 !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.slider-arrow:hover {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  transform: translateY(-50%) scale(1.05) !important;
+}
+
+.slider-arrow:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+.slider-arrow.prev {
+  left: 8px !important;
+}
+
+.slider-arrow.next {
+  right: 8px !important;
+}
+
+.slider-dots-row {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+}
+
+.slider-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.slider-dot.active {
+  background: var(--color-primary) !important;
+  transform: scale(1.2) !important;
+}
+
+.slider-dot:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Light Theme overrides for Slider */
+.light-theme .slider-hotel-card {
+  background: #FFFFFF !important;
+  border: 1px solid #D9E1EC !important;
+}
+
+.light-theme .slider-arrow {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid #D9E1EC !important;
+  color: #0F172A !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+.light-theme .slider-arrow:hover {
+  background: var(--color-primary) !important;
+  color: #FFFFFF !important;
+}
+
+.light-theme .slider-dot {
+  background: rgba(15, 23, 42, 0.15) !important;
+}
+
+.light-theme .slider-dot.active {
+  background: var(--color-primary) !important;
+}
+
+/* Mobile responsive carousel swipe snapping overrides */
+@media (max-width: 768px) {
+  .hotels-track-wrapper {
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .hotels-track {
+    transform: none !important; /* Disable JS transform on mobile to allow native snap scroll */
+  }
+  .slider-hotel-card {
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+  }
+  .slider-arrow {
+    display: none !important; /* Hide arrows on mobile touch screens */
+  }
+}

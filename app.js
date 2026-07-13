@@ -1305,8 +1305,11 @@ async function fetchFlightsAndHotelsData(destId) {
     .catch(() => []);
     
   const hotelsPromise = fetch(`/api/hotels?cityCode=${iata}&checkInDate=2026-08-15&checkOutDate=2026-08-22`)
-    .then(r => r.json())
-    .catch(() => []);
+    .then(r => {
+      if (!r.ok) throw new Error('API failed');
+      return r.json();
+    })
+    .catch(() => 'error');
 
   const [flights, hotels] = await Promise.all([flightsPromise, hotelsPromise]);
   
@@ -1387,41 +1390,114 @@ function renderFlightsList(flights) {
   }).join('');
 }
 
+let currentHotelIndex = 0;
+let lastRenderedDestId = null;
+let touchStartX = 0;
+let touchEndX = 0;
+
+window.slideHotels = function(direction) {
+  const hotels = state.selectedDestination ? (state.selectedDestination.hotels || []) : [];
+  const limit = Math.min(hotels.length, 3);
+  if (limit === 0) return;
+  
+  currentHotelIndex = (currentHotelIndex + direction + limit) % limit;
+  
+  const track = document.getElementById('hotels-track');
+  if (track) {
+    track.style.transform = `translateX(-${currentHotelIndex * 100}%)`;
+  }
+  
+  window.updateActiveSliderDot(currentHotelIndex);
+};
+
+window.setHotelIndex = function(index) {
+  currentHotelIndex = index;
+  const track = document.getElementById('hotels-track');
+  if (track) {
+    track.style.transform = `translateX(-${currentHotelIndex * 100}%)`;
+  }
+  window.updateActiveSliderDot(currentHotelIndex);
+};
+
+window.updateActiveSliderDot = function(index) {
+  currentHotelIndex = index;
+  document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
+    if (idx === index) {
+      dot.classList.add('active');
+      dot.setAttribute('aria-selected', 'true');
+    } else {
+      dot.classList.remove('active');
+      dot.setAttribute('aria-selected', 'false');
+    }
+  });
+};
+
+window.handleHotelTouchStart = function(event) {
+  touchStartX = event.changedTouches[0].screenX;
+};
+
+window.handleHotelTouchMove = function(event) {
+  // Snapping handles this natively
+};
+
+window.handleHotelTouchEnd = function(event) {
+  if (window.innerWidth <= 768) return;
+  touchEndX = event.changedTouches[0].screenX;
+  const diff = touchStartX - touchEndX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) {
+      window.slideHotels(1);
+    } else {
+      window.slideHotels(-1);
+    }
+  }
+};
+
 function renderHotelsList(hotels) {
   const listEl = document.getElementById('hotels-list');
   if (!listEl) return;
   
-  if (hotels.length === 0) {
-    listEl.innerHTML = '<div style="color: var(--color-text-muted); font-size: 0.9rem; padding: 1rem;">No stays found.</div>';
+  if (hotels === 'error') {
+    listEl.innerHTML = '<div style="color: var(--color-accent); font-size: 0.95rem; padding: 1.5rem; text-align: center; font-weight: 500;">We could not retrieve live hotel options right now. Please try again shortly.</div>';
     return;
+  }
+  
+  if (!hotels || hotels.length === 0) {
+    listEl.innerHTML = '<div style="color: var(--color-text-secondary); font-size: 0.95rem; padding: 1.5rem; text-align: center;">No stays are currently available for these dates. Try changing your dates or destination.</div>';
+    return;
+  }
+  
+  const currentDestId = state.selectedDestination ? state.selectedDestination.id : null;
+  if (lastRenderedDestId !== currentDestId) {
+    currentHotelIndex = 0;
+    lastRenderedDestId = currentDestId;
   }
   
   const days = state.itinerary.durationDays || 7;
   const nights = days - 1 || 1;
   
-  listEl.innerHTML = hotels.map((ht, idx) => {
+  const hotelsToCompare = hotels.slice(0, 3);
+  
+  const cardsHTML = hotelsToCompare.map((ht, idx) => {
     const isSelected = state.itinerary.hotel && state.itinerary.hotel.id === ht.id;
     const hotelPrice = ht.pricePerNight || ht.price || 320;
     const estTotal = hotelPrice * nights;
+    const ratingVal = ht.rating || '5.0';
+    const reviewsCount = ht.reviewsCount || 120;
+    const amenitiesHTML = (ht.amenities || []).map(am => `<span class="amenity-pill">${am}</span>`).join('');
     
-    // Rating display calculation
-    const ratingVal = ht.rating || ht.stars || '5.0';
-    
-    const location = ht.location || 'Central District';
-    const reviewsCount = ht.reviews || (140 + idx * 23);
-    const distance = ht.distance || `${1.2 + idx * 0.4} km from center`;
-    const amenities = ht.amenities || ['Free Wi-Fi', 'Pool', 'Spa', 'Breakfast'];
-    const availability = ht.availability || 'Available';
-    
+    const badgeHTML = isSelected 
+      ? '<span class="stay-badge selected-pill" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; background: var(--color-primary); color: #FFFFFF; font-weight: 600;">✓ Selected</span>'
+      : '<span class="stay-badge availability" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; background: rgba(20, 184, 166, 0.08); color: var(--color-secondary); font-weight: 600;">Available</span>';
+      
     return `
-      <div class="option-item stay-card-rich ${isSelected ? 'selected' : ''}" onclick="window.openHotelModal('${ht.id}')" tabindex="0" role="button" aria-label="${ht.name}, $${hotelPrice} per night. Click to view details.">
+      <div class="slider-hotel-card option-item stay-card-rich ${isSelected ? 'selected' : ''}" style="display:flex; flex-direction:column; gap:0.75rem;">
         
         <!-- 1. Hotel Image & Overlay Badges -->
         <div class="option-img-wrapper stay-img-rich" tabindex="0" role="button" aria-label="View details for ${ht.name}" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();" onkeydown="if(event.key === 'Enter' || event.key === ' ') { window.openHotelModal('${ht.id}'); event.stopPropagation(); event.preventDefault(); }" title="View details for ${ht.name}">
           <img src="${ht.image}" alt="${ht.name}" loading="lazy">
           <span class="badge-free-cancel">Free Cancellation</span>
           
-          <!-- Rating Badge Overlaid on Image Top-Right -->
           <div class="card-badge rating" aria-label="Rating: ${ratingVal} out of 5 stars" onclick="event.stopPropagation();">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
             <span>${ratingVal}</span>
@@ -1429,39 +1505,77 @@ function renderHotelsList(hotels) {
         </div>
         
         <!-- 2. Hotel Details Content Area -->
-        <div class="option-details stay-details-rich">
-          <h4 class="option-name" title="${ht.name}">${ht.name}</h4>
-          <p class="stay-subtitle-row">${location} • ${distance} • <span style="font-size:0.75rem; color:var(--color-text-secondary);">(${reviewsCount} reviews)</span></p>
+        <div class="option-details stay-details-rich" style="padding: 0 0.5rem; text-align: left;">
+          <h4 class="option-name" style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--color-text-primary);" title="${ht.name}">${ht.name}</h4>
+          <p class="stay-subtitle-row" style="margin: 4px 0; font-size: 0.85rem; color: var(--color-text-secondary);">${ht.location || 'Central District'} • (${reviewsCount} reviews)</p>
           
-          <div class="stay-badges-row">
-            <span class="stay-badge breakfast">Free Breakfast</span>
-            <span class="stay-badge availability">${availability}</span>
+          <div class="stay-badges-row" style="display: flex; gap: 8px; margin: 8px 0;">
+            <span class="stay-badge breakfast" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; background: rgba(91, 73, 222, 0.08); color: var(--color-primary); font-weight: 600;">Free Breakfast</span>
+            ${badgeHTML}
           </div>
           
-          <div class="stay-amenities-pills">
-            ${amenities.map(am => `<span class="amenity-pill">${am}</span>`).join('')}
+          <div class="stay-amenities-pills" style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;">
+            ${amenitiesHTML}
           </div>
           
-          <div class="stay-pricing-footer">
+          <div class="stay-pricing-footer" style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
             <div class="stay-rate">
-              <span class="price-val">$${hotelPrice}</span> <span class="price-unit">/ night</span>
+              <span class="price-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary);">$${hotelPrice}</span> <span class="price-unit" style="font-size: 0.8rem; color: var(--color-text-secondary);">/ night</span>
             </div>
-            <div class="stay-total-est">
-              $${hotelPrice} × ${nights} nights = <strong>$${estTotal.toLocaleString()}</strong> Est. Total
+            <div class="stay-total-est" style="font-size: 0.8rem; color: var(--color-text-secondary);">
+              Total: <strong style="color: var(--color-text-primary);">$${hotelPrice} × ${nights} nights = $${estTotal.toLocaleString()}</strong>
             </div>
           </div>
         </div>
         
         <!-- 3. Stays Action Button Selector -->
-        <div class="option-actions stay-actions-rich">
-          ${isSelected ? '<span class="selected-card-tag">✓ Added to Trip</span>' : ''}
-          <button class="btn-add-option ${isSelected ? 'btn-remove-option' : 'btn-primary-option'}" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="${isSelected ? 'Remove' : 'Select'} ${ht.name}">
+        <div class="option-actions stay-actions-rich" style="padding: 0 0.5rem; display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-planner-secondary" style="flex: 1;" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();">View Details</button>
+          <button class="btn-add-option ${isSelected ? 'btn-remove-option' : 'btn-primary-option'}" style="flex: 1.2;" onclick="window.selectHotel('${ht.id}'); event.stopPropagation();" aria-label="${isSelected ? 'Remove' : 'Select'} ${ht.name}">
             ${isSelected ? '✕ Remove Stay' : 'Choose Stay'}
           </button>
         </div>
       </div>
     `;
   }).join('');
+
+  listEl.innerHTML = `
+    <div class="hotels-slider-container">
+      <button class="slider-arrow prev" onclick="window.slideHotels(-1); event.stopPropagation();" aria-label="Previous hotel">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6" /></svg>
+      </button>
+      
+      <div class="hotels-track-wrapper" id="hotels-track-wrapper" ontouchstart="window.handleHotelTouchStart(event)" ontouchmove="window.handleHotelTouchMove(event)" ontouchend="window.handleHotelTouchEnd(event)">
+        <div class="hotels-track" id="hotels-track" style="transform: translateX(-${currentHotelIndex * 100}%);">
+          ${cardsHTML}
+        </div>
+      </div>
+      
+      <button class="slider-arrow next" onclick="window.slideHotels(1); event.stopPropagation();" aria-label="Next hotel">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6" /></svg>
+      </button>
+    </div>
+    
+    <div class="slider-dots-row" id="slider-dots-row">
+      ${hotelsToCompare.map((_, idx) => `
+        <button class="slider-dot ${idx === currentHotelIndex ? 'active' : ''}" 
+                onclick="window.setHotelIndex(${idx}); event.stopPropagation();" 
+                aria-label="Navigate to hotel ${idx + 1}"
+                aria-selected="${idx === currentHotelIndex ? 'true' : 'false'}"></button>
+      `).join('')}
+    </div>
+  `;
+  
+  // Mobile snapping dot sync listener
+  const wrapper = document.getElementById('hotels-track-wrapper');
+  if (wrapper) {
+    wrapper.addEventListener('scroll', () => {
+      if (window.innerWidth <= 768) {
+        const index = Math.round(wrapper.scrollLeft / wrapper.clientWidth);
+        window.updateActiveSliderDot(index);
+      }
+    });
+  }
 }
 
 function selectFlight(flightId) {
