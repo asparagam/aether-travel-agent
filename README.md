@@ -57,8 +57,8 @@ The Voyara Assistant acts as a personal luxury travel concierge:
 ### Installation
 1. Clone the project repository:
    ```bash
-   git clone https://github.com/asparagam/aether-travel-agent.git
-   cd aether-travel-agent
+   git clone https://github.com/asparagam/voyara-ai-travel-planner.git
+   cd voyara-ai-travel-planner
    ```
 2. Install dependencies:
    ```bash
@@ -112,7 +112,7 @@ The application is deployed on Vercel:
 👉 **[travel-agent-inky.vercel.app](https://travel-agent-inky.vercel.app/)**
 
 Repository link:
-👉 **[github.com/asparagam/aether-travel-agent](https://github.com/asparagam/aether-travel-agent)**
+👉 **[github.com/asparagam/voyara-ai-travel-planner](https://github.com/asparagam/voyara-ai-travel-planner)**
 
 ---
 
