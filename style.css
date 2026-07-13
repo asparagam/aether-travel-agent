@@ -4315,25 +4315,49 @@ dialog.booking-modal::backdrop {
 }
 
 .modal-info-column {
-  padding: 2rem !important;
+  padding: 32px !important; /* side padding 32px desktop */
   overflow-y: auto !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 1.5rem !important;
+  justify-content: center !important; /* Vertically center content */
+  align-items: center !important;     /* Horizontally center content */
   background: #0f172a !important;
   border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #F8FAFC !important;
+}
+
+.modal-info-inner {
+  width: 100% !important;
+  max-width: 640px !important; /* Constrain content width */
+  display: flex !important;
+  flex-direction: column !important;
+  margin-top: auto !important;   /* Balanced top/bottom spacing */
+  margin-bottom: auto !important;
+}
+
+.modal-header-section {
+  margin-bottom: 24px !important; /* Location -> Description: 24px spacing */
 }
 
 .modal-header-section h2 {
   font-size: 1.75rem !important;
   font-weight: 800 !important;
   color: #FFFFFF !important;
+  margin-bottom: 12px !important; /* Hotel Name -> Location: 12px spacing */
 }
 
 .modal-header-section .hotel-modal-subtitle {
   font-size: 0.9rem !important;
   color: #CBD5E1 !important;
+}
+
+.modal-section {
+  margin-bottom: 32px !important; /* Spacing between major sections: 32px */
+}
+
+/* Policies -> Primary Booking Action: 40px spacing */
+.modal-info-inner > .modal-section:nth-last-of-type(1) {
+  margin-bottom: 40px !important;
 }
 
 .modal-section h4 {
@@ -4601,10 +4625,16 @@ dialog.booking-modal::backdrop {
     flex-shrink: 0 !important;
   }
   .modal-info-column {
-    padding: 1.5rem !important;
+    padding: 20px !important; /* side padding 20px mobile */
     border-left: none !important;
     overflow-y: visible !important;
     background: inherit !important;
+    display: block !important; /* Remove flex centering on mobile */
+  }
+  .modal-info-inner {
+    max-width: 100% !important;
+    display: block !important; /* Normal document flow */
+    margin: 0 !important;
   }
   .btn-modal-close {
     position: fixed !important;
@@ -4619,6 +4649,22 @@ dialog.booking-modal::backdrop {
     background: rgba(255, 255, 255, 0.85) !important;
     color: #0F172A !important;
     border: 1px solid #D9E1EC !important;
+  }
+}
+
+/* Tablet Overrides */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hotel-modal-dialog {
+    width: 95% !important;
+  }
+  .hotel-modal-grid {
+    grid-template-columns: 1fr 1.1fr !important;
+  }
+  .modal-info-column {
+    padding: 24px !important; /* side padding 24px tablet */
+  }
+  .modal-info-inner {
+    max-width: 100% !important;
   }
 }
 

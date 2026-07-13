@@ -3716,80 +3716,88 @@ window.openHotelModal = function(hotelId) {
           </div>
         </div>
         
-        <!-- Info Column -->
         <div class="modal-info-column">
-          <div class="modal-header-section">
-            <span class="stay-stars">${'★'.repeat(hotel.stars || 5)}</span>
-            <h2 id="hotel-modal-title">${hotel.name}</h2>
-            <p class="hotel-modal-subtitle">${hotel.location || 'Central District'} • ${hotel.distance || '1.2 km from center'}</p>
-          </div>
-          
-          <div class="modal-section">
-            <h4>Description</h4>
-            <p>${hotel.description || 'Experience hospitality at its finest in this elegant property located in the heart of the city.'}</p>
-          </div>
-          
-          <div class="modal-section">
-            <h4>Amenities</h4>
-            <div class="modal-amenities-grid">
-              <span>🏊 Pool & Wellness Spa</span>
-              <span>📶 Ultra Fast Free Wi-Fi</span>
-              <span>🍳 Complimentary Breakfast</span>
-              <span>🏋️ Fitness Center</span>
-              <span>🍹 Clifftop Lounge Bar</span>
-              <span>🚗 Valet Parking</span>
+          <div class="modal-info-inner">
+            <div class="modal-header-section">
+              <span class="stay-stars">${'★'.repeat(hotel.stars || 5)}</span>
+              <h2 id="hotel-modal-title">${hotel.name}</h2>
+              <p class="hotel-modal-subtitle">${hotel.location || 'Central District'} • ${hotel.distance || '1.2 km from center'}</p>
             </div>
-          </div>
-          
-          <div class="modal-section">
-            <h4>Location & Attractions</h4>
-            <p><strong>Address:</strong> ${hotel.address || '101 Premium Avenue, Kyoto, Japan'}</p>
-            <div id="modal-hotel-map" style="height: 200px; border-radius: 8px; margin-top: 0.75rem; border: 1px solid var(--border-color);"></div>
-            <div class="attractions-checklist" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--color-text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-              <span>🚇 Metro Station: <strong>0.3 km</strong></span>
-              <span>✈️ Airport (KIX): <strong>42 km</strong></span>
-              <span>⛩️ Fushimi Inari Shrine: <strong>1.5 km</strong></span>
-              <span>🎋 Arashiyama Bamboo Grove: <strong>3.2 km</strong></span>
+            
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>${hotel.description || 'Experience hospitality at its finest in this elegant property located in the heart of the city.'}</p>
             </div>
-          </div>
-          
-          <div class="modal-section">
-            <h4>Room Options</h4>
-            <div class="modal-room-row">
-              <div>
-                <strong>Deluxe Double Room</strong>
-                <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">King Bed • Garden View</p>
+            
+            <div class="modal-section">
+              <h4>Amenities</h4>
+              <div class="modal-amenities-grid">
+                <span>🏊 Pool & Wellness Spa</span>
+                <span>📶 Ultra Fast Free Wi-Fi</span>
+                <span>🍳 Complimentary Breakfast</span>
+                <span>🏋️ Fitness Center</span>
+                <span>🍹 Clifftop Lounge Bar</span>
+                <span>🚗 Valet Parking</span>
               </div>
-              <span class="room-status green">Available</span>
             </div>
-            <div class="modal-room-row" style="margin-top: 0.5rem;">
-              <div>
-                <strong>Executive Suite</strong>
-                <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">Separate Living Area • Spa Access</p>
+            
+            <div class="modal-section">
+              <h4>Location & Attractions</h4>
+              <p><strong>Address:</strong> ${hotel.address || '101 Premium Avenue, Kyoto, Japan'}</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Interactive Map</h4>
+              <div id="modal-hotel-map" style="height: 200px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+            </div>
+
+            <div class="modal-section">
+              <h4>Nearby Places</h4>
+              <div class="attractions-checklist" style="font-size: 0.85rem; color: var(--color-text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <span>🚇 Metro Station: <strong>0.3 km</strong></span>
+                <span>✈️ Airport (KIX): <strong>42 km</strong></span>
+                <span>⛩️ Fushimi Inari Shrine: <strong>1.5 km</strong></span>
+                <span>🎋 Arashiyama Bamboo Grove: <strong>3.2 km</strong></span>
               </div>
-              <span class="room-status red">Sold Out</span>
+            </div>
+            
+            <div class="modal-section">
+              <h4>Room Options</h4>
+              <div class="modal-room-row">
+                <div>
+                  <strong>Deluxe Double Room</strong>
+                  <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">King Bed • Garden View</p>
+                </div>
+                <span class="room-status green">Available</span>
+              </div>
+              <div class="modal-room-row" style="margin-top: 0.5rem;">
+                <div>
+                  <strong>Executive Suite</strong>
+                  <p style="font-size:0.8rem; margin:0; color:var(--color-text-secondary);">Separate Living Area • Spa Access</p>
+                </div>
+                <span class="room-status red">Sold Out</span>
+              </div>
+            </div>
+            
+            <div class="modal-section">
+              <h4>Policies</h4>
+              <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.5;">
+                <div>🕒 Check-in: <strong>15:00</strong> | Check-out: <strong>11:00</strong></div>
+                <div>🛡️ Cancellation: <span style="color:var(--color-secondary); font-weight:600;">Free cancellation up to 24h before check-in</span></div>
+              </div>
+            </div>
+            
+            <div class="modal-footer-cta">
+              <div class="price-box">
+                <span class="rate">${formatCurrency(rate)} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span></span>
+                <span class="total">${formatCurrency(rate)} × ${nights} nights = <strong>${formatCurrency(estTotal)}</strong> Est. Total</span>
+              </div>
+              <div style="display:flex; gap:0.75rem;">
+                <button class="btn-planner-secondary" onclick="window.openHotelWebsite('${hotel.name}')" style="flex:1;">Visit Website</button>
+                <button class="btn-planner-primary" onclick="window.selectHotelFromModal('${hotel.id}')" style="flex:1;">Book Now</button>
+              </div>
             </div>
           </div>
-          
-          <div class="modal-section">
-            <h4>Policies</h4>
-            <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.5;">
-              <div>🕒 Check-in: <strong>15:00</strong> | Check-out: <strong>11:00</strong></div>
-              <div>🛡️ Cancellation: <span style="color:var(--color-secondary); font-weight:600;">Free cancellation up to 24h before check-in</span></div>
-            </div>
-          </div>
-          
-          <div class="modal-footer-cta">
-            <div class="price-box">
-              <span class="rate">${formatCurrency(rate)} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span></span>
-              <span class="total">${formatCurrency(rate)} × ${nights} nights = <strong>${formatCurrency(estTotal)}</strong> Est. Total</span>
-            </div>
-            <div style="display:flex; gap:0.75rem;">
-              <button class="btn-planner-secondary" onclick="window.openHotelWebsite('${hotel.name}')" style="flex:1;">Visit Website</button>
-              <button class="btn-planner-primary" onclick="window.selectHotelFromModal('${hotel.id}')" style="flex:1;">Book Now</button>
-            </div>
-          </div>
-          
         </div>
       </div>
     </div>
