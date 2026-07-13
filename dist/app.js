@@ -1417,7 +1417,7 @@ function renderHotelsList(hotels) {
       <div class="option-item stay-card-rich ${isSelected ? 'selected' : ''}" onclick="window.openHotelModal('${ht.id}')" tabindex="0" role="button" aria-label="${ht.name}, $${hotelPrice} per night. Click to view details.">
         
         <!-- 1. Hotel Image & Overlay Badges -->
-        <div class="option-img-wrapper stay-img-rich" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();" title="View details and gallery">
+        <div class="option-img-wrapper stay-img-rich" tabindex="0" role="button" aria-label="View details for ${ht.name}" onclick="window.openHotelModal('${ht.id}'); event.stopPropagation();" onkeydown="if(event.key === 'Enter' || event.key === ' ') { window.openHotelModal('${ht.id}'); event.stopPropagation(); event.preventDefault(); }" title="View details for ${ht.name}">
           <img src="${ht.image}" alt="${ht.name}" loading="lazy">
           <span class="badge-free-cancel">Free Cancellation</span>
           
@@ -3699,7 +3699,7 @@ window.openHotelModal = function(hotelId) {
   
   dialog.innerHTML = `
     <div class="hotel-modal-content">
-      <button class="btn-modal-close" onclick="window.closeHotelModal()" aria-label="Close modal">×</button>
+      <button class="btn-modal-close" onclick="window.closeHotelModal()" aria-label="Close hotel details" title="Close hotel details">&times;</button>
       
       <div class="hotel-modal-grid">
         <!-- Gallery / Carousel Column -->
@@ -3807,7 +3807,12 @@ window.openHotelModal = function(hotelId) {
       attributionControl: false
     }).setView([lat, lon], 14);
     
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    const isLightTheme = document.body.classList.contains('light-theme');
+    const tileUrl = isLightTheme 
+      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      
+    L.tileLayer(tileUrl, {
       maxZoom: 20
     }).addTo(hotelMap);
     

@@ -4220,7 +4220,6 @@ dialog.booking-modal::backdrop {
   border-radius: 20px !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
   overflow: hidden !important;
-  color: #fff !important;
   outline: none !important;
 }
 
@@ -4231,10 +4230,11 @@ dialog.booking-modal::backdrop {
 
 .hotel-modal-content {
   background: #0f172a !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 20px !important;
   overflow: hidden !important;
   position: relative !important;
+  color: #F8FAFC !important;
 }
 
 .btn-modal-close {
@@ -4242,7 +4242,7 @@ dialog.booking-modal::backdrop {
   top: 1rem !important;
   right: 1.25rem !important;
   background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #fff !important;
   font-size: 1.5rem !important;
   width: 44px !important; /* Accessible touch target size */
@@ -4253,7 +4253,7 @@ dialog.booking-modal::backdrop {
   align-items: center !important;
   justify-content: center !important;
   z-index: 10 !important;
-  transition: background-color 0.2s !important;
+  transition: background-color 0.2s, outline 0.2s !important;
 }
 
 .btn-modal-close:focus-visible {
@@ -4321,19 +4321,38 @@ dialog.booking-modal::backdrop {
   flex-direction: column !important;
   gap: 1.5rem !important;
   background: #0f172a !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
 }
 
 .modal-header-section h2 {
   font-size: 1.75rem !important;
   font-weight: 800 !important;
+  color: #FFFFFF !important;
+}
+
+.modal-header-section .hotel-modal-subtitle {
+  font-size: 0.9rem !important;
+  color: #CBD5E1 !important;
 }
 
 .modal-section h4 {
   font-size: 0.95rem !important;
   font-weight: 700 !important;
-  color: var(--color-text-secondary) !important;
+  color: var(--color-secondary) !important;
   margin-bottom: 0.5rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.modal-section p {
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+  color: #F8FAFC !important;
+}
+
+.modal-section strong {
+  color: #FFFFFF !important;
 }
 
 .modal-amenities-grid {
@@ -4341,25 +4360,54 @@ dialog.booking-modal::backdrop {
   grid-template-columns: 1fr 1fr !important;
   gap: 0.75rem !important;
   font-size: 0.9rem !important;
+  color: #CBD5E1 !important;
 }
 
 .modal-room-row {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background: #111827 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding: 0.75rem 1rem !important;
   border-radius: 8px !important;
+  color: #CBD5E1 !important;
+}
+
+.modal-room-row strong {
+  color: #FFFFFF !important;
+}
+
+.modal-room-row p {
+  color: #94A3B8 !important;
+}
+
+.room-status.green {
+  color: #14B8A6 !important; /* Bright teal for dark mode */
+  background: rgba(20, 184, 166, 0.1) !important;
+  border: 1px solid rgba(20, 184, 166, 0.25) !important;
+  padding: 2px 8px !important;
+  border-radius: 99px !important;
+  font-weight: 600 !important;
+}
+
+.room-status.red {
+  color: #FCA5A5 !important; /* Light red for dark mode */
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  padding: 2px 8px !important;
+  border-radius: 99px !important;
+  font-weight: 600 !important;
 }
 
 .modal-footer-cta {
   margin-top: auto !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding-top: 1.5rem !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 1rem !important;
+  color: #F8FAFC !important;
 }
 
 .modal-footer-cta .price-box {
@@ -4371,40 +4419,206 @@ dialog.booking-modal::backdrop {
 .modal-footer-cta .rate {
   font-size: 1.5rem !important;
   font-weight: 800 !important;
+  color: #FFFFFF !important;
 }
 
-/* Mobile Bottom Sheet Drawer overrides for stay dialogs */
+.modal-footer-cta .total {
+  font-size: 0.95rem !important;
+  color: #CBD5E1 !important;
+}
+
+.modal-footer-cta .total strong {
+  color: var(--color-secondary) !important;
+}
+
+/* Light Theme Overrides for Modal */
+.light-theme .hotel-modal-dialog {
+  color: #0F172A !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15) !important;
+}
+
+.light-theme .hotel-modal-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.4) !important;
+}
+
+.light-theme .hotel-modal-content {
+  background: #FFFFFF !important;
+  border: 1px solid #D9E1EC !important;
+  color: #0F172A !important;
+}
+
+.light-theme .btn-modal-close {
+  background: #F1F5F9 !important;
+  border: 1px solid #D9E1EC !important;
+  color: #0F172A !important;
+}
+
+.light-theme .btn-modal-close:hover {
+  background: #E2E8F0 !important;
+}
+
+.light-theme .modal-gallery-column {
+  background: #F8FAFC !important;
+}
+
+.light-theme .gallery-thumbs-row {
+  background: #FFFFFF !important;
+  border-top: 1px solid #D9E1EC !important;
+}
+
+.light-theme .thumb-btn {
+  background: #FFFFFF !important;
+}
+
+.light-theme .modal-info-column {
+  background: #F8FAFC !important;
+  border-left: 1px solid #D9E1EC !important;
+  color: #0F172A !important;
+}
+
+.light-theme .modal-header-section h2 {
+  color: #0F172A !important;
+}
+
+.light-theme .modal-header-section .hotel-modal-subtitle {
+  color: #475569 !important;
+}
+
+.light-theme .modal-section h4 {
+  color: var(--color-primary) !important;
+}
+
+.light-theme .modal-section p {
+  color: #475569 !important;
+}
+
+.light-theme .modal-section strong {
+  color: #0F172A !important;
+}
+
+.light-theme .modal-amenities-grid {
+  color: #475569 !important;
+}
+
+.light-theme .attractions-checklist {
+  color: #475569 !important;
+}
+
+.light-theme .modal-room-row {
+  background: #FFFFFF !important;
+  border: 1px solid #D9E1EC !important;
+  color: #475569 !important;
+}
+
+.light-theme .modal-room-row strong {
+  color: #0F172A !important;
+}
+
+.light-theme .modal-room-row p {
+  color: #64748B !important;
+}
+
+.light-theme .room-status.green {
+  color: #0D9488 !important; /* Accessible teal */
+  background: rgba(13, 148, 136, 0.08) !important;
+  border: 1px solid rgba(13, 148, 136, 0.2) !important;
+}
+
+.light-theme .room-status.red {
+  color: #B42318 !important; /* Darker red for contrast */
+  background: rgba(180, 35, 24, 0.08) !important;
+  border: 1px solid rgba(180, 35, 24, 0.2) !important;
+}
+
+.light-theme .modal-footer-cta {
+  border-top: 1px solid #D9E1EC !important;
+  color: #475569 !important;
+}
+
+.light-theme .modal-footer-cta .rate {
+  color: #0F172A !important;
+}
+
+.light-theme .modal-footer-cta .total {
+  color: #475569 !important;
+}
+
+.light-theme .modal-footer-cta .total strong {
+  color: var(--color-primary) !important;
+}
+
+/* Map Popup styles overrides */
+.leaflet-popup-content-wrapper {
+  background: #0F172A !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.leaflet-popup-tip {
+  background: #0F172A !important;
+}
+
+.light-theme .leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #D9E1EC !important;
+}
+
+.light-theme .leaflet-popup-tip {
+  background: #FFFFFF !important;
+}
+
+/* Mobile responsive full screen overrides */
 @media (max-width: 768px) {
   .hotel-modal-dialog {
     position: fixed !important;
+    top: 0 !important;
     bottom: 0 !important;
-    top: auto !important;
     left: 0 !important;
     right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    border-radius: 20px 20px 0 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
     margin: 0 !important;
-    transform: translateY(0) !important;
-    height: 80vh !important;
   }
   .hotel-modal-content {
     height: 100% !important;
-    border-radius: 20px 20px 0 0 !important;
+    border-radius: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .hotel-modal-grid {
     grid-template-columns: 1fr !important;
-    grid-template-rows: 250px 1fr !important;
+    grid-template-rows: auto 1fr !important;
     height: 100% !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+  }
+  .modal-gallery-column {
+    height: 300px !important;
+    flex-shrink: 0 !important;
   }
   .modal-info-column {
-    padding: 1.25rem !important;
+    padding: 1.5rem !important;
     border-left: none !important;
+    overflow-y: visible !important;
+    background: inherit !important;
   }
   .btn-modal-close {
-    top: 0.75rem !important;
-    right: 0.75rem !important;
-    background: rgba(15, 23, 42, 0.8) !important;
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    z-index: 1000 !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+  .light-theme .btn-modal-close {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #0F172A !important;
+    border: 1px solid #D9E1EC !important;
   }
 }
 
