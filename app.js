@@ -1093,6 +1093,7 @@ async function selectDestination(destId) {
     state.itinerary.activities = [...dest.activities];
     state.itinerary.flight = null;
     state.itinerary.hotel = null;
+    state.itinerary.hotelNights = null;
   }
   
   // Set default duration days if not set
@@ -1559,7 +1560,8 @@ function renderPlannerView() {
   const hotelPrice = hotel ? parseFloat(hotel.pricePerNight || hotel.price || 0) : 0;
   
   const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
-  const nights = Math.max(1, durationDays - 1);
+  const baseNights = Math.max(1, durationDays - 1);
+  const nights = state.itinerary.hotelNights || baseNights;
   const hotelCost = hotelPrice * nights;
 
   let detailsHTML = `
@@ -1686,13 +1688,28 @@ function renderPlannerView() {
     if (hotel) {
       stayContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--color-text-primary);">
-          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+          <div style="display: flex; justify-content: space-between; font-weight: 600; flex-wrap: wrap; gap: 8px; align-items: baseline;">
             <span>🏨 ${hotel.name}</span>
             <span>${formatCurrency(hotelCost)} (${formatCurrency(hotelPrice)}/night)</span>
           </div>
-          <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
-            <div>Duration: <strong>${nights} nights</strong></div>
-            <div>Room Type: <strong style="color: var(--color-text-primary);">Deluxe Double Room</strong></div>
+          <div style="font-size: 0.9rem; color: var(--color-text-secondary); display: flex; flex-direction: column; gap: 0.4rem;">
+            <div class="stay-duration-stepper-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 4px 0;">
+              <span style="font-weight: 500; color: var(--color-text-secondary);">Stay Duration</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="stepper-btn" onclick="adjustHotelNights(-1)" aria-label="Decrease hotel nights" title="Decrease hotel nights">
+                  &minus;
+                </button>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input type="number" id="hotel-nights-input" min="1" max="30" value="${nights}" onchange="onHotelNightsInputChange(this.value)" aria-label="Number of hotel nights">
+                  <span id="hotel-nights-unit" style="font-weight: 700; color: var(--color-text-primary);">${nights === 1 ? 'night' : 'nights'}</span>
+                </div>
+                <button class="stepper-btn" onclick="adjustHotelNights(1)" aria-label="Increase hotel nights" title="Increase hotel nights">
+                  &plus;
+                </button>
+              </div>
+            </div>
+            <div id="nights-validation-msg" style="display: none; color: var(--color-accent); font-size: 0.8rem; font-weight: 600; margin-top: 2px;"></div>
+            <div>Room Type: <strong style="color: var(--color-text-primary);">${hotel.roomType || 'Deluxe Double Room'}</strong></div>
             <div>Amenities: <strong>${(hotel.amenities && hotel.amenities.join(', ')) || 'Free Wi-Fi, Pool, Spa, Free Breakfast'}</strong></div>
           </div>
         </div>
@@ -1800,7 +1817,8 @@ window.recalculateBudget = function() {
   
   const dest = state.itinerary.destination;
   const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
-  const nights = Math.max(1, durationDays - 1);
+  const baseNights = Math.max(1, durationDays - 1);
+  const nights = state.itinerary.hotelNights || baseNights;
   const hotelCost = hotelPrice * nights;
   const activitiesCost = state.itinerary.activities.reduce((sum, act) => sum + (act.price || 0), 0);
   
@@ -1862,6 +1880,46 @@ window.changePlannerCurrency = function() {
   
   window.recalculateBudget();
   renderPlannerView(); 
+};
+
+window.adjustHotelNights = function(val) {
+  const input = document.getElementById('hotel-nights-input');
+  if (!input) return;
+  let current = parseInt(input.value) || 1;
+  current += val;
+  window.updateHotelNights(current);
+};
+
+window.onHotelNightsInputChange = function(val) {
+  let current = parseInt(val);
+  const input = document.getElementById('hotel-nights-input');
+  
+  if (isNaN(current) || current < 1 || current > 30) {
+    const msgEl = document.getElementById('nights-validation-msg');
+    if (msgEl) {
+      msgEl.style.display = 'block';
+      msgEl.textContent = 'Stay duration must be between 1 and 30 nights.';
+      setTimeout(() => {
+        msgEl.style.display = 'none';
+      }, 4000);
+    }
+    const dest = state.itinerary.destination;
+    const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
+    const baseNights = Math.max(1, durationDays - 1);
+    if (input) {
+      input.value = state.itinerary.hotelNights || baseNights;
+    }
+    return;
+  }
+  
+  window.updateHotelNights(current);
+};
+
+window.updateHotelNights = function(val) {
+  let cleanVal = Math.max(1, Math.min(30, val));
+  state.itinerary.hotelNights = cleanVal;
+  window.recalculateBudget();
+  renderPlannerView();
 };
 
 function updateSummaryBtnState() {

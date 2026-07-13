@@ -4693,9 +4693,73 @@ dialog.booking-modal::backdrop {
     display: none !important;
   }
 }
+/* Duration Stepper Styling */
+.stepper-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-card) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  transition: all 0.2s !important;
+  padding: 0 !important;
+  outline: none !important;
+}
 
+.stepper-btn:hover {
+  background: var(--bg-main) !important;
+  border-color: var(--color-primary) !important;
+}
 
+.stepper-btn:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+}
 
+.stepper-btn:active {
+  transform: scale(0.95) !important;
+}
 
+#hotel-nights-input {
+  width: 48px !important;
+  height: 44px !important;
+  text-align: center !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-main) !important;
+  color: var(--color-text-primary) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  outline: none !important;
+}
 
+#hotel-nights-input:focus-visible {
+  border-color: var(--color-primary) !important;
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: -2px !important;
+}
 
+#hotel-nights-input::-webkit-outer-spin-button,
+#hotel-nights-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+#hotel-nights-input {
+  -moz-appearance: textfield !important;
+}
+
+/* Stepper Responsive behavior */
+@media (max-width: 480px) {
+  .stay-duration-stepper-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
