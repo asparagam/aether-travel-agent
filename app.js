@@ -2041,6 +2041,11 @@ window.updateHotelNights = function(val) {
   state.itinerary.hotelNights = cleanVal;
   window.recalculateBudget();
   renderPlannerView();
+  
+  const dialog = document.getElementById('booking-dialog');
+  if (dialog && dialog.open) {
+    updateBookingDialogSummary();
+  }
 };
 
 function updateSummaryBtnState() {
@@ -2748,10 +2753,7 @@ function toggleMobileChat() {
 // -------------------------------------------------------------
 // Booking Wizard Dialog Controller
 // -------------------------------------------------------------
-function openBookingDialog() {
-  const dialog = document.getElementById('booking-dialog');
-  if (!state.itinerary.destination) return;
-
+function updateBookingDialogSummary() {
   const dest = state.itinerary.destination;
   const flight = state.itinerary.flight;
   const hotel = state.itinerary.hotel;
@@ -2761,7 +2763,8 @@ function openBookingDialog() {
   const hotelPrice = hotel ? parseFloat(hotel.pricePerNight || hotel.price || 0) : 0;
   
   const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
-  const nights = Math.max(1, durationDays - 1);
+  const baseNights = Math.max(1, durationDays - 1);
+  const nights = state.itinerary.hotelNights || baseNights;
   const hotelCost = hotelPrice * nights;
   
   const baseTotal = destPrice + flightPrice + hotelCost;
@@ -2769,27 +2772,49 @@ function openBookingDialog() {
   const serviceFee = baseTotal * 0.05;
   const grandTotal = baseTotal + taxesFees + serviceFee;
 
-  // Populate Summary
   const summaryBox = document.getElementById('modal-summary-content');
-  const fNo = flight ? (flight.flightNo || flight.flightNumber || 'Unknown') : '';
-  summaryBox.innerHTML = `
-    <div class="booking-summary-row">
-      <span>Destination:</span>
-      <span class="val">${dest.name} (${durationDays} Days)</span>
-    </div>
-    <div class="booking-summary-row">
-      <span>Flight:</span>
-      <span class="val">${flight ? `${flight.airline} (${fNo})` : 'Not selected'}</span>
-    </div>
-    <div class="booking-summary-row">
-      <span>Hotel:</span>
-      <span class="val">${hotel ? `${hotel.name} (${nights} nights)` : 'Not selected'}</span>
-    </div>
-    <div class="booking-summary-row total">
-      <span>Total Payment Due:</span>
-      <span>${formatCurrency(grandTotal)}</span>
-    </div>
-  `;
+  if (summaryBox) {
+    const fNo = flight ? (flight.flightNo || flight.flightNumber || 'Unknown') : '';
+    const roomType = hotel ? (hotel.roomType || 'Deluxe Double Room') : 'N/A';
+    summaryBox.innerHTML = `
+      <div class="booking-summary-row">
+        <span>Destination:</span>
+        <span class="val">${dest ? `${dest.name} (${durationDays} Days)` : 'Not selected'}</span>
+      </div>
+      <div class="booking-summary-row">
+        <span>Flight:</span>
+        <span class="val">${flight ? `${flight.airline} (${fNo})` : 'Not selected'}</span>
+      </div>
+      <div class="booking-summary-row">
+        <span>Hotel:</span>
+        <span class="val">${hotel ? hotel.name : 'Not selected'}</span>
+      </div>
+      <div class="booking-summary-row">
+        <span>Room:</span>
+        <span class="val">${roomType}</span>
+      </div>
+      <div class="booking-summary-row">
+        <span>Stay:</span>
+        <span class="val">${nights} ${nights === 1 ? 'night' : 'nights'}</span>
+      </div>
+      <div class="booking-summary-row">
+        <span>Hotel Total:</span>
+        <span class="val">${formatCurrency(hotelCost)}</span>
+      </div>
+      <div class="booking-summary-row total">
+        <span>Total Payment Due:</span>
+        <span>${formatCurrency(grandTotal)}</span>
+      </div>
+    `;
+  }
+}
+
+function openBookingDialog() {
+  const dialog = document.getElementById('booking-dialog');
+  if (!state.itinerary.destination) return;
+
+  // Populate Summary using the helper function
+  updateBookingDialogSummary();
 
   // Reset steps
   state.wizardStep = 1;
