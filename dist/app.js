@@ -1524,19 +1524,19 @@ function renderPlannerView() {
     timeline.innerHTML = '';
     emptyState.style.display = 'block';
     summaryList.innerHTML = `<li class="summary-detail-row"><span class="label">Destination</span><span class="val">None selected</span></li>`;
-    totalPriceEl.textContent = '$0';
+    totalPriceEl.textContent = formatCurrency(0);
     document.getElementById('btn-book-trip').disabled = true;
     return;
   }
 
   emptyState.style.display = 'none';
 
-  // Render Activities Timeline
+  // Render Activities Timeline using semantic h5 headings with single line content
   timeline.innerHTML = state.itinerary.activities.map((act, idx) => `
     <div class="timeline-node">
       <div class="timeline-marker"></div>
       <div class="timeline-card">
-        <div class="timeline-day-num">Day ${act.day}</div>
+        <h5 class="timeline-day-num">Day ${act.day}</h5>
         <div class="timeline-details">
           <span class="timeline-time">${act.time}</span>
           <h4 class="timeline-title">${act.title}</h4>
@@ -1549,11 +1549,18 @@ function renderPlannerView() {
     </div>
   `).join('');
 
-  // Calculate pricing & update summary
+  // Calculate pricing & update summary safely
   const dest = state.itinerary.destination;
   const flight = state.itinerary.flight;
   const hotel = state.itinerary.hotel;
-  const nights = dest ? (parseInt(dest.duration.split(' ')[0]) - 1 || 1) : 1;
+  
+  const destPrice = dest ? parseFloat(dest.price || 0) : 0;
+  const flightPrice = flight ? parseFloat(flight.price || flight.pricePerNight || 0) : 0;
+  const hotelPrice = hotel ? parseFloat(hotel.pricePerNight || hotel.price || 0) : 0;
+  
+  const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
+  const nights = Math.max(1, durationDays - 1);
+  const hotelCost = hotelPrice * nights;
 
   let detailsHTML = `
     <li class="summary-detail-row">
@@ -1561,92 +1568,103 @@ function renderPlannerView() {
         <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10" /><polygon points="12 8 8 12 12 16 16 12 12 8" /></svg>
         ${dest ? dest.name : 'No Destination'} Package
       </span>
-      <span class="val">${currencySymbol}${Math.round((dest ? dest.price : 0) * conversionRate).toLocaleString()}</span>
+      <span class="val">${formatCurrency(destPrice)}</span>
     </li>
   `;
 
-  let total = dest ? dest.price : 0;
-
   if (flight) {
+    const fNo = flight.flightNo || flight.flightNumber || 'Unknown';
     detailsHTML += `
       <li class="summary-detail-row">
         <span class="label">
           <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
-          Flight: ${flight.flightNo}
+          Flight: ${fNo}
         </span>
-        <span class="val">${currencySymbol}${Math.round(flight.price * conversionRate).toLocaleString()}</span>
+        <span class="val">${formatCurrency(flightPrice)}</span>
       </li>
     `;
-    total += flight.price;
   } else {
     detailsHTML += `
       <li class="summary-detail-row" style="color: var(--color-text-secondary);">
-        <span class="label">⚠️ Flight</span>
-        <span class="val">No flight selected</span>
+        <span class="label">✈️ Flight</span>
+        <span class="val">Not selected</span>
       </li>
     `;
   }
 
   if (hotel) {
-    const hotelCost = hotel.pricePerNight * nights;
     detailsHTML += `
       <li class="summary-detail-row">
         <span class="label">
           <svg viewBox="0 0 24 24" width="14" height="14" style="margin-right: 4px; vertical-align: middle;" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           Stay: ${hotel.name}
         </span>
-        <span class="val">${currencySymbol}${Math.round(hotelCost * conversionRate).toLocaleString()}</span>
+        <span class="val">${formatCurrency(hotelCost)}</span>
       </li>
     `;
-    total += hotelCost;
   } else {
     detailsHTML += `
       <li class="summary-detail-row" style="color: var(--color-text-secondary);">
-        <span class="label">⚠️ Accommodation</span>
-        <span class="val">No accommodation selected</span>
+        <span class="label">🏨 Stay</span>
+        <span class="val">Not selected</span>
       </li>
     `;
   }
 
   summaryList.innerHTML = detailsHTML;
 
-  // Render pricing details in summary panel
-  const taxesFees = Math.round(total * 0.12);
-  const serviceFee = Math.round(total * 0.05);
-  const grandTotal = total + taxesFees + serviceFee;
+  const isBookingValid = !!(flight || hotel);
+  
+  let baseTotal = 0;
+  let taxesFees = 0;
+  let serviceFee = 0;
+  let grandTotal = 0;
+  
+  if (isBookingValid) {
+    baseTotal = destPrice + flightPrice + hotelCost;
+    taxesFees = baseTotal * 0.12;
+    serviceFee = baseTotal * 0.05;
+    grandTotal = baseTotal + taxesFees + serviceFee;
+  }
 
   const breakdownEl = document.getElementById('summary-pricing-breakdown');
   if (breakdownEl) {
     breakdownEl.innerHTML = `
       <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
         <span>Base Total</span>
-        <span>${currencySymbol}${Math.round(total * conversionRate).toLocaleString()}</span>
+        <span>${formatCurrency(baseTotal)}</span>
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
         <span>Taxes & Fees (12%)</span>
-        <span>${currencySymbol}${Math.round(taxesFees * conversionRate).toLocaleString()}</span>
+        <span>${formatCurrency(taxesFees)}</span>
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.4rem;">
         <span>Service Fee (5%)</span>
-        <span>${currencySymbol}${Math.round(serviceFee * conversionRate).toLocaleString()}</span>
+        <span>${formatCurrency(serviceFee)}</span>
       </div>
     `;
   }
 
-  totalPriceEl.textContent = `${currencySymbol}${Math.round(grandTotal * conversionRate).toLocaleString()}`;
+  totalPriceEl.textContent = formatCurrency(grandTotal);
+
+  const bookBtn = document.getElementById('btn-book-trip');
+  if (bookBtn) {
+    bookBtn.disabled = !isBookingValid;
+  }
 
   // Populate Flight Detail Card
   const flightContainer = document.getElementById('planner-flight-info-content');
   if (flightContainer) {
     if (flight) {
+      const fNo = flight.flightNo || flight.flightNumber || 'Unknown';
       flightContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--color-text-primary);">
           <div style="display: flex; justify-content: space-between; font-weight: 600;">
-            <span>✈️ ${flight.airline} (${flight.flightNo})</span>
-            <span>$${flight.price}</span>
+            <span>✈️ ${flight.airline} (${fNo})</span>
+            <span>${formatCurrency(flightPrice)}</span>
           </div>
           <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
-            <div>Class: <strong style="color: var(--color-text-primary);">${flight.cabin}</strong></div>
+            <div>Class: <strong style="color: var(--color-text-primary);">${flight.cabin || 'ECONOMY'}</strong></div>
             <div>Departure: <strong>${flight.departure || '08:00 AM'}</strong></div>
             <div>Arrival: <strong>${flight.arrival || '11:30 AM'}</strong></div>
           </div>
@@ -1670,12 +1688,12 @@ function renderPlannerView() {
         <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--color-text-primary);">
           <div style="display: flex; justify-content: space-between; font-weight: 600;">
             <span>🏨 ${hotel.name}</span>
-            <span>$${hotel.pricePerNight * nights} ($${hotel.pricePerNight}/night)</span>
+            <span>${formatCurrency(hotelCost)} (${formatCurrency(hotelPrice)}/night)</span>
           </div>
           <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
             <div>Duration: <strong>${nights} nights</strong></div>
             <div>Room Type: <strong style="color: var(--color-text-primary);">Deluxe Double Room</strong></div>
-            <div>Amenities: <strong>Free Wi-Fi, Pool, Spa, Free Breakfast</strong></div>
+            <div>Amenities: <strong>${(hotel.amenities && hotel.amenities.join(', ')) || 'Free Wi-Fi, Pool, Spa, Free Breakfast'}</strong></div>
           </div>
         </div>
       `;
@@ -1763,18 +1781,26 @@ let selectedCurrency = 'USD';
 let currencySymbol = '$';
 let conversionRate = 1.0;
 
+window.formatCurrency = function(amount) {
+  const parsed = parseFloat(amount || 0);
+  if (isNaN(parsed)) return `${currencySymbol}0.00`;
+  const converted = parsed * conversionRate;
+  return `${currencySymbol}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
 window.recalculateBudget = function() {
   const limitInput = document.getElementById('budget-limit-input');
   if (!limitInput) return;
   
   const limit = parseFloat(limitInput.value) || 5000;
   
-  const destPrice = state.itinerary.destination ? state.itinerary.destination.price : 0;
-  const flightPrice = (state.itinerary.flight && state.itinerary.flight.price) ? state.itinerary.flight.price : 0;
-  const hotelPrice = (state.itinerary.hotel && state.itinerary.hotel.pricePerNight) ? state.itinerary.hotel.pricePerNight : 0;
+  const destPrice = state.itinerary.destination ? parseFloat(state.itinerary.destination.price || 0) : 0;
+  const flightPrice = (state.itinerary.flight) ? parseFloat(state.itinerary.flight.price || state.itinerary.flight.pricePerNight || 0) : 0;
+  const hotelPrice = (state.itinerary.hotel) ? parseFloat(state.itinerary.hotel.pricePerNight || state.itinerary.hotel.price || 0) : 0;
   
   const dest = state.itinerary.destination;
-  const nights = dest ? (parseInt(dest.duration.split(' ')[0]) - 1 || 1) : 1;
+  const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
+  const nights = Math.max(1, durationDays - 1);
   const hotelCost = hotelPrice * nights;
   const activitiesCost = state.itinerary.activities.reduce((sum, act) => sum + (act.price || 0), 0);
   
@@ -1840,9 +1866,9 @@ window.changePlannerCurrency = function() {
 
 function updateSummaryBtnState() {
   const bookBtn = document.getElementById('btn-book-trip');
-  const isItineraryReady = state.itinerary.destination && state.itinerary.flight && state.itinerary.hotel;
+  const isBookingValid = state.itinerary.destination && (state.itinerary.flight || state.itinerary.hotel);
   if (bookBtn) {
-    bookBtn.disabled = !isItineraryReady;
+    bookBtn.disabled = !isBookingValid;
   }
 }
 
@@ -2550,20 +2576,31 @@ function openBookingDialog() {
   const dest = state.itinerary.destination;
   const flight = state.itinerary.flight;
   const hotel = state.itinerary.hotel;
-  const nights = parseInt(dest.duration.split(' ')[0]) - 1 || 1;
-  const hotelCost = hotel ? hotel.pricePerNight * nights : 0;
-  const total = dest.price + (flight ? flight.price : 0) + hotelCost;
+  
+  const destPrice = dest ? parseFloat(dest.price || 0) : 0;
+  const flightPrice = flight ? parseFloat(flight.price || flight.pricePerNight || 0) : 0;
+  const hotelPrice = hotel ? parseFloat(hotel.pricePerNight || hotel.price || 0) : 0;
+  
+  const durationDays = state.itinerary.durationDays || (dest ? parseInt(dest.duration) : 7);
+  const nights = Math.max(1, durationDays - 1);
+  const hotelCost = hotelPrice * nights;
+  
+  const baseTotal = destPrice + flightPrice + hotelCost;
+  const taxesFees = baseTotal * 0.12;
+  const serviceFee = baseTotal * 0.05;
+  const grandTotal = baseTotal + taxesFees + serviceFee;
 
   // Populate Summary
   const summaryBox = document.getElementById('modal-summary-content');
+  const fNo = flight ? (flight.flightNo || flight.flightNumber || 'Unknown') : '';
   summaryBox.innerHTML = `
     <div class="booking-summary-row">
       <span>Destination:</span>
-      <span class="val">${dest.name} (${dest.duration})</span>
+      <span class="val">${dest.name} (${durationDays} Days)</span>
     </div>
     <div class="booking-summary-row">
       <span>Flight:</span>
-      <span class="val">${flight ? `${flight.airline} (${flight.flightNo})` : 'Not selected'}</span>
+      <span class="val">${flight ? `${flight.airline} (${fNo})` : 'Not selected'}</span>
     </div>
     <div class="booking-summary-row">
       <span>Hotel:</span>
@@ -2571,7 +2608,7 @@ function openBookingDialog() {
     </div>
     <div class="booking-summary-row total">
       <span>Total Payment Due:</span>
-      <span>$${total}</span>
+      <span>${formatCurrency(grandTotal)}</span>
     </div>
   `;
 
@@ -3592,7 +3629,8 @@ window.openHotelModal = function(hotelId) {
   const dest = state.selectedDestination;
   const days = state.itinerary.durationDays || 7;
   const nights = days - 1 || 1;
-  const estTotal = (hotel.pricePerNight || hotel.price) * nights;
+  const rate = parseFloat(hotel.pricePerNight || hotel.price || 0);
+  const estTotal = rate * nights;
   
   const images = [
     hotel.image,
@@ -3685,8 +3723,8 @@ window.openHotelModal = function(hotelId) {
           
           <div class="modal-footer-cta">
             <div class="price-box">
-              <span class="rate">$${hotel.pricePerNight || hotel.price} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span></span>
-              <span class="total">$${hotel.pricePerNight || hotel.price} × ${nights} nights = <strong>$${estTotal.toLocaleString()}</strong> Est. Total</span>
+              <span class="rate">${formatCurrency(rate)} <span style="font-size:0.85rem; font-weight:400; color:var(--color-text-secondary);">/ night</span></span>
+              <span class="total">${formatCurrency(rate)} × ${nights} nights = <strong>${formatCurrency(estTotal)}</strong> Est. Total</span>
             </div>
             <div style="display:flex; gap:0.75rem;">
               <button class="btn-planner-secondary" onclick="window.openHotelWebsite('${hotel.name}')" style="flex:1;">Visit Website</button>
