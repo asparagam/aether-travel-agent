@@ -1155,15 +1155,19 @@ async function selectDestination(destId) {
             <p class="detail-desc-text">${dest.description}</p>
           </div>
         </div>
-        <div class="detail-map-card" id="map-container" style="height: 300px; border-radius: var(--radius-md); overflow: hidden; margin-top: 1.5rem; border: 1px solid var(--border-color); z-index: 1;">
+        <div class="detail-map-card" id="map-container" style="height: 400px; border-radius: 24px; overflow: hidden; margin-top: 24px; border: 1px solid var(--border-color); z-index: 1;">
           <!-- Leaflet map -->
         </div>
       </div>
 
       <!-- Right Column: Flights & Stays -->
       <div class="detail-right-col">
+        <button class="btn-planner-primary continue-booking-cta sidebar-continue-btn" id="btn-top-continue" onclick="navigateToView('planner')" aria-label="Continue to Travel Planner" disabled>
+          Continue to Travel Planner →
+        </button>
+
         <!-- Flights Section -->
-        <section class="options-section detail-flights-card">
+        <section class="options-section detail-flights-card" style="margin-top: 24px;">
           <button class="options-section-header" onclick="window.toggleSectionCollapse('flights-content', 'flights-chevron')" aria-expanded="true" aria-controls="flights-content" aria-label="Toggle Available Flights Section">
             <h3>
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l7 2.5z" /></svg>
@@ -1181,7 +1185,7 @@ async function selectDestination(destId) {
         </section>
 
         <!-- Stays Section -->
-        <section class="options-section detail-hotels-card" style="margin-top: 1.5rem;">
+        <section class="options-section detail-hotels-card" style="margin-top: 24px;">
           <button class="options-section-header" onclick="window.toggleSectionCollapse('hotels-content', 'hotels-chevron')" aria-expanded="true" aria-controls="hotels-content" aria-label="Toggle Recommended Stays Section">
             <h3>
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
